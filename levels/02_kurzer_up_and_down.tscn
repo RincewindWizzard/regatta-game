@@ -1,0 +1,112 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_7hvry"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_7wbmp"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="3_07v5x"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="4_eigsc"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="5_qse42"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="6_lfcdg"]
+[ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="7_m8dfr"]
+
+[node name="Level" type="Node3D"]
+script = ExtResource("1_7hvry")
+level_name = "Kurzer Up-and-Down"
+description = "Zum Einsegeln: einmal hoch zur Luvtonne, runter zur Leetonne und ins Ziel. Leichter Wind, wenig Hindernisse."
+wind_from_deg = 0.0
+wind_speed = 5.0
+wind_shift_deg = 10.0
+gusts = 0.5
+fuel_liters = 6.0
+area_margin = 200.0
+base_depth = 16.0
+depth_variation = 6.0
+seabed_seed = 7
+inland = false
+coast_east = true
+coast_west = true
+depth_paint_png = PackedByteArray()
+
+[node name="StartZiel" type="Node3D" parent="."]
+script = ExtResource("2_7wbmp")
+half_width = 50.0
+
+[node name="Luvtonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -280)
+script = ExtResource("3_07v5x")
+mark_name = "Luvtonne"
+light = "Fl.Y.2s"
+
+[node name="Leetonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -60)
+script = ExtResource("3_07v5x")
+mark_name = "Leetonne"
+light = "Fl(2)Y.6s"
+
+[node name="Westbank" type="Node3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 1, 0, 0, 0, 0.8, -120, 0, -160)
+script = ExtResource("4_eigsc")
+kind = 0
+area_name = "Westbank"
+radius = 32.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Ostplate" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110, 0, -200)
+script = ExtResource("4_eigsc")
+kind = 0
+area_name = "Ostplate"
+radius = 24.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Kompassrose" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 140, 0, 20)
+script = ExtResource("5_qse42")
+radius = 30.0
+
+[node name="Westbank_O" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62, 0, -160)
+script = ExtResource("6_lfcdg")
+kind = 1
+mark_label = ""
+
+[node name="Westbank_W" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -178, 0, -160)
+script = ExtResource("6_lfcdg")
+kind = 3
+mark_label = ""
+
+[node name="Ostplate_W" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0, -200)
+script = ExtResource("6_lfcdg")
+kind = 3
+mark_label = ""
+
+[node name="Ansteuerung" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 90)
+script = ExtResource("6_lfcdg")
+kind = 7
+mark_label = ""
+
+[node name="Leuchtturm" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 0, -330)
+script = ExtResource("7_m8dfr")
+style = 1
+tower_height = 18.0
+rock_radius = 11.0
+tower_name = "Hoher Weg"
+characteristic = "Fl(3)W.12s 18m 12M"
+rotating_beam = true

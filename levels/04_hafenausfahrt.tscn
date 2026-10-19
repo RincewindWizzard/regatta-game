@@ -1,0 +1,182 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_pi4c0"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="2_1jaj8"]
+[ext_resource type="Script" path="res://scripts/level/mole.gd" id="3_vqf6i"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="4_in28m"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="5_oy4bh"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="6_henty"]
+[ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="7_4cna6"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="8_c3y7o"]
+[ext_resource type="Script" path="res://scripts/level/current_area.gd" id="9_g671p"]
+[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="10_3vhe6"]
+
+[node name="Level" type="Node3D"]
+script = ExtResource("1_pi4c0")
+level_name = "Hafenausfahrt"
+description = "Start im Hafen zwischen den Molen, raus aufs Wasser bei Westwind und zurück durch die enge Einfahrt. Rot und Grün an den Molenköpfen weisen den Weg."
+wind_from_deg = 270.0
+wind_speed = 6.0
+wind_shift_deg = 15.0
+gusts = 0.8
+fuel_liters = 6.0
+area_margin = 170.0
+base_depth = 14.0
+depth_variation = 9.0
+seabed_seed = 2207
+inland = false
+coast_east = true
+coast_west = true
+depth_paint_png = PackedByteArray()
+
+[node name="Festland" type="Node3D" parent="."]
+transform = Transform3D(1.6, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 430)
+script = ExtResource("2_1jaj8")
+kind = 1
+area_name = "Festland"
+radius = 300.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Hafenkai" type="Node3D" parent="."]
+transform = Transform3D(2.2, 0, 0, 0, 1, 0, 0, 0, 0.7, 0, 0, 180)
+script = ExtResource("2_1jaj8")
+kind = 1
+area_name = "Hafenkai"
+radius = 75.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 14
+houses = 10
+shore_rocks = true
+
+[node name="Westmole" type="Node3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -95, 0, 45)
+script = ExtResource("3_vqf6i")
+length = 130.0
+width = 10.0
+head_light = 2
+light_characteristic = ""
+
+[node name="Ostmole" type="Node3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 95, 0, 45)
+script = ExtResource("3_vqf6i")
+length = 130.0
+width = 10.0
+head_light = 1
+light_characteristic = ""
+
+[node name="StartZiel" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 60)
+script = ExtResource("4_in28m")
+half_width = 40.0
+
+[node name="Tonne1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, 0, -280)
+script = ExtResource("5_oy4bh")
+mark_name = "Tonne 1"
+light = "Fl.Y.2s"
+
+[node name="Tonne2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 170, 0, -210)
+script = ExtResource("5_oy4bh")
+mark_name = "Tonne 2"
+light = "Fl(2)Y.6s"
+
+[node name="Tonne3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -95)
+script = ExtResource("5_oy4bh")
+mark_name = "Tonne 3"
+light = "Fl(3)Y.10s"
+
+[node name="Sandbank" type="Node3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1, 0, 0, 0, 0.8, 60, 0, -160)
+script = ExtResource("2_1jaj8")
+kind = 0
+area_name = "Sandbank"
+radius = 26.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Sandbank_N" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -196)
+script = ExtResource("6_henty")
+kind = 0
+mark_label = ""
+
+[node name="Sandbank_S" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -124)
+script = ExtResource("6_henty")
+kind = 2
+mark_label = ""
+
+[node name="KleinerStein" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -160, 0, -170)
+script = ExtResource("2_1jaj8")
+kind = 0
+area_name = "Kleiner Stein"
+radius = 10.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Stein_Gefahr" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -160, 0, -170)
+script = ExtResource("6_henty")
+kind = 4
+mark_label = ""
+
+[node name="Ansteuerung" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40)
+script = ExtResource("6_henty")
+kind = 7
+mark_label = "Hafen"
+
+[node name="Leuchtturm" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 230, 0, -40)
+script = ExtResource("7_4cna6")
+style = 0
+tower_height = 16.0
+rock_radius = 11.0
+tower_name = "Hafenfeuer"
+characteristic = "Oc.WRG.6s 15m 10M"
+rotating_beam = true
+
+[node name="Kompassrose" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -230, 0, -330)
+script = ExtResource("8_c3y7o")
+radius = 32.0
+
+[node name="Hafenstrom" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+script = ExtResource("9_g671p")
+speed_kn = 1.0
+length = 150.0
+width = 150.0
+tide_period = 360.0
+
+[node name="Tankstelle" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0, 138)
+script = ExtResource("10_3vhe6")
+length = 24.0
+dock_name = "Hafentankstelle"

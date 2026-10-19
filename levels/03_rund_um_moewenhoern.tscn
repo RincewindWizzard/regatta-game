@@ -1,0 +1,178 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_w5ii2"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_ame7h"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="3_vlvnu"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="4_hd7nn"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="5_2hqgg"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="6_sxcwi"]
+[ext_resource type="Script" path="res://scripts/level/mole.gd" id="7_efwqj"]
+[ext_resource type="Script" path="res://scripts/level/current_area.gd" id="8_dnr4l"]
+[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="9_6qr2v"]
+
+[node name="Level" type="Node3D"]
+script = ExtResource("1_w5ii2")
+level_name = "Rund um Möwenhörn"
+description = "Einmal rund um die Leuchtturminsel bei Nordwestwind. Riffe am Inselrand, böig und drehend – nur für erfahrene Skipper."
+wind_from_deg = 315.0
+wind_speed = 6.5
+wind_shift_deg = 22.0
+gusts = 1.1
+fuel_liters = 6.0
+area_margin = 200.0
+base_depth = 14.0
+depth_variation = 9.0
+seabed_seed = 99
+inland = false
+coast_east = true
+coast_west = false
+depth_paint_png = PackedByteArray()
+
+[node name="StartZiel" type="Node3D" parent="."]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0, 0, 0)
+script = ExtResource("2_ame7h")
+half_width = 45.0
+
+[node name="Nordwesttonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -120, 0, -330)
+script = ExtResource("3_vlvnu")
+mark_name = "Nordwesttonne"
+light = "Fl.Y.2s"
+
+[node name="Osttonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 230, 0, -320)
+script = ExtResource("3_vlvnu")
+mark_name = "Osttonne"
+light = "Fl(2)Y.6s"
+
+[node name="Suedtonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 170, 0, -90)
+script = ExtResource("3_vlvnu")
+mark_name = "Südtonne"
+light = "Fl(3)Y.10s"
+
+[node name="Moewenhoern" type="Node3D" parent="."]
+transform = Transform3D(1.4, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, -230)
+script = ExtResource("4_hd7nn")
+kind = 1
+area_name = "Möwenhörn"
+radius = 55.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = true
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 40
+houses = 4
+shore_rocks = true
+
+[node name="Seehundsbank" type="Node3D" parent="."]
+transform = Transform3D(0.8, 0, 0, 0, 1, 0, 0, 0, 1.4, 190, 0, -200)
+script = ExtResource("4_hd7nn")
+kind = 0
+area_name = "Seehundsbank"
+radius = 26.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Westgrund" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -100, 0, -180)
+script = ExtResource("4_hd7nn")
+kind = 0
+area_name = "Westgrund"
+radius = 30.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Nordriff" type="Node3D" parent="."]
+transform = Transform3D(1.6, 0, 0, 0, 1, 0, 0, 0, 0.8, 60, 0, -330)
+script = ExtResource("4_hd7nn")
+kind = 0
+area_name = "Nordriff"
+radius = 18.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="KleinePlate" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -110)
+script = ExtResource("4_hd7nn")
+kind = 0
+area_name = "Kleine Plate"
+radius = 14.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Kompassrose" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -200, 0, -40)
+script = ExtResource("5_2hqgg")
+radius = 32.0
+
+[node name="Nordriff_N" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -364)
+script = ExtResource("6_sxcwi")
+kind = 0
+mark_label = ""
+
+[node name="Seehundsbank_O" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 228, 0, -200)
+script = ExtResource("6_sxcwi")
+kind = 1
+mark_label = ""
+
+[node name="Westgrund_W" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -145, 0, -180)
+script = ExtResource("6_sxcwi")
+kind = 3
+mark_label = ""
+
+[node name="KleinePlate_Gefahr" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -110)
+script = ExtResource("6_sxcwi")
+kind = 4
+mark_label = ""
+
+[node name="Inselmole" type="Node3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 95, 0, -150)
+script = ExtResource("7_efwqj")
+length = 60.0
+width = 8.0
+head_light = 2
+light_characteristic = ""
+
+[node name="Seehundsstrom" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 162, 0, -230)
+script = ExtResource("8_dnr4l")
+speed_kn = 1.6
+length = 160.0
+width = 40.0
+tide_period = 0.0
+
+[node name="Tankstelle" type="Node3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 6, 0, -228)
+script = ExtResource("9_6qr2v")
+length = 28.0
+dock_name = "Tankstelle"

@@ -1,0 +1,268 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_flfh3"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_p6kx5"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="3_m4kqu"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="4_gew8h"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="5_x5m36"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="6_bxg6m"]
+[ext_resource type="Script" path="res://scripts/level/mole.gd" id="7_6p5hb"]
+[ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="8_1xg2r"]
+[ext_resource type="Script" path="res://scripts/level/current_area.gd" id="9_gjl86"]
+[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="10_2kkw8"]
+
+[node name="Level" type="Node3D"]
+script = ExtResource("1_flfh3")
+level_name = "Mittelgrund-Regatta"
+description = "Klassischer Dreieckskurs mit vielen Untiefen auf der Kreuz. Wer den Mittelgrund schneidet, ruft den Schlepper."
+wind_from_deg = 0.0
+wind_speed = 6.0
+wind_shift_deg = 17.0
+gusts = 0.9
+fuel_liters = 6.0
+area_margin = 200.0
+base_depth = 14.0
+depth_variation = 9.0
+seabed_seed = 4711
+inland = false
+coast_east = true
+coast_west = true
+depth_paint_png = PackedByteArray()
+
+[node name="StartZiel" type="Node3D" parent="."]
+script = ExtResource("2_p6kx5")
+half_width = 45.0
+
+[node name="Luvtonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -380)
+script = ExtResource("3_m4kqu")
+mark_name = "Luvtonne"
+light = "Fl.Y.2s"
+
+[node name="Fluegeltonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -180, 0, -200)
+script = ExtResource("3_m4kqu")
+mark_name = "Flügeltonne"
+light = "Fl(2)Y.6s"
+
+[node name="Leetonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -110)
+script = ExtResource("3_m4kqu")
+mark_name = "Leetonne"
+light = "Fl(3)Y.10s"
+
+[node name="Mittelgrund" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60, 0, -250)
+script = ExtResource("4_gew8h")
+kind = 0
+area_name = "Mittelgrund"
+radius = 28.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="HohePlate" type="Node3D" parent="."]
+transform = Transform3D(1.2216, 0, 0.307818, 0, 1, 0, -0.444626, 0, 0.845723, 80, 0, -230)
+script = ExtResource("4_gew8h")
+kind = 0
+area_name = "Hohe Plate"
+radius = 30.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="KleinerSand" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -300)
+script = ExtResource("4_gew8h")
+kind = 0
+area_name = "Kleiner Sand"
+radius = 16.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Steingrund" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -100, 0, -150)
+script = ExtResource("4_gew8h")
+kind = 0
+area_name = "Steingrund"
+radius = 24.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Bullenbank" type="Node3D" parent="."]
+transform = Transform3D(0.965926, 0, -0.362347, 0, 1, 0, 0.258819, 0, 1.3523, 150, 0, -110)
+script = ExtResource("4_gew8h")
+kind = 0
+area_name = "Bullenbank"
+radius = 40.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="SchwarzerGrund" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -160, 0, -320)
+script = ExtResource("4_gew8h")
+kind = 0
+area_name = "Schwarzer Grund"
+radius = 30.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Tonnengrund" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110, 0, -360)
+script = ExtResource("4_gew8h")
+kind = 0
+area_name = "Tonnengrund"
+radius = 22.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Moewenhoern" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255, 0, -270)
+script = ExtResource("4_gew8h")
+kind = 1
+area_name = "Möwenhörn"
+radius = 42.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = true
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 30
+houses = 2
+shore_rocks = true
+
+[node name="Kompassrose" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -105, 0, 55)
+script = ExtResource("5_x5m36")
+radius = 30.0
+
+[node name="@Node3D@2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -250, 0, -420)
+script = ExtResource("5_x5m36")
+radius = 38.0
+
+[node name="Mittelgrund_W" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108, 0, -250)
+script = ExtResource("6_bxg6m")
+kind = 3
+mark_label = ""
+
+[node name="Mittelgrund_O" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -250)
+script = ExtResource("6_bxg6m")
+kind = 1
+mark_label = ""
+
+[node name="KleinerSand_Gefahr" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -300)
+script = ExtResource("6_bxg6m")
+kind = 4
+mark_label = ""
+
+[node name="HohePlate_N" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, -285)
+script = ExtResource("6_bxg6m")
+kind = 0
+mark_label = ""
+
+[node name="Steingrund_S" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -100, 0, -112)
+script = ExtResource("6_bxg6m")
+kind = 2
+mark_label = ""
+
+[node name="Bullenbank_W" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95, 0, -110)
+script = ExtResource("6_bxg6m")
+kind = 3
+mark_label = ""
+
+[node name="Tonnengrund_S" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110, 0, -326)
+script = ExtResource("6_bxg6m")
+kind = 2
+mark_label = ""
+
+[node name="SchwarzerGrund_O" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -112, 0, -320)
+script = ExtResource("6_bxg6m")
+kind = 1
+mark_label = ""
+
+[node name="Ansteuerung" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 95)
+script = ExtResource("6_bxg6m")
+kind = 7
+mark_label = "Mittelgrund"
+
+[node name="Westmole" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -215, 0, 70)
+script = ExtResource("7_6p5hb")
+length = 150.0
+width = 9.0
+head_light = 2
+light_characteristic = ""
+
+[node name="Leuchtturm" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -275, 0, -110)
+script = ExtResource("8_1xg2r")
+style = 0
+tower_height = 20.0
+rock_radius = 11.0
+tower_name = "Rotsand"
+characteristic = "Oc(2)WRG.9s 22m 14M"
+rotating_beam = true
+
+[node name="Plattenstrom" type="Node3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 12, 0, -245)
+script = ExtResource("9_gjl86")
+speed_kn = 1.4
+length = 120.0
+width = 90.0
+tide_period = 480.0
+
+[node name="Tankstelle" type="Node3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 222, 0, -262)
+script = ExtResource("10_2kkw8")
+length = 30.0
+dock_name = "Tankstelle Möwenhörn"

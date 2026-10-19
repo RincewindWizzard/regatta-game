@@ -1,0 +1,203 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_01fw0"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="2_2xsns"]
+[ext_resource type="Script" path="res://scripts/level/river_channel.gd" id="3_l4k11"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="4_y6hca"]
+[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="5_rum5q"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="6_4jrt8"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="7_jg84e"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="8_avot6"]
+
+[sub_resource type="Curve3D" id="Curve3D_onlrw"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 50, 0, 0, -200, 20, 0, -45, -20, 0, 45, -80, 0, -80, -55, 0, -40, 55, 0, 40, 50, 0, 40, 30, 0, -40, -30, 0, 40, -20, 0, 150, -25, 0, -30, 0, 0, 0, 30, 0, 225),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
+}
+point_count = 5
+
+[sub_resource type="Curve" id="Curve_5xq2v"]
+_data = [Vector2(0, 1.2), 0.0, 0.0, 0, 0, Vector2(0.45, 0.78), 0.0, 0.0, 0, 0, Vector2(0.6, 0.78), 0.0, 0.0, 0, 0, Vector2(1, 1.2), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[node name="Level" type="Node3D"]
+script = ExtResource("1_01fw0")
+level_name = "Flussregatta"
+description = "Binnenrevier: Vom Kleinen See flussaufwärts gegen die Strömung in den Großen See, dort zwei Tonnen runden und mit dem Strom zurück. In der Engstelle fließt der Fluss am schnellsten. Zwei Tankstellen."
+wind_from_deg = 200.0
+wind_speed = 5.5
+wind_shift_deg = 22.0
+gusts = 1.0
+fuel_liters = 6.0
+area_margin = 110.0
+base_depth = 14.0
+depth_variation = 9.0
+seabed_seed = 777
+inland = true
+coast_east = true
+coast_west = true
+depth_paint_png = PackedByteArray()
+
+[node name="GrosserSee" type="Node3D" parent="."]
+transform = Transform3D(1.35, 0, 0, 0, 1, 0, 0, 0, 0.85, 0, 0, -340)
+script = ExtResource("2_2xsns")
+kind = 2
+area_name = "Großer See"
+radius = 190.0
+center_depth = 0.3
+see_depth = 9.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="KleinerSee" type="Node3D" parent="."]
+transform = Transform3D(1.25, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 315)
+script = ExtResource("2_2xsns")
+kind = 2
+area_name = "Kleiner See"
+radius = 115.0
+center_depth = 0.3
+see_depth = 6.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Muehlenfluss" type="Path3D" parent="."]
+curve = SubResource("Curve3D_onlrw")
+script = ExtResource("3_l4k11")
+width = 100.0
+width_curve = SubResource("Curve_5xq2v")
+depth = 6.0
+flow_kn = 1.1
+river_name = "Mühlenfluss"
+bank_trees = 70
+
+[node name="Moeweninsel" type="Node3D" parent="."]
+transform = Transform3D(1.3, 0, 0, 0, 1, 0, 0, 0, 0.9, 70, 0, -330)
+script = ExtResource("2_2xsns")
+kind = 1
+area_name = "Möweninsel"
+radius = 34.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 14
+houses = 0
+shore_rocks = true
+
+[node name="Krautgrund" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, -390)
+script = ExtResource("2_2xsns")
+kind = 0
+area_name = "Krautgrund"
+radius = 26.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Krautgrund_N" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, -432)
+script = ExtResource("4_y6hca")
+kind = 0
+mark_label = ""
+
+[node name="Krautgrund_S" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, -348)
+script = ExtResource("4_y6hca")
+kind = 2
+mark_label = ""
+
+[node name="Rot1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -81.5088, 0, -134.513)
+script = ExtResource("4_y6hca")
+kind = 5
+mark_label = "2"
+
+[node name="Gruen1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.9718, 0, -90.9288)
+script = ExtResource("4_y6hca")
+kind = 6
+mark_label = "1"
+
+[node name="Rot2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.1403, 0, 15.9543)
+script = ExtResource("4_y6hca")
+kind = 5
+mark_label = "4"
+
+[node name="Gruen2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.86246, 0, -25.662)
+script = ExtResource("4_y6hca")
+kind = 6
+mark_label = "3"
+
+[node name="Rot3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9864, 0, 62.0521)
+script = ExtResource("4_y6hca")
+kind = 5
+mark_label = "6"
+
+[node name="Gruen3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.2518, 0, 73.1413)
+script = ExtResource("4_y6hca")
+kind = 6
+mark_label = "5"
+
+[node name="Rot4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.7606, 0, 156.106)
+script = ExtResource("4_y6hca")
+kind = 5
+mark_label = "8"
+
+[node name="Gruen4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.62499, 0, 171.329)
+script = ExtResource("4_y6hca")
+kind = 6
+mark_label = "7"
+
+[node name="Flusstankstelle" type="Node3D" parent="."]
+transform = Transform3D(0.103469, 0, -0.994633, 0, 1, 0, 0.994633, 0, 0.103469, -142.773, 0, -60.5443)
+script = ExtResource("5_rum5q")
+length = 26.0
+dock_name = "Flusstankstelle"
+
+[node name="Seetankstelle" type="Node3D" parent="."]
+transform = Transform3D(-0.928477, 0, -0.371391, 0, 1, 0, 0.371391, 0, -0.928477, -150, 0, -470)
+script = ExtResource("5_rum5q")
+length = 48.0
+dock_name = "Marina"
+
+[node name="StartZiel" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 330)
+script = ExtResource("6_4jrt8")
+half_width = 40.0
+
+[node name="Seetonne1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -400)
+script = ExtResource("7_jg84e")
+mark_name = "Seetonne Nord"
+light = "Fl.Y.2s"
+
+[node name="Seetonne2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -160, 0, -290)
+script = ExtResource("7_jg84e")
+mark_name = "Seetonne West"
+light = "Fl(2)Y.6s"
+
+[node name="Kompassrose" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 0, -180)
+script = ExtResource("8_avot6")
+radius = 30.0

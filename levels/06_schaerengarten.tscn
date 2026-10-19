@@ -1,0 +1,212 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_sol4r"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_kkkqq"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="3_7oh7v"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="4_4hov2"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="5_yr5jx"]
+[ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="6_ljshj"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="7_7tqfe"]
+[ext_resource type="Script" path="res://scripts/level/current_area.gd" id="8_4bc7b"]
+[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="9_u7xmq"]
+
+[node name="Level" type="Node3D"]
+script = ExtResource("1_sol4r")
+level_name = "Schärengarten"
+description = "Zwischen bewaldeten Schären hindurch, mit Leuchttürmen, Klippen und böigem Südwestwind. Kurze Schläge, viel Taktik."
+wind_from_deg = 225.0
+wind_speed = 6.0
+wind_shift_deg = 25.0
+gusts = 1.2
+fuel_liters = 6.0
+area_margin = 150.0
+base_depth = 14.0
+depth_variation = 9.0
+seabed_seed = 3141
+inland = false
+coast_east = false
+coast_west = true
+depth_paint_png = PackedByteArray()
+
+[node name="StartZiel" type="Node3D" parent="."]
+transform = Transform3D(-0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, -0.707107, 0, 0, 0)
+script = ExtResource("2_kkkqq")
+half_width = 40.0
+
+[node name="Kliptonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 0, 250)
+script = ExtResource("3_7oh7v")
+mark_name = "Kliptonne"
+light = "Fl.Y.2s"
+
+[node name="Holmtonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, 0, 330)
+script = ExtResource("3_7oh7v")
+mark_name = "Holmtonne"
+light = "Fl(2)Y.6s"
+
+[node name="Sundtonne" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -260, 0, 60)
+script = ExtResource("3_7oh7v")
+mark_name = "Sundtonne"
+light = "Fl(3)Y.10s"
+
+[node name="Granholm" type="Node3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 1, 0, 0, 0, 1, -150, 0, 120)
+script = ExtResource("4_4hov2")
+kind = 1
+area_name = "Granholm"
+radius = 40.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = true
+light_characteristic = "Fl.W.5s 12m 8M"
+trees = 22
+houses = 1
+shore_rocks = true
+
+[node name="Tallskaer" type="Node3D" parent="."]
+transform = Transform3D(0.866025, 0, 0.65, 0, 1, 0, -0.5, 0, 1.12583, -220, 0, 225)
+script = ExtResource("4_4hov2")
+kind = 1
+area_name = "Tallskär"
+radius = 28.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 12
+houses = 0
+shore_rocks = true
+
+[node name="Bjoerkoe" type="Node3D" parent="."]
+transform = Transform3D(1.4, 0, 0, 0, 1, 0, 0, 0, 1, -50, 0, 200)
+script = ExtResource("4_4hov2")
+kind = 1
+area_name = "Björkö"
+radius = 36.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 20
+houses = 3
+shore_rocks = true
+
+[node name="Lillskaer" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -310, 0, 150)
+script = ExtResource("4_4hov2")
+kind = 1
+area_name = "Lillskär"
+radius = 22.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 8
+houses = 0
+shore_rocks = true
+
+[node name="Ekholm" type="Node3D" parent="."]
+transform = Transform3D(0.939693, 0, -0.478828, 0, 1, 0, 0.34202, 0, 1.31557, 70, 0, 130)
+script = ExtResource("4_4hov2")
+kind = 1
+area_name = "Ekholm"
+radius = 30.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = false
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 16
+houses = 1
+shore_rocks = true
+
+[node name="Klippe" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170, 0, 315)
+script = ExtResource("4_4hov2")
+kind = 0
+area_name = "Klippe"
+radius = 10.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Klippe_Gefahr" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170, 0, 315)
+script = ExtResource("5_yr5jx")
+kind = 4
+mark_label = ""
+
+[node name="Unterwasserstein" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 85)
+script = ExtResource("4_4hov2")
+kind = 0
+area_name = "Unterwasserstein"
+radius = 8.0
+center_depth = 0.3
+see_depth = 8.0
+rock_symbol = true
+lighthouse = false
+light_characteristic = "Fl(3)WR.15s 21m 12M"
+trees = 0
+houses = 0
+shore_rocks = true
+
+[node name="Stein_Gefahr" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 85)
+script = ExtResource("5_yr5jx")
+kind = 4
+mark_label = ""
+
+[node name="Granholm_S" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 0, 178)
+script = ExtResource("5_yr5jx")
+kind = 2
+mark_label = ""
+
+[node name="Leuchtturm" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -390, 0, 320)
+script = ExtResource("6_ljshj")
+style = 3
+tower_height = 18.0
+rock_radius = 11.0
+tower_name = "Ytterfyr"
+characteristic = "LFl.W.10s 20m 12M"
+rotating_beam = true
+
+[node name="Kompassrose" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120, 0, -60)
+script = ExtResource("7_7tqfe")
+radius = 30.0
+
+[node name="Sundstrom" type="Node3D" parent="."]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -100, 0, 160)
+script = ExtResource("8_4bc7b")
+speed_kn = 1.8
+length = 120.0
+width = 45.0
+tide_period = 0.0
+
+[node name="Holmstrom" type="Node3D" parent="."]
+transform = Transform3D(0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, 0.5, 10, 0, 165)
+script = ExtResource("8_4bc7b")
+speed_kn = 1.2
+length = 90.0
+width = 40.0
+tide_period = 0.0
+
+[node name="Tankstelle" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -50, 0, 222)
+script = ExtResource("9_u7xmq")
+length = 36.0
+dock_name = "Björkö Bränsle"
