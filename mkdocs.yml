@@ -14,12 +14,7 @@ validation:
 theme:
   name: readthedocs
   language: de
-  highlightjs: true
-  hljs_languages:
-    - gdscript
-    - python
-    - ini
-    - bash
+  highlightjs: false      # highlight.js kennt GDScript nicht, deshalb Pygments beim Bauen
   navigation_depth: 3
   collapse_navigation: false
   titles_only: false
@@ -32,11 +27,15 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.highlight:
-      use_pygments: false
+      use_pygments: true
+      guess_lang: false
   - pymdownx.superfences
   - pymdownx.details
   - pymdownx.tasklist:
       custom_checkbox: false
+
+extra_css:
+  - css/pygments.css
 
 nav:
   - Start: index.md
