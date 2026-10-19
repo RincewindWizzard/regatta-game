@@ -37,6 +37,7 @@ extends Path3D
 var _pts := PackedVector2Array()     # Mittellinie (Welt, x/z)
 var _w := PackedFloat32Array()       # Breite je Punkt
 var _cum := PackedFloat32Array()     # Lauflänge je Punkt
+var _tree_info: Array[Dictionary] = []   # Uferbäume: Knoten, Mittelpunkt, Richtung nach außen
 var _vis: Node3D
 var _streaks: MultiMesh
 var _streak_s := PackedFloat32Array()
@@ -169,7 +170,34 @@ func carve_grid(grid: PackedFloat32Array, res: int) -> void:
 					grid[idx] = maxf(grid[idx], depth_here)
 
 
+## Uferbäume auf festes Land setzen: von der Flussmitte nach außen laufen, bis Land
+## kommt (Seen, Mündungen und Biegungen machen das Ufer unregelmäßig). Braucht die
+## fertige Tiefenkarte, deshalb erst beim Start des Rennens.
+func prune_trees() -> void:
+	if _vis == null:
+		prepare_current()
+		_rebuild()
+	for info in _tree_info:
+		var t: Node3D = info["node"]
+		var placed := false
+		var off := 6.0
+		while off < 220.0:
+			var q: Vector2 = info["center"] + info["side"] * off
+			if SeaChart.depth_at(q) < SeaChart.LAND - 1.5:
+				var q2: Vector2 = q + info["side"] * float(info["extra"])
+				if SeaChart.depth_at(q2) < SeaChart.LAND - 1.5:
+					q = q2
+				t.position = Vector3(q.x, 0, q.y)
+				placed = true
+				break
+			off += 5.0
+		if not placed:
+			t.queue_free()
+	_tree_info.clear()
+
+
 func _rebuild() -> void:
+	_tree_info.clear()
 	if _vis:
 		_vis.queue_free()
 		_vis = null
@@ -187,6 +215,8 @@ func _rebuild() -> void:
 		var side := Vector2(-dir.y, dir.x) * (1.0 if rng.randf() < 0.5 else -1.0)
 		var q := _pts[i] + side * (_w[i] * 0.5 + rng.randf_range(12.0, 34.0))
 		Deco.tree(_vis, Vector3(q.x, 0, q.y), rng)
+		_tree_info.append({"node": _vis.get_child(_vis.get_child_count() - 1), "center": _pts[i],
+			"side": side, "extra": rng.randf_range(2.0, 25.0)})
 	# Strompfeile und Name
 	if flow_kn > 0.0:
 		var st := SurfaceTool.new()

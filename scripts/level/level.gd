@@ -136,6 +136,9 @@ func _recompute(res: int) -> void:
 ## Für das Spiel: Tiefen in voller Auflösung berechnen und global setzen
 func prepare_for_game() -> void:
 	SeaChart.set_depth_grid(compute_depth(SeaChart.RES), SeaChart.RES)
+	for c in get_children():
+		if c.has_method("prune_trees"):
+			c.prune_trees()
 
 
 # ---------------------------------------------------------------- Bahn auslesen
