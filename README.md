@@ -35,7 +35,7 @@ anders. Und wer zu weit ins Flache gerät, sitzt fest, bis der Schlepper kommt.
 entpacken, starten. Windows warnt beim ersten Start, weil das Spiel nicht signiert ist
 („Weitere Informationen → Trotzdem ausführen“). Auf dem Mac per Rechtsklick → Öffnen.
 
-**Aus dem Quellcode:** [Godot 4.3](https://godotengine.org/download) oder neuer
+**Aus dem Quellcode:** [Godot 4.3](https://godotengine.org/download) oder neuer (getestet mit 4.3 und 4.7)
 installieren, Godot starten → *Importieren* → `project.godot` wählen → **F5**.
 
 ---
@@ -61,7 +61,7 @@ installieren, Godot starten → *Importieren* → `project.godot` wählen → **
 | Nächstes Rennen (nach dem Ziel) | Start | Leertaste | Enter |
 
 `F5` startet das Rennen neu, `Esc` führt zurück ins Menü, `M` schaltet die Musik an und aus,
-`T` blendet das Segel-Overlay ein und aus.
+`T` blendet das Segel-Overlay ein und aus, `F11` (oder `Alt+Enter`) schaltet Vollbild um.
 Ein Controller kann auch ein Switch-Pro-Controller oder Joy-Con sein, der per Bluetooth
 mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schultertasten
 (L/R bzw. ZL/ZR) holen und fieren die Schot, die Frontknöpfe geben Gas.
