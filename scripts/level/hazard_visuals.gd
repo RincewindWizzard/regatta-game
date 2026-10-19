@@ -46,6 +46,7 @@ static func police_boat() -> Node3D:
 	var lamp_b := _box(root, Vector3(0.7, 0.35, 0.5), Vector3(0.55, 2.35, -0.9), Color(1.0, 0.1, 0.1), true)
 	root.set_meta("lamps", [lamp_a, lamp_b])
 	ModelStyle.outline(root)
+	ModelStyle.no_shadows(root)
 	var lab := SeaChart.flat_label("POLIZEI", 34, blue, false, true)
 	lab.position = Vector3(0, 1.04, 2.6)
 	lab.rotation = Vector3(-PI / 2, PI, 0)
@@ -92,6 +93,7 @@ static func mine() -> Node3D:
 		spike.basis = Basis(Quaternion(Vector3.UP, d))
 		body.add_child(spike)
 	ModelStyle.outline(body)
+	ModelStyle.no_shadows(body)
 	var lamp := MeshInstance3D.new()
 	var lm := SphereMesh.new()
 	lm.radius = 0.32

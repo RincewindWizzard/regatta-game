@@ -185,6 +185,7 @@ func _dolphin() -> Node3D:
 	for s in [-1.0, 1.0]:
 		_mi(inner, _prism(Vector3(0.5, 0.55, 0.08)), gray.darkened(0.1), Vector3(s * 0.55, -0.25, 0.55), Vector3(PI / 2, 0, s * 0.8))
 	ModelStyle.outline(inner)
+	ModelStyle.no_shadows(inner)
 	return root
 
 
@@ -202,6 +203,7 @@ func _whale() -> Dictionary:
 		_mi(inner, _prism(Vector3(2.2, 1.6, 0.25)), blue.darkened(0.08), Vector3(s * 1.1, 0.0, -8.0), Vector3(PI / 2, 0, s * 0.35))
 	_mi(inner, _prism(Vector3(0.3, 1.0, 1.4)), blue.darkened(0.1), Vector3(0, 1.55, -2.4))
 	ModelStyle.outline(inner)
+	ModelStyle.no_shadows(inner)
 	root.set_meta("inner", inner)
 	# Blas: Wasserfontäne aus Partikeln, wird beim Auftauchen ausgelöst
 	var spout := CPUParticles3D.new()
@@ -247,6 +249,7 @@ func _gull() -> Dictionary:
 		_mi(pivot, _box(Vector3(0.45, 0.05, 0.42)), Color(0.25, 0.27, 0.3), Vector3(s * 1.2, 0, -0.04))
 		wings.append(pivot)
 	ModelStyle.outline(inner)
+	ModelStyle.no_shadows(inner)
 	return {"root": root, "wing_l": wings[0], "wing_r": wings[1]}
 
 
@@ -281,6 +284,7 @@ func _seal() -> Node3D:
 		_mi(root, _prism(Vector3(0.5, 0.7, 0.08)), fur.darkened(0.1), Vector3(s * 0.28, 0.3, -1.2), Vector3(PI / 2, 0, s * 0.3))
 		_mi(root, _prism(Vector3(0.3, 0.5, 0.08)), fur.darkened(0.1), Vector3(s * 0.45, 0.15, 0.45), Vector3(PI / 2, 0, s * 1.0))
 	ModelStyle.outline(root)
+	ModelStyle.no_shadows(root)
 	root.set_meta("head", head)
 	return root
 

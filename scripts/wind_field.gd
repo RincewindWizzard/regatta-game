@@ -114,7 +114,7 @@ func _land_shadow(p: Vector2, bd: Vector2) -> float:
 			if SeaChart.depth_at(origin - bd * d) < SeaChart.LAND:
 				hit = d
 				break
-			d += 8.0
+			d += 10.0
 		var k := 1.0 - hit / land_shadow_length
 		total += land_shadow_strength * pow(k, 0.7)
 	return 1.0 - total / 3.0

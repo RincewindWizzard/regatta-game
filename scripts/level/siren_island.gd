@@ -101,6 +101,7 @@ func _siren_figure() -> Node3D:
 	_part(root, head, skin, Vector3(0, 4.35, 0))
 	_part(root, head, hair, Vector3(0, 4.3, -0.28), Vector3.ZERO, Vector3(1.15, 1.35, 1.0))
 	ModelStyle.outline(root)
+	ModelStyle.no_shadows(root)
 	return root
 
 

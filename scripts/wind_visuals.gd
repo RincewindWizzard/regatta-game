@@ -18,7 +18,7 @@ var _mm: MultiMesh
 var _cells := PackedVector2Array()
 var _phase := PackedFloat32Array()
 var _cell_wind := PackedVector2Array()
-var _sample_timer := 0.0
+var _sample_idx := 0
 var _gust_img: Image
 var _gust_tex: ImageTexture
 var _gust_timer := 0.0
@@ -66,6 +66,17 @@ func _sample_wind() -> void:
 		_cell_wind[k] = wind.get_wind(_cells[k])
 
 
+## Windfeld reihum in kleinen Portionen neu messen (der Landschatten ist teuer; so gibt es
+## keine Ruckler). Ein voller Durchlauf dauert etwa 0,25 s.
+func _sample_chunk() -> void:
+	var n := _cells.size()
+	var chunk := maxi(1, int(ceil(n / 15.0)))
+	for k in chunk:
+		var i := (_sample_idx + k) % n
+		_cell_wind[i] = wind.get_wind(_cells[i])
+	_sample_idx = (_sample_idx + chunk) % n
+
+
 func _update_gusts() -> void:
 	var step := _gust_size / GUST_RES
 	for j in GUST_RES:
@@ -80,10 +91,7 @@ func _process(delta: float) -> void:
 		return
 	_time += delta
 	chart.set_wind(wind.blow_dir())
-	_sample_timer -= delta
-	if _sample_timer <= 0.0:
-		_sample_timer = 0.25
-		_sample_wind()
+	_sample_chunk()
 	_gust_timer -= delta
 	if _gust_timer <= 0.0:
 		_gust_timer = 0.3

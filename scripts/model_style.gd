@@ -44,6 +44,12 @@ static func outline(root: Node) -> void:
 		mi.material_overlay = outline_material()
 
 
+## Schattenwurf für alle Meshes unterhalb von root abschalten (spart Zeichenaufrufe)
+static func no_shadows(root: Node) -> void:
+	for mi in _meshes(root):
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
 ## Färbt alle Flächen mit dem Material namens material_name um
 static func tint(root: Node, material_name: String, col: Color) -> void:
 	for mi in _meshes(root):

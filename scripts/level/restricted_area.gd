@@ -137,6 +137,7 @@ func _buoy() -> Node3D:
 		bar.rotation.z = rot
 		root.add_child(bar)
 	ModelStyle.outline(root)
+	ModelStyle.no_shadows(root)
 	return root
 
 
