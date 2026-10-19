@@ -3,7 +3,7 @@ extends RefCounted
 ## Liest die Eingaben EINES Spielers: Controller (nach Geräte-ID) plus Tastatur-Fallback.
 ##
 ## Controller:  Linker Stick = Pinne
-##              RT = Schoten dicht, LT = Schoten fieren (alternativ rechter Stick hoch/runter)
+##              RT / R = Schoten dicht, LT / L = Schoten fieren (alternativ rechter Stick hoch/runter)
 ##              A / Steuerkreuz hoch = Gas hoch, B / Steuerkreuz runter = Gas runter
 ##              Start = neues Rennen
 ## Tastatur P1: A/D Pinne, W/S Schoten, E Gas hoch, Q Gas runter, Leertaste Start
@@ -115,8 +115,10 @@ func update() -> void:
 
 	if device >= 0:
 		s += _dz(Input.get_joy_axis(device, JOY_AXIS_LEFT_X))
-		r -= Input.get_joy_axis(device, JOY_AXIS_TRIGGER_RIGHT)
-		r += Input.get_joy_axis(device, JOY_AXIS_TRIGGER_LEFT)
+		# Rechts (R / ZR) = dicht, links (L / ZL) = fieren. Joy-Con und Pro Controller melden
+		# die Schultertasten je nach Treiber als Bumper-Button, Trigger-Button oder Trigger-Achse.
+		r -= maxf(Input.get_joy_axis(device, JOY_AXIS_TRIGGER_RIGHT), _btn(JOY_BUTTON_RIGHT_SHOULDER))
+		r += maxf(Input.get_joy_axis(device, JOY_AXIS_TRIGGER_LEFT), _btn(JOY_BUTTON_LEFT_SHOULDER))
 		r += _dz(Input.get_joy_axis(device, JOY_AXIS_RIGHT_Y))  # hoch = dicht
 		up = up or Input.is_joy_button_pressed(device, JOY_BUTTON_A) or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP)
 		down = down or Input.is_joy_button_pressed(device, JOY_BUTTON_B) or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN)
@@ -130,6 +132,10 @@ func update() -> void:
 	_was["up"] = up
 	_was["down"] = down
 	_was["start"] = start
+
+
+func _btn(button: JoyButton) -> float:
+	return 1.0 if Input.is_joy_button_pressed(device, button) else 0.0
 
 
 func _axis(neg: Key, pos: Key) -> float:

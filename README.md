@@ -55,7 +55,7 @@ installieren, Godot starten → *Importieren* → `project.godot` wählen → **
 | | Controller | Tastatur Spieler 1 | Tastatur Spieler 2 |
 |---|---|---|---|
 | Lenken (Pinne) | linker Stick | A / D | J / L |
-| Schot dicht / fieren | RT / LT (oder rechter Stick) | W / S | I / K |
+| Schot dicht / fieren | RT / LT oder R / L (oder rechter Stick) | W / S | I / K |
 | Gas hoch (Motor springt an) | A / Steuerkreuz ↑ | E | O |
 | Gas runter (auf 0 = Motor aus) | B / Steuerkreuz ↓ | Q | U |
 | Nächstes Rennen (nach dem Ziel) | Start | Leertaste | Enter |
