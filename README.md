@@ -190,7 +190,7 @@ Lobby.
 Jede Bahn ist eine normale Godot-Szene in `levels/`, und alles dort erscheint automatisch
 im Menü. Mit dem mitgelieferten Editor-Plugin setzt du Tonnen, Inseln, Strömungen, Flüsse
 und Tankstellen per Klick und malst den Seegrund mit dem Pinsel.
-Anleitung und Code-Überblick: **[docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md)**
+Anleitung und Code-Überblick: **[Dokumentation](docs/index.md)** (MkDocs, auch auf GitHub Pages)
 
 ## Credits
 

@@ -1,0 +1,74 @@
+site_name: Regatta – Dokumentation
+site_description: Spielanleitung und komplette Architektur eines Segel-Rennspiels in Godot 4 – zum Nachbauen für Einsteiger.
+site_author: Regatta
+docs_dir: docs
+exclude_docs: |
+  *.import
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+theme:
+  name: readthedocs
+  language: de
+  highlightjs: true
+  hljs_languages:
+    - gdscript
+    - python
+    - ini
+    - bash
+  navigation_depth: 3
+  collapse_navigation: false
+  titles_only: false
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      use_pygments: false
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tasklist:
+      custom_checkbox: false
+
+nav:
+  - Start: index.md
+  - Spielen:
+      - Spielanleitung: spielen/anleitung.md
+      - Die Bahnen: spielen/bahnen.md
+      - Gefahren und Tiere: spielen/gefahren.md
+      - Mehrspieler: spielen/mehrspieler.md
+  - Nachbauen:
+      - Fahrplan zum Nachbau: nachbauen/fahrplan.md
+      - Godot-Grundlagen: nachbauen/grundlagen.md
+      - Architektur im Überblick: nachbauen/architektur.md
+      - Projekt aufsetzen: nachbauen/projekt.md
+  - Die Skripte erklärt:
+      - Alle Skripte im Überblick: skripte/index.md
+      - Seekarte und Tiefen: skripte/seekarte.md
+      - Level und Bausteine: skripte/level.md
+      - Wind und Strömung: skripte/wind.md
+      - Das Boot: skripte/boot.md
+      - Rennablauf: skripte/rennen.md
+      - Eingabe: skripte/eingabe.md
+      - Computergegner: skripte/ki.md
+      - Kamera und Anzeige: skripte/kamera-hud.md
+      - Menü und Lobby: skripte/menue.md
+      - Schlepper: skripte/schlepper.md
+      - Gefahren, Tiere, Effekte: skripte/gefahren.md
+      - Klang: skripte/klang.md
+      - Netzwerk: skripte/netzwerk.md
+      - Level-Editor-Plugin: skripte/editor.md
+      - Werkzeuge und Tests: skripte/werkzeuge.md
+  - Nachschlagen:
+      - Eigene Bahnen bauen: referenz/bahnen-bauen.md
+      - Konstanten und Stellschrauben: referenz/konstanten.md
+      - Glossar: referenz/glossar.md
+      - Dokumentation bauen: referenz/doku.md
