@@ -199,6 +199,29 @@ func hazards() -> Array:
 	return out
 
 
+## Kartenausschnitt für Vorschau und Minikarte: Bahn plus Warngebiete und Tankstellen
+func map_bounds(margin := 80.0) -> Rect2:
+	var r := course_bounds(margin)
+	for z in danger_zones():
+		var rad: float = float(z["radius"]) + 10.0
+		r = r.merge(Rect2(z["pos"] - Vector2(rad, rad), Vector2(rad, rad) * 2.0))
+	for d in fuel_docks():
+		r = r.merge(Rect2(d.berth() - Vector2(25, 25), Vector2(50, 50)))
+	return r
+
+
+## Gefahrengebiete für Kartenvorschau und Minikarte: [{pos, radius, kind}],
+## kind 0 = Minenfeld, 1 = Polizei, 2 = Sirenengesang
+func danger_zones() -> Array:
+	var out: Array = []
+	for c in get_children():
+		if c is RestrictedArea:
+			out.append({"pos": c.pos2d(), "radius": c.radius, "kind": int(c.kind)})
+		elif c is SirenIsland:
+			out.append({"pos": c.pos2d(), "radius": c.capture_radius(), "kind": 2})
+	return out
+
+
 ## Kreise [Mitte, Radius], die die Computergegner meiden
 func danger_circles() -> Array:
 	var out: Array = []

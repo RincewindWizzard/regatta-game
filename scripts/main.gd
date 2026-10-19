@@ -131,7 +131,7 @@ func _ready() -> void:
 	hud.wind = wind
 	hud.course = course
 	hud.cams = cams
-	hud.map_rect = level.course_bounds(70.0)
+	hud.map_rect = level.map_bounds(70.0)
 	layer.add_child(hud)
 
 	_wind_snd = Sfx.make_loop_player("wind_loop")

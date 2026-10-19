@@ -171,6 +171,15 @@ func _draw_minimap(r: Rect2) -> void:
 	var to_map := func(p: Vector2) -> Vector2:
 		var n := (p - map_rect.position) / map_rect.size
 		return r.position + n.clamp(Vector2.ZERO, Vector2.ONE) * r.size
+	for z in course.level.danger_zones():
+		var zc: Vector2 = to_map.call(z["pos"])
+		var zr: float = float(z["radius"]) / map_rect.size.x * r.size.x
+		draw_circle(zc, zr, Color(MAGENTA, 0.15))
+		draw_arc(zc, zr, 0.0, TAU, 24, MAGENTA, 1.0, true)
+	for d in course.level.fuel_docks():
+		var dc: Vector2 = to_map.call(d.berth())
+		draw_circle(dc, 3.5, Color(0.85, 0.15, 0.12))
+		draw_arc(dc, 3.5, 0.0, TAU, 12, INK, 1.0)
 	var ln := course.line
 	var half := ln.tangent2d() * ln.half_width
 	draw_line(to_map.call(ln.center2d() - half), to_map.call(ln.center2d() + half), INK, 1.5)

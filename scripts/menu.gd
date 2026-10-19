@@ -76,7 +76,7 @@ func _read_level(path: String) -> Dictionary:
 	var lvl: Level = load(path).instantiate()
 	add_child(lvl)                       # damit globale Positionen stimmen
 	lvl.visible = false
-	var bounds := lvl.course_bounds(90.0)
+	var bounds := lvl.map_bounds(90.0)
 	# Seitenverhältnis der Vorschau (4:3)
 	var want := 4.0 / 3.0
 	if bounds.size.x / bounds.size.y < want:
@@ -95,6 +95,8 @@ func _read_level(path: String) -> Dictionary:
 		"wind_from": lvl.wind_from_deg,
 		"fuel": lvl.fuel_liters,
 		"docks": lvl.fuel_docks().size(),
+		"dock_pos": lvl.fuel_docks().map(func(d): return d.berth()),
+		"zones": lvl.danger_zones(),
 		"wind": lvl.wind_speed,
 		"gusts": lvl.gusts,
 		"shift": lvl.wind_shift_deg,
@@ -445,6 +447,19 @@ func _draw_preview() -> void:
 		_preview.draw_circle(mp + Vector2(0, bob), 9.0, CourseMark.YELLOW)
 		_preview.draw_arc(mp + Vector2(0, bob), 9.0, 0, TAU, 20, INK, 1.5)
 		_preview.draw_string(_font_b, mp + Vector2(13, 6), str(i + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, INK)
+	# Warngebiete (magenta gestrichelt) und Tankstellen (rote Zapfsäule)
+	for z in info["zones"]:
+		var zc: Vector2 = to_p.call(z["pos"])
+		var zr: float = float(z["radius"]) / b.size.x * r.size.x
+		_preview.draw_circle(zc, zr, Color(MAGENTA, 0.10))
+		_preview.draw_arc(zc, zr, 0, TAU, 48, Color(MAGENTA, 0.9), 2.0, true)
+		var zname: String = ["Minen", "Sperrgebiet", "Sirenen"][int(z["kind"])]
+		_preview.draw_string(_font_b, zc + Vector2(-30, 5), zname, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MAGENTA)
+	for dp in info["dock_pos"]:
+		var dc: Vector2 = to_p.call(dp)
+		_preview.draw_circle(dc, 9.0, Color(0.85, 0.15, 0.12))
+		_preview.draw_arc(dc, 9.0, 0, TAU, 20, INK, 1.5)
+		_preview.draw_string(_font_b, dc + Vector2(-4, 5), "F", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
 	# Windpfeil
 	var from := deg_to_rad(float(info["wind_from"]))
 	var blow := Vector2(-sin(from), cos(from))
