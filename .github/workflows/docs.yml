@@ -5,7 +5,7 @@ name: Dokumentation
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, "claude/**"]
     paths:
       - "docs/**"
       - "mkdocs.yml"
@@ -46,8 +46,8 @@ jobs:
           path: site
 
   deploy:
-    # nur beim Push auf den Hauptzweig veröffentlichen, nicht bei Pull Requests
-    if: github.event_name != 'pull_request'
+    # veröffentlicht wird nur vom Hauptzweig; auf claude/*-Zweigen und in Pull Requests wird nur gebaut
+    if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'master')
     needs: build
     runs-on: ubuntu-latest
     environment:

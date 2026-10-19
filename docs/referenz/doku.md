@@ -36,9 +36,11 @@ Das übernimmt die Action `.github/workflows/docs.yml`:
 
 1. **Einmalig** im Repository unter *Settings → Pages* bei **Source** den Eintrag
    **GitHub Actions** wählen.
-2. Bei jedem Push auf `main` (oder `master`), der `docs/`, `mkdocs.yml` oder die Workflow-Datei
-   ändert, baut die Action die Seite mit `mkdocs build --strict` und veröffentlicht sie.
-3. Bei Pull Requests wird nur **gebaut** (Prüfung), nicht veröffentlicht.
+2. Bei jedem Push auf `main`, `master` oder einen Zweig `claude/*`, der `docs/`, `mkdocs.yml`
+   oder die Workflow-Datei ändert, baut die Action die Seite mit `mkdocs build --strict`.
+3. **Veröffentlicht** wird nur vom Hauptzweig (`main`/`master`). Auf `claude/*`-Zweigen und bei
+   Pull Requests wird nur **gebaut** (Prüfung). Die Umgebung `github-pages` erlaubt ein
+   Veröffentlichen von anderen Zweigen ohnehin standardmäßig nicht.
 4. Die Adresse steht anschließend im Lauf der Action
    (`https://<Benutzer>.github.io/<Repository>/`).
 
