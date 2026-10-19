@@ -1,17 +1,18 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
-[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_ihqwe"]
-[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_ep173"]
-[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="3_eb2q5"]
-[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="4_q0pgt"]
-[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="5_padd1"]
-[ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="6_26eld"]
-[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="7_arj13"]
-[ext_resource type="Script" path="res://scripts/level/current_area.gd" id="8_kmf6f"]
-[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="9_4y5ek"]
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_7q54s"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_534ig"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="3_m36bg"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="4_g328q"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="5_3kj6q"]
+[ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="6_ag0rj"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="7_f5y8h"]
+[ext_resource type="Script" path="res://scripts/level/current_area.gd" id="8_kgxe5"]
+[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="9_uxuba"]
+[ext_resource type="Script" path="res://scripts/level/sea_life.gd" id="10_4vs8r"]
 
 [node name="Level" type="Node3D"]
-script = ExtResource("1_ihqwe")
+script = ExtResource("1_7q54s")
 level_name = "Lotsenrinne"
 description = "Gegen den Wind durch ein enges, betonntes Fahrwasser zwischen zwei Sandbänken – rot an Backbord, grün an Steuerbord. Wer die Tonnen schneidet, sitzt fest."
 wind_from_deg = 345.0
@@ -29,12 +30,12 @@ coast_west = true
 depth_paint_png = PackedByteArray()
 
 [node name="StartZiel" type="Node3D" parent="."]
-script = ExtResource("2_ep173")
+script = ExtResource("2_534ig")
 half_width = 45.0
 
 [node name="Westerbank" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 3.2, -130, 0, -270)
-script = ExtResource("3_eb2q5")
+script = ExtResource("3_m36bg")
 kind = 0
 area_name = "Westerbank"
 radius = 70.0
@@ -49,7 +50,7 @@ shore_rocks = true
 
 [node name="Osterbank" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 3.2, 130, 0, -270)
-script = ExtResource("3_eb2q5")
+script = ExtResource("3_m36bg")
 kind = 0
 area_name = "Osterbank"
 radius = 70.0
@@ -64,103 +65,103 @@ shore_rocks = true
 
 [node name="Rot1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, -80)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 5
 mark_label = "2"
 
 [node name="Gruen1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0, -80)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 6
 mark_label = "1"
 
 [node name="Rot2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, -165)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 5
 mark_label = "4"
 
 [node name="Gruen2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0, -165)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 6
 mark_label = "3"
 
 [node name="Rot3" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, -250)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 5
 mark_label = "6"
 
 [node name="Gruen3" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0, -250)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 6
 mark_label = "5"
 
 [node name="Rot4" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, -335)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 5
 mark_label = "8"
 
 [node name="Gruen4" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0, -335)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 6
 mark_label = "7"
 
 [node name="Rot5" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, -420)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 5
 mark_label = "10"
 
 [node name="Gruen5" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0, -420)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 6
 mark_label = "9"
 
 [node name="Westerbank_N" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -130, 0, -520)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 0
 mark_label = ""
 
 [node name="Osterbank_N" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 0, -520)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 0
 mark_label = ""
 
 [node name="Westerbank_S" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -130, 0, -20)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 2
 mark_label = ""
 
 [node name="Osterbank_S" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 0, -20)
-script = ExtResource("4_q0pgt")
+script = ExtResource("4_g328q")
 kind = 2
 mark_label = ""
 
 [node name="Wendetonne" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -580)
-script = ExtResource("5_padd1")
+script = ExtResource("5_3kj6q")
 mark_name = "Wendetonne"
 light = "Fl.Y.2s"
 
 [node name="Westtonne" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -240, 0, -470)
-script = ExtResource("5_padd1")
+script = ExtResource("5_3kj6q")
 mark_name = "Westtonne"
 light = "Fl(2)Y.6s"
 
 [node name="Oberfeuer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250, 0, -620)
-script = ExtResource("6_26eld")
+script = ExtResource("6_ag0rj")
 style = 1
 tower_height = 24.0
 rock_radius = 11.0
@@ -170,7 +171,7 @@ rotating_beam = true
 
 [node name="Vogelsand" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.6, 300, 0, -280)
-script = ExtResource("3_eb2q5")
+script = ExtResource("3_m36bg")
 kind = 1
 area_name = "Vogelsand"
 radius = 45.0
@@ -185,12 +186,12 @@ shore_rocks = true
 
 [node name="Kompassrose" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -250, 0, -120)
-script = ExtResource("7_arj13")
+script = ExtResource("7_f5y8h")
 radius = 34.0
 
 [node name="Ebbstrom" type="Node3D" parent="."]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -270)
-script = ExtResource("8_kmf6f")
+script = ExtResource("8_kgxe5")
 speed_kn = 1.2
 length = 440.0
 width = 80.0
@@ -198,6 +199,51 @@ tide_period = 600.0
 
 [node name="Tankstelle" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296, 0, -338)
-script = ExtResource("9_4y5ek")
+script = ExtResource("9_uxuba")
 length = 46.0
 dock_name = "Vogelsand"
+
+[node name="Wrack" type="Node3D" parent="."]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, -150, 0, -300)
+script = ExtResource("10_4vs8r")
+kind = 4
+count = 1
+range_m = 20.0
+solid = true
+label = ""
+
+[node name="Seehunde" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 0, -270)
+script = ExtResource("10_4vs8r")
+kind = 3
+count = 5
+range_m = 12.0
+solid = true
+label = ""
+
+[node name="Moewen" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, -280)
+script = ExtResource("10_4vs8r")
+kind = 2
+count = 7
+range_m = 50.0
+solid = true
+label = ""
+
+[node name="Wal" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -290, 0, -100)
+script = ExtResource("10_4vs8r")
+kind = 1
+count = 1
+range_m = 50.0
+solid = true
+label = ""
+
+[node name="Tuemmler" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 0, -430)
+script = ExtResource("10_4vs8r")
+kind = 0
+count = 3
+range_m = 40.0
+solid = true
+label = ""

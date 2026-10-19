@@ -42,6 +42,8 @@ func target_name(i: int) -> String:
 func progress(boat: Boat) -> float:
 	if boat.finished:
 		return 1.0e9 - boat.finish_time
+	if boat.out:
+		return -1.0e9 + boat.next_target * 100000.0
 	return boat.next_target * 100000.0 - boat.pos2d().distance_to(target_pos(boat.next_target))
 
 

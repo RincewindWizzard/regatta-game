@@ -1,0 +1,134 @@
+extends SceneTree
+## Headless-Test der Gefahrengebiete, Kollisionsfolgen und des Wendeschubs.
+## Aufruf: godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- <mine|polizei|sirene|kollision|wende>
+
+var _main: Node
+var _t := 0.0
+var _scenario := ""
+var _phase := 0
+var _t0 := 0.0
+var _ok := false
+
+
+func _level_for(s: String) -> String:
+	match s:
+		"mine":
+			return "res://levels/03_rund_um_moewenhoern.tscn"
+		"polizei":
+			return "res://levels/04_hafenausfahrt.tscn"
+		"sirene":
+			return "res://levels/06_schaerengarten.tscn"
+	return "res://levels/01_mittelgrund.tscn"
+
+
+func _initialize() -> void:
+	_scenario = OS.get_cmdline_user_args()[0]
+	GameState.net_mode = ""
+	GameState.level_path = _level_for(_scenario)
+	GameState.crew_choice = 0          # zwei Spieler, nichts wird gesteuert
+	_main = load("res://scenes/main.tscn").instantiate()
+	root.add_child(_main)
+
+
+func _place(b: Boat, p: Vector2, heading: float, speed: float) -> void:
+	b.position = Vector3(p.x, 0, p.y)
+	b.heading = heading
+	b.vel = Vector2(sin(heading), cos(heading)) * speed
+
+
+func _physics_process(delta: float) -> bool:
+	if _main.boats.is_empty():
+		return false
+	_t += delta
+	var b: Boat = _main.boats[0]
+	var b2: Boat = _main.boats[1]
+	if _phase == 0:
+		_main.countdown = 0.0
+		_main.state = "racing"
+		for x in _main.boats:
+			x.controls_enabled = true
+		_phase = 1
+		_t0 = _t
+		# das zweite Boot weit weg parken
+		_place(b2, Vector2(0, 150), 0.0, 0.0)
+		match _scenario:
+			"mine":
+				var area: RestrictedArea = _main.level.get_node("Minenfeld")
+				var m: Vector2 = area.pos2d() + area._mine_pos[0]
+				print("Mine bei ", m)
+				_place(b, m + Vector2(-20, 0), PI / 2, 3.0)
+			"polizei":
+				var area: RestrictedArea = _main.level.get_node("Sperrgebiet")
+				_place(b, area.pos2d(), PI / 2, 2.0)
+			"sirene":
+				var isle: SirenIsland = _main.level.get_node("Sireneninsel")
+				_place(b, isle.pos2d() + Vector2(0, -isle.capture_radius() - 8.0), 0.0, 3.0)
+				print("Fangradius ", isle.capture_radius())
+			"kollision":
+				_place(b, Vector2(0, -30), 0.0, 0.0)
+				_place(b2, Vector2(0, -34), 0.0, 0.0)
+				b.vel = Vector2(0, -3.0)
+				b2.vel = Vector2(0, 3.0)
+				b.position = Vector3(0, 0, -30)
+				b2.position = Vector3(0, 0, -34)
+			"wende":
+				_place(b, Vector2(0, -60), 0.0, 3.2)
+		return false
+	var e := _t - _t0
+	match _scenario:
+		"mine":
+			if b.out:
+				print("OK: Boot explodiert nach %.1f s, out=%s" % [e, b.out])
+				return _finish(true)
+			if e > 15.0:
+				return _finish(false)
+		"polizei":
+			if b.hold_kind == 1 and _phase == 1:
+				print("Polizei greift zu nach %.1f s, hold_time %.1f" % [e, b.hold_time])
+				_phase = 2
+				_t0 = _t
+			if _phase == 2 and b.hold_kind == 0:
+				print("OK: Kontrolle nach %.1f s beendet, Schonfrist %.1f s, Fahrt %.2f" % [_t - _t0, b.immune_time, b.speed()])
+				return _finish(b.immune_time > 20.0)
+			if e > 30.0:
+				return _finish(false)
+		"sirene":
+			if b.hold_kind == 2 and _phase == 1:
+				print("Sirenengesang packt das Boot nach %.1f s" % e)
+				_phase = 2
+				_t0 = _t
+			if _phase == 2 and b.hold_kind == 0:
+				print("OK: Gesang nach %.1f s vorbei, Fahrt %.2f" % [_t - _t0, b.speed()])
+				return _finish(true)
+			if e > 30.0:
+				return _finish(false)
+		"kollision":
+			if b.penalty > 0.0 and b2.penalty > 0.0:
+				print("OK: Kollision, Strafe %.1f s / %.1f s, Fahrt %.2f / %.2f, Meldung: %s" % [b.penalty, b2.penalty, b.speed(), b2.speed(), b.message])
+				return _finish(true)
+			if e > 5.0:
+				return _finish(false)
+		"wende":
+			var from: float = _main.wind.dir_at(b.pos2d())
+			var up: float = PI - from      # Kurs genau gegen den Wind
+			if _phase == 1:
+				# Kurs hoch am Wind auf einer Seite, dann auf die andere
+				b.heading = wrapf(up + 0.8, -PI, PI)
+				b.vel = Vector2(sin(b.heading), cos(b.heading)) * 3.2
+				if e > 1.0:
+					_phase = 2
+			elif _phase == 2:
+				b.heading = wrapf(up - 0.8, -PI, PI)
+				b.vel = Vector2(sin(b.heading), cos(b.heading)) * 3.2
+				if b.boost > 0.0:
+					print("OK: Wende mit Schub, boost %.2f, Meldung: %s" % [b.boost, b.message])
+					return _finish(true)
+				if e > 4.0:
+					print("Meldung: ", b.message)
+					return _finish(false)
+	return false
+
+
+func _finish(ok: bool) -> bool:
+	print("ERGEBNIS: ", "BESTANDEN" if ok else "FEHLGESCHLAGEN", " (", _scenario, ")")
+	return true

@@ -15,6 +15,7 @@ func _initialize() -> void:
 	_augment("res://levels/05_lotsenrinne.tscn", _extras_rinne)
 	_augment("res://levels/06_schaerengarten.tscn", _extras_schaeren)
 	_save(_fluss(), "res://levels/07_flussregatta.tscn")
+	_augment("res://levels/07_flussregatta.tscn", _extras_fluss)
 	quit()
 
 
@@ -175,6 +176,50 @@ func _dock(l: Level, node_name: String, root: Vector2, dir: Vector2, length := 2
 	l.add_child(d)
 
 
+## Tiere und Wracks (SeaLife): count Tiere im Umkreis range_m
+func _life(l: Level, node_name: String, kind: SeaLife.Kind, p: Vector2, count := 3, range_m := 40.0, rot_deg := 0.0, label := "") -> void:
+	if _has(l, node_name):
+		return
+	var s := SeaLife.new()
+	s.name = node_name
+	s.kind = kind
+	s.count = count
+	s.range_m = range_m
+	s.label = label
+	s.position = Vector3(p.x, 0, p.y)
+	s.rotation.y = deg_to_rad(rot_deg)
+	l.add_child(s)
+
+
+## Sperrgebiet: Minenfeld oder Polizei
+func _restricted(l: Level, node_name: String, kind: RestrictedArea.Kind, p: Vector2, r: float, name_text := "", mines := 14) -> void:
+	if _has(l, node_name):
+		return
+	var a := RestrictedArea.new()
+	a.name = node_name
+	a.kind = kind
+	a.radius = r
+	a.area_name = name_text
+	a.mine_count = mines
+	a.position = Vector3(p.x, 0, p.y)
+	l.add_child(a)
+
+
+## Sirenen-Insel: Gesang hält Boote bis song_range vom Ufer fest
+func _siren(l: Level, node_name: String, p: Vector2, r: float, song_range := 60.0, trees := 6) -> void:
+	if _has(l, node_name):
+		return
+	var s := SirenIsland.new()
+	s.name = node_name
+	s.area_name = "Sirenenfelsen"
+	s.radius = r
+	s.song_range = song_range
+	s.rock_symbol = false
+	s.trees = trees
+	s.position = Vector3(p.x, 0, p.y)
+	l.add_child(s)
+
+
 # ---------------------------------------------------------------- Ergänzungen bestehender Level
 
 func _extras_mittelgrund(l: Level) -> void:
@@ -196,6 +241,11 @@ func _extras_mittelgrund(l: Level) -> void:
 	# Gezeitenstrom zwischen Mittelgrund und Hohe Plate, kehrt alle 4 Minuten um
 	_current(l, "Plattenstrom", Vector2(12, -245), -90.0, 1.4, 120.0, 90.0, 480.0)
 	_dock(l, "Tankstelle", Vector2(222, -262), Vector2(-1, 0), 30.0, "Tankstelle Möwenhörn")
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(100, -470), 3, 40.0)
+	_life(l, "Wal", SeaLife.Kind.WAL, Vector2(-280, -440), 1, 50.0)
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(255, -270), 7, 45.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(80, -230), 4, 8.0)
+	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(140, 40), 1, 20.0, 35.0)
 
 
 func _extras_up_and_down(l: Level) -> void:
@@ -204,6 +254,9 @@ func _extras_up_and_down(l: Level) -> void:
 	_sea(l, "Ostplate_W", SeaMark.Kind.WEST, Vector2(78, -200))
 	_sea(l, "Ansteuerung", SeaMark.Kind.ANSTEUERUNG, Vector2(0, 90))
 	_tower(l, "Leuchtturm", Vector2(200, -330), "Hoher Weg", Lighthouse.Style.SCHWARZ_WEISS, "Fl(3)W.12s 18m 12M", 18.0)
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(150, -100), 6, 40.0)
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(-150, -330), 3, 35.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(-120, -160), 3, 8.0)
 
 
 func _extras_moewenhoern(l: Level) -> void:
@@ -218,22 +271,49 @@ func _extras_moewenhoern(l: Level) -> void:
 	_mole(l, "Inselmole", Vector2(95, -150), 60.0, -90.0, Mole.HeadLight.GRUEN, 8.0)
 	_current(l, "Seehundsstrom", Vector2(162, -230), 0.0, 1.6, 160.0, 40.0)
 	_dock(l, "Tankstelle", Vector2(6, -228), Vector2(-1, 0), 28.0)
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(80, -230), 9, 55.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(190, -200), 5, 10.0)
+	_life(l, "Wal", SeaLife.Kind.WAL, Vector2(-250, -100), 1, 55.0)
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(330, -120), 3, 40.0)
+	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(330, -440), 1, 20.0, -20.0)
+	_restricted(l, "Minenfeld", RestrictedArea.Kind.MINEN, Vector2(330, -60), 50.0, "Minenfeld (Altlast)", 12)
 
 
 func _extras_hafen(l: Level) -> void:
 	_current(l, "Hafenstrom", Vector2(0, 30), 0.0, 1.0, 150.0, 150.0, 360.0)
 	_dock(l, "Tankstelle", Vector2(70, 138), Vector2(0, -1), 24.0, "Hafentankstelle")
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(0, 150), 8, 60.0)
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(200, -330), 3, 40.0)
+	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(-190, -250), 1, 20.0, 70.0)
+	_restricted(l, "Sperrgebiet", RestrictedArea.Kind.POLIZEI, Vector2(-200, -60), 50.0, "Sperrgebiet Marine")
 
 
 func _extras_rinne(l: Level) -> void:
 	_current(l, "Ebbstrom", Vector2(0, -270), 180.0, 1.2, 440.0, 80.0, 600.0)
 	_dock(l, "Tankstelle", Vector2(296, -338), Vector2(0, -1), 46.0, "Vogelsand")
+	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(-150, -300), 1, 20.0, 15.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(130, -270), 5, 12.0)
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(300, -280), 7, 50.0)
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(-300, -430), 3, 40.0)
 
 
 func _extras_schaeren(l: Level) -> void:
 	_current(l, "Sundstrom", Vector2(-100, 160), 45.0, 1.8, 120.0, 45.0)
 	_current(l, "Holmstrom", Vector2(10, 165), -60.0, 1.2, 90.0, 40.0)
-	_dock(l, "Tankstelle", Vector2(-50, 222), Vector2(0, 1), 36.0, "Björkö Bränsle")
+	_dock(l, "Tankstelle", Vector2(-150, 88), Vector2(0, -1), 40.0, "Granholm Bränsle")
+	_siren(l, "Sireneninsel", Vector2(-150, 385), 20.0, 45.0, 5)
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(-150, 120), 8, 55.0)
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(100, 300), 3, 40.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(-170, 315), 4, 6.0)
+	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(-390, 230), 1, 20.0, 80.0)
+
+
+func _extras_fluss(l: Level) -> void:
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(-40, -300), 7, 70.0)
+	_life(l, "Moewen_Insel", SeaLife.Kind.MOEWEN, Vector2(70, -330), 5, 40.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(-110, -390), 3, 6.0)
+	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(-100, -460), 1, 20.0, 40.0)
+	_restricted(l, "Schutzgebiet", RestrictedArea.Kind.POLIZEI, Vector2(95, -430), 35.0, "Vogelschutzgebiet")
 
 
 # ---------------------------------------------------------------- Neue Level

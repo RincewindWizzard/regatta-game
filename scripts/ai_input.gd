@@ -53,6 +53,7 @@ var _detour_heading := 0.0
 var _rng := RandomNumberGenerator.new()
 var _last_side := 0
 var docks: Array = []          # Tankstellen des Levels
+var avoid: Array = []          # Gefahrengebiete [Mitte, Radius]: Minen, Polizei, Sirenen
 var _motor_use := 0.0          # 0 = nie, 1 = gern
 var _motor_reserve := 1.0      # Tankanteil, der für Notfälle bleibt
 var _want_throttle := 0
@@ -116,7 +117,7 @@ func update() -> void:
 	gas_up_pressed = false
 	gas_down_pressed = false
 	start_pressed = false
-	if boat == null or boat.towed:
+	if boat == null or boat.towed or boat.out or boat.hold_kind != 0:
 		steer = 0.0
 		sheet_rate = 0.0
 		_want_throttle = 0
@@ -308,6 +309,10 @@ func _safe(c: Vector2, margin: float) -> bool:
 		var fc: Vector2 = fp[0]
 		if fc.distance_to(c) < float(fp[1]) + margin:
 			return false
+	for z in avoid:
+		var zc: Vector2 = z[0]
+		if zc.distance_to(c) < float(z[1]) + margin + 4.0:
+			return false
 	return true
 
 
@@ -377,6 +382,10 @@ func _clear_line(a: Vector2, b: Vector2) -> bool:
 			var fc: Vector2 = fp[0]
 			if fc.distance_to(q) < float(fp[1]) + 5.0 and fc.distance_to(b) > 22.0:
 				return false
+		for z in avoid:
+			var zc: Vector2 = z[0]
+			if zc.distance_to(q) < float(z[1]) + 6.0:
+				return false
 	return true
 
 
@@ -400,6 +409,12 @@ func _hazard(p: Vector2, dir: Vector2, dist_target: float) -> float:
 			for fp in fixed_points:
 				var c: Vector2 = fp[0]
 				if c.distance_to(q) < float(fp[1]) + 7.0:
+					hit = true
+					break
+		if not hit:
+			for z in avoid:
+				var zc: Vector2 = z[0]
+				if zc.distance_to(q) < float(z[1]) + 8.0:
 					hit = true
 					break
 		if hit:

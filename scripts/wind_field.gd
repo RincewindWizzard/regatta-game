@@ -4,7 +4,7 @@ extends Node
 ## - Grundrichtung mit langsamen Winddrehern
 ## - wandernde Böen und Flauten (Noise, treibt mit dem Wind)
 ## - leichte örtliche Richtungsunterschiede
-## - Windschatten hinter jedem Boot
+## - Windschatten hinter jedem Boot und im Lee von Land (Inseln, Molen, Ufer)
 ##
 ## Koordinaten: 2D-Vektoren (x, z) der 3D-Welt. Norden = -Z.
 
@@ -15,6 +15,8 @@ extends Node
 @export var gust_strength := 0.9       ## 0 = keine Böen
 @export var shadow_length := 50.0      ## Länge des Windschattens in m
 @export var shadow_strength := 0.5     ## max. Windverlust direkt hinter einem Boot
+@export var land_shadow_length := 170.0   ## so weit reicht der Windschatten von Land (m)
+@export var land_shadow_strength := 0.88  ## Windverlust direkt im Lee von Land
 
 var time := 0.0
 ## feste Zufallswerte (Netzwerk: alle Rechner sehen dieselben Böen); -1 = zufällig
@@ -82,7 +84,7 @@ func get_wind(p: Vector2, exclude: Node = null) -> Vector2:
 
 ## 1.0 = freier Wind, kleiner = im Windschatten eines anderen Bootes
 func shadow_factor(p: Vector2, bd: Vector2, exclude: Node = null) -> float:
-	var f := 1.0
+	var f := _land_shadow(p, bd)
 	for b in boats:
 		if b == exclude:
 			continue
@@ -97,3 +99,22 @@ func shadow_factor(p: Vector2, bd: Vector2, exclude: Node = null) -> float:
 		var s := (1.0 - along / shadow_length) * (1.0 - lat / width)
 		f *= 1.0 - shadow_strength * s
 	return f
+
+
+## Windschatten im Lee von Land: Strahlen gegen den Wind (mittig und leicht seitlich).
+## Je näher das Land, desto stärker der Windverlust.
+func _land_shadow(p: Vector2, bd: Vector2) -> float:
+	var side := Vector2(-bd.y, bd.x)
+	var total := 0.0
+	for off in [-14.0, 0.0, 14.0]:
+		var origin: Vector2 = p + side * off
+		var hit := land_shadow_length
+		var d := 6.0
+		while d < land_shadow_length:
+			if SeaChart.depth_at(origin - bd * d) < SeaChart.LAND:
+				hit = d
+				break
+			d += 8.0
+		var k := 1.0 - hit / land_shadow_length
+		total += land_shadow_strength * pow(k, 0.7)
+	return 1.0 - total / 3.0

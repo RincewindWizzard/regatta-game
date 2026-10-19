@@ -80,6 +80,15 @@ func _enter_tree() -> void:
 	pm.add_item("Felsmole mit Molenfeuer", 6)
 	pm.add_item("Leuchtturm", 7)
 	pm.add_item("Kompassrose", 3)
+	pm.add_separator("Tiere und Gefahren")
+	pm.add_item("Tümmler (springen)", 40)
+	pm.add_item("Wal", 41)
+	pm.add_item("Möwen", 42)
+	pm.add_item("Seehunde", 43)
+	pm.add_item("Wrack", 44)
+	pm.add_item("Minenfeld (Sperrgebiet)", 45)
+	pm.add_item("Polizei-Sperrgebiet", 46)
+	pm.add_item("Sirenen-Insel", 47)
 	pm.id_pressed.connect(_add_piece)
 	_bar.add_child(add)
 	var clear := Button.new()
@@ -113,7 +122,7 @@ func _labelled_spin(text: String, mn: float, mx: float, val: float, suffix: Stri
 
 
 func _handles(object: Object) -> bool:
-	return object is Level or object is ShoalArea or object is SeaMark or object is Mole or object is Lighthouse or object is CourseMark or object is CurrentArea or object is FuelDock
+	return object is Level or object is ShoalArea or object is SeaMark or object is Mole or object is Lighthouse or object is CourseMark or object is CurrentArea or object is FuelDock or object is SeaLife or object is RestrictedArea
 
 
 func _edit(object: Object) -> void:
@@ -268,6 +277,26 @@ func _add_piece(id: int) -> void:
 		33:
 			node = FuelDock.new()
 			node.name = "Tankstelle"
+		40, 41, 42, 43, 44:
+			var l := SeaLife.new()
+			l.kind = id - 40
+			l.name = ["Tuemmler", "Wal", "Moewen", "Seehunde", "Wrack"][id - 40]
+			l.count = [3, 1, 6, 4, 1][id - 40]
+			l.range_m = [40.0, 60.0, 35.0, 8.0, 20.0][id - 40]
+			node = l
+		45, 46:
+			var r := RestrictedArea.new()
+			r.kind = id - 45
+			r.name = ["Minenfeld", "Sperrgebiet"][id - 45]
+			node = r
+		47:
+			var s := SirenIsland.new()
+			s.name = "Sireneninsel"
+			s.area_name = "Sirenenfelsen"
+			s.radius = 35.0
+			s.rock_symbol = false
+			s.trees = 6
+			node = s
 		10, 11, 12, 13, 14, 15, 16, 17:
 			var m := SeaMark.new()
 			m.kind = id - 10

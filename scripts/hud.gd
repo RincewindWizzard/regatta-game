@@ -91,6 +91,8 @@ func _draw_leaderboard(o: Vector2) -> void:
 		var info := ""
 		if b.finished:
 			info = _fmt_time(b.finish_time)
+		elif b.out:
+			info = "raus"
 		elif b.next_target == 0:
 			info = "Start"
 		else:
@@ -219,6 +221,14 @@ func _draw_panel(b: Boat, o: Vector2) -> void:
 	if b.towed:
 		warn = "Wird abgeschleppt ..."
 		warn_col = MAGENTA
+	elif b.out:
+		warn = "Seemine – ausgeschieden!"
+	elif b.hold_kind == 1:
+		warn = "Polizeikontrolle … noch %d s" % ceili(b.hold_time)
+		warn_col = Color(0.1, 0.25, 0.65)
+	elif b.hold_kind == 2:
+		warn = "Sirenengesang … noch %d s" % ceili(b.hold_time)
+		warn_col = MAGENTA
 	elif b.tug != null and is_instance_valid(b.tug):
 		warn = "Schlepper kommt - noch %d m" % roundi(b.tug.distance_to_boat())
 		warn_col = MAGENTA
@@ -330,13 +340,17 @@ func _draw_center(vs: Vector2) -> void:
 				_big("LOS!", c, 110, Color(INK, minf(1.0, main.go_flash)))
 		"finished":
 			var wnr: Boat = main.winner
-			_big("%s gewinnt!" % wnr.player_name, c, 72, wnr.color.darkened(0.1))
+			if wnr != null:
+				_big("%s gewinnt!" % wnr.player_name, c, 72, wnr.color.darkened(0.1))
+			else:
+				_big("Alle Boote verloren!", c, 60, INK)
 			var hint := "Start/Enter: neues Rennen   ·   Esc: Menü"
 			if main.net == "host":
 				hint = "Start/Enter: neues Rennen   ·   Esc: zurück in die Lobby"
 			elif main.net == "client":
 				hint = "Der Host startet das nächste Rennen   ·   Esc: Regatta verlassen"
-			_text_centered("Zeit " + _fmt_time(wnr.finish_time) + "   ·   " + hint, c + Vector2(0, 52), 22, INK, _font_b, true)
+			var result := "Zeit " + _fmt_time(wnr.finish_time) + "   ·   " if wnr != null else ""
+			_text_centered(result + hint, c + Vector2(0, 52), 22, INK, _font_b, true)
 
 
 # ---------------------------------------------------------------- Helfer

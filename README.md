@@ -60,9 +60,11 @@ installieren, Godot starten → *Importieren* → `project.godot` wählen → **
 | Gas runter (auf 0 = Motor aus) | B / Steuerkreuz ↓ | Q | U |
 | Nächstes Rennen (nach dem Ziel) | Start | Leertaste | Enter |
 
-`F5` startet das Rennen neu, `Esc` führt zurück ins Menü, `M` schaltet die Musik an und aus.
+`F5` startet das Rennen neu, `Esc` führt zurück ins Menü, `M` schaltet die Musik an und aus,
+`T` blendet das Segel-Overlay ein und aus.
 Ein Controller kann auch ein Switch-Pro-Controller oder Joy-Con sein, der per Bluetooth
-mit dem PC verbunden ist.
+mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schultertasten
+(L/R bzw. ZL/ZR) holen und fieren die Schot, die Frontknöpfe geben Gas.
 
 ### Die Bahn
 
@@ -85,7 +87,16 @@ mit dem PC verbunden ist.
   offen, killt das Segel. Ist sie zu dicht, krängt das Boot und wird langsam. Am Wind dicht
   holen, vor dem Wind weit fieren.
 - **Windschatten:** Wer in Lee hinter einem anderen Boot fährt, bekommt weniger Wind. Das
-  kann man nutzen und sollte es selbst vermeiden.
+  kann man nutzen und sollte es selbst vermeiden. Noch viel stärker bremst das **Lee von
+  Land**: hinter Inseln, Molen und Ufern bis etwa 170 m fast Flaute. Auf der Karte siehst du
+  das an den fehlenden Windstrichen.
+- **Wende mit Schub:** Wer mit Fahrt durch den Wind dreht, bekommt einen kurzen
+  Beschleunigungsschub („Wende – Schub!“). Wer zu langsam wendet, bleibt im Wind hängen.
+- **Segel-Overlay:** Die Segel färben sich grün, wenn die Stellung stimmt, über gelb und
+  orange bis rot, wenn sie zu dicht oder zu offen stehen, und blinken rot, wenn sie killen.
+  Die grüne Linie auf dem Wasser zeigt, wo der Baum idealerweise stehen sollte. Mit `T` aus.
+- **Kollisionen:** Wer mit einem anderen Boot zusammenstößt, verliert Fahrt und hat eine
+  Weile verhedderte Segel. Stärker trifft es den, der aufgefahren ist.
 - **Am schnellsten** ist das Boot mit halbem Wind (seitlich).
 
 ### Seekarte lesen
@@ -101,6 +112,19 @@ mit dem PC verbunden ist.
 - **Strömungen:** Pfeile mit „x kn“ und wandernde Schlieren auf dem Wasser. Sie versetzen
   das Boot. Mit dem Strom ist man schneller, dagegen langsamer. Manche Gezeitenströme
   kentern während des Rennens.
+
+### Gefahren und Tiere
+
+- **Minenfelder** (magenta Grenze, gelbe Sperrtonnen, schwarze Stachelkugeln): Wer eine
+  Seemine berührt, fliegt in die Luft und ist aus dem Rennen. Das Rennen geht für die
+  anderen weiter.
+- **Polizei-Sperrgebiete:** Wer hineinfährt, wird nach kurzer Zeit von der
+  Wasserschutzpolizei angehalten und etwa 8 Sekunden durchsucht. Danach gibt es eine
+  Schonfrist, um wieder herauszukommen.
+- **Sirenen-Inseln:** Nähert man sich bis auf die gestrichelte Linie, bleibt das Boot stehen
+  und lauscht dem Gesang (etwa 7 Sekunden). Danach kurze Schonfrist.
+- **Tümmler, Wale, Möwen, Seehunde** sind nur Dekoration. **Wracks** sind dagegen fest: Man
+  prallt ab wie an einer Tonne.
 
 ### Motor und Tanken
 
@@ -128,10 +152,10 @@ mit dem PC verbunden ist.
 |---|---|---|
 | 1 | Mittelgrund-Regatta | Dreieckskurs zwischen Untiefen mit Kardinaltonnen, Leuchtturm, Plattenstrom |
 | 2 | Kurzer Up-and-Down | zum Einsegeln, leichter Wind, keine Tankstelle |
-| 3 | Rund um Möwenhörn | einmal um die Leuchtturminsel, Seehundsstrom |
-| 4 | Hafenausfahrt | Start im Hafen zwischen Felsmolen, Strom in der Einfahrt |
+| 3 | Rund um Möwenhörn | einmal um die Leuchtturminsel, Seehundsstrom, altes Minenfeld im Südosten |
+| 4 | Hafenausfahrt | Start im Hafen zwischen Felsmolen, Strom in der Einfahrt, Marine-Sperrgebiet im Westen |
 | 5 | Lotsenrinne | Kreuzen im betonnten Fahrwasser zwischen zwei Sandbänken, Ebbstrom |
-| 6 | Schärengarten | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind |
+| 6 | Schärengarten | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind, Tankstelle auf Granholm, Sirenen-Insel im Süden |
 | 7 | Flussregatta | Binnenrevier: den Mühlenfluss gegen den Strom hinauf in den Großen See und zurück |
 
 ---

@@ -14,6 +14,9 @@ extends Node3D
 ##   CurrentArea – Strömung (z. B. in Engstellen)
 ##   RiverChannel – Flusslauf (Path3D: Kurve im Editor zeichnen), mit Strömung
 ##   FuelDock    – Tankstelle: Steg mit Zapfsäule, dort im Stillstand tanken
+##   SeaLife     – Tümmler, Wale, Möwen, Seehunde und Wracks als Dekoration
+##   RestrictedArea – Sperrgebiet: Minenfeld (Boot explodiert) oder Polizeikontrolle
+##   SirenIsland – Insel, deren Gesang vorbeisegelnde Boote festhält
 ## Binnenrevier: "inland" einschalten – dann ist alles Land, und Flüsse sowie
 ## Seen (ShoalArea, Art „See“) graben das Wasser aus.
 ## Das Regattagebiet (magenta Grenze) umschließt die Bahn mit dem Abstand area_margin.
@@ -187,6 +190,24 @@ func fuel_docks() -> Array:
 	return out
 
 
+## Gefahrengebiete (Minenfeld, Polizei, Sirenen): haben update_boat(boat, delta)
+func hazards() -> Array:
+	var out: Array = []
+	for c in get_children():
+		if c.has_method("update_boat"):
+			out.append(c)
+	return out
+
+
+## Kreise [Mitte, Radius], die die Computergegner meiden
+func danger_circles() -> Array:
+	var out: Array = []
+	for c in get_children():
+		if c.has_method("danger_circle"):
+			out.append(c.danger_circle())
+	return out
+
+
 ## Feste Punkte, an denen Boote abprallen: [Position, Radius]
 func collision_points() -> Array:
 	var out: Array = []
@@ -195,7 +216,7 @@ func collision_points() -> Array:
 			out.append([c.pos2d(), SeaMark.RADIUS])
 		elif c is CourseMark:
 			out.append([c.pos2d(), 1.5])
-		elif c is FuelDock:
+		elif c is FuelDock or c is SeaLife:
 			out.append_array(c.collision_points())
 	return out
 

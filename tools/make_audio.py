@@ -522,12 +522,81 @@ def music():
     return np.tanh(loop * 1.1)
 
 
+def trim(x, seconds, fade=1.0):
+    """Hallfahne kürzen und ausblenden."""
+    x = x[:int(seconds * SR)].copy()
+    n = min(int(fade * SR), len(x))
+    x[-n:] *= np.linspace(1, 0, n)
+    return x
+
+
+def explosion():
+    # Seemine: dumpfer Schlag, Druckwelle, prasselnde Trümmer und Wasserplatschen
+    dur = 3.2
+    t = t_axis(dur)
+    thump = np.sin(2 * np.pi * (95 * np.exp(-t * 3.5) + 28) * t) * np.exp(-t * 2.2)
+    boom = lp(noise(dur, "brown"), 380) * np.exp(-t * 2.6)
+    crack = hp(noise(dur), 900) * np.exp(-t * 14) * 0.5
+    debris = bp(noise(dur), 1200, 5000) * np.exp(-t * 3.0) * 0.12 * (smooth_random(dur, 55) > 0.55)
+    splash = lp(noise(dur), 2500) * np.clip((t - 0.9) * 2.0, 0, 1) * np.exp(-(t - 0.9) * 2.0) * 0.18 * smooth_random(dur, 30)
+    x = thump * 1.0 + boom * 1.1 + crack + debris + np.where(t > 0.9, splash, 0)
+    x *= np.minimum(1, t * 1500)
+    return reverb(x, 0.22, 1.2)
+
+
+def police_siren():
+    # Wasserschutzpolizei: Hi-Lo-Horn, kommt näher (Lautstärke schwillt an) und fährt wieder ab
+    dur = 7.0
+    t = t_axis(dur)
+    step = (np.floor(t / 0.55) % 2).astype(float)
+    f = np.where(step > 0.5, 960.0, 725.0)
+    f = lp(f, 40, 1)
+    phase = 2 * np.pi * np.cumsum(f) / SR
+    x = np.sin(phase) + 0.5 * np.sin(2 * phase) + 0.25 * np.sin(3 * phase)
+    x = lp(x, 3200, 2)
+    swell = np.sin(np.pi * np.clip(t / dur, 0, 1)) ** 0.8
+    x *= swell * (0.85 + 0.15 * np.sin(2 * np.pi * 5 * t))
+    return trim(reverb(x, 0.2, 0.7), 7.6, 0.6)
+
+
+def siren_song():
+    # Gesang der Sirenen: zwei sanfte, vibrierende Stimmen in Terzen über einem Pentatonik-Motiv
+    dur = 7.5
+    t = t_axis(dur)
+    notes = [(0.0, 1.2, "A4"), (1.1, 1.0, "C5"), (2.0, 1.3, "D5"), (3.2, 1.0, "E5"), (4.1, 1.4, "D5"),
+             (5.3, 1.0, "C5"), (6.1, 1.4, "A4")]
+    x = np.zeros_like(t)
+    for start, length, name in notes:
+        f0 = hz(name)
+        i0 = int(start * SR)
+        n = int((length + 0.5) * SR)
+        n = min(n, len(t) - i0)
+        tt = np.arange(n) / SR
+        vib = 1 + 0.006 * np.sin(2 * np.pi * 5.2 * tt) * np.clip(tt * 2, 0, 1)
+        for ratio, amp in [(1.0, 1.0), (1.2599, 0.55)]:       # Grundton und große Terz darüber
+            ph = 2 * np.pi * np.cumsum(f0 * ratio * vib) / SR
+            voice = np.zeros(n)
+            for k, a in [(1, 1.0), (2, 0.5), (3, 0.28), (4, 0.12)]:
+                voice += a * np.sin(k * ph + rng.uniform(0, 6))
+            # Vokalfärbung "aah": Formanten um 800 und 1200 Hz
+            voice = voice + 0.6 * bp(voice, 700, 950, 1) + 0.4 * bp(voice, 1100, 1400, 1)
+            x[i0:i0 + n] += amp * voice * env_adsr(n, 0.25, 0.2, 0.8, 0.45)
+    breath = bp(noise(dur), 2500, 6000) * 0.02 * smooth_random(dur, 6)
+    x = x / (np.max(np.abs(x)) + 1e-9) + breath
+    return trim(reverb(x, 0.45, 1.8), 8.8, 1.5)
+
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "motor":
         save("outboard_loop", outboard_loop(), -6)
         save("starter", starter(), -5)
         save("engine_stop", engine_stop(), -6)
+        sys.exit()
+    if len(sys.argv) > 1 and sys.argv[1] == "hazards":
+        save("explosion", explosion(), -3)
+        save("police_siren", police_siren(), -6)
+        save("siren_song", siren_song(), -5)
         sys.exit()
     if len(sys.argv) > 1 and sys.argv[1] == "music":
         save("music_loop", music(), -4, stereo=True)

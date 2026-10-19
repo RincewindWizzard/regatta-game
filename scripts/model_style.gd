@@ -55,6 +55,11 @@ static func tint(root: Node, material_name: String, col: Color) -> void:
 				mi.set_surface_override_material(i, copy)
 
 
+## Alle Meshes unterhalb von root
+static func meshes_of(root: Node) -> Array[MeshInstance3D]:
+	return _meshes(root)
+
+
 static func _meshes(root: Node) -> Array[MeshInstance3D]:
 	var out: Array[MeshInstance3D] = []
 	if root is MeshInstance3D:

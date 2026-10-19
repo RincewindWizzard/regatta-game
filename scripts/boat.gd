@@ -17,6 +17,10 @@ extends Node3D
 ##  7. Motor: Gasstufen 0–4. Gas geben lässt ihn an (Anlasser ~1 s), Gas auf 0 stellt
 ##     ihn ab. Verbrauch steigt mit dem Gas; Tank leer -> Motor aus. Getankt wird
 ##     an Tankstellen im Stillstand.
+##  8. Wende mit Fahrt: kurzer Beschleunigungsschub (Schwung nutzen!).
+##  9. Kollision mit einem Boot: Tempoverlust und eine Weile verhedderte Segel.
+## 10. Gefahrengebiete (siehe scripts/level/): Polizeikontrolle und Sirenengesang halten das
+##     Boot fest (hold_kind), eine Seemine wirft es aus dem Rennen (out).
 
 const DRIVE := 0.085          ## Vortriebsfaktor
 const DRAG := 0.2             ## quadratischer Wasserwiderstand
@@ -25,6 +29,10 @@ const TURN_RATE := 1.1        ## Drehrate in rad/s bei voller Fahrt
 const NO_GO := 0.38           ## unterhalb dieses scheinbaren Windwinkels kein Vortrieb
 const SHEET_SPEED := 0.7      ## wie schnell eine Schot geholt/gefiert wird (pro s)
 const JIB_SHARE := 0.32       ## Anteil der Fock am Vortrieb
+const TACK_BOOST := 1.5       ## Zusatzbeschleunigung direkt nach einer Wende (m/s²)
+const TACK_BOOST_TIME := 2.2  ## so lange klingt der Schub aus
+const TACK_BOOST_MIN := 1.3   ## Mindestfahrt (m/s), damit die Wende Schub gibt
+const TACK_COOLDOWN := 5.0
 const BOAT_RADIUS := 3.6
 const WORLD_LIMIT := 650.0
 const MODEL_DIR := "res://models/"
@@ -37,6 +45,11 @@ const FUEL_BURN := 0.2        ## Liter pro Sekunde bei Vollgas
 const REFUEL_RATE := 2.2      ## Liter pro Sekunde an der Tankstelle
 
 enum Motor { AUS, ANLASSER, LAEUFT }
+## Boot wird festgehalten: 1 = Polizeikontrolle, 2 = Sirenengesang (Dauer in Sekunden)
+const HOLD_TIMES := {1: 8.0, 2: 7.0}
+const IMMUNE_TIME := 25.0     ## nach einem Halt so lange keine neue Kontrolle / kein neuer Gesang
+## Segel-Overlay (Taste T): zeigt am Segel selbst, ob die Stellung stimmt
+static var trim_overlay := true
 
 var player_index := 0
 var player_name := "Spieler 1"
@@ -52,6 +65,16 @@ var jib_sheet := 0.35         ## Fockschot, folgt automatisch der Großschot
 var heel := 0.0               ## Krängung (rad)
 var controls_enabled := false
 var maneuver_left := 0.0      ## (nicht mehr benutzt, Wenden geht übers Lenken)
+var local_human := false      ## von einem Menschen an diesem Rechner gesteuert (zeigt das Segel-Overlay)
+
+# --- Schub, Kollision, Gefahrengebiete ---
+var boost := 0.0              ## Wendeschub (1 = frisch, klingt auf 0 ab)
+var penalty := 0.0            ## Sekunden verhedderte Segel nach einer Kollision
+var out := false              ## ausgeschieden (Seemine)
+var hold_kind := 0            ## 0 frei, 1 Polizeikontrolle, 2 Sirenengesang
+var hold_time := 0.0
+var hold_focus := Vector2.INF ## Sirenen: Boot dreht sich zur Insel
+var immune_time := 0.0
 
 # --- Motor ---
 var throttle := 0
@@ -61,6 +84,7 @@ var has_engine := true
 var refueling := false
 var _start_timer := 0.0
 var _twa_side := 0
+var _tack_cd := 0.0
 
 # --- Strömung ---
 var current := Vector2.ZERO   ## Strom am Boot (m/s)
@@ -114,6 +138,18 @@ var _track: BoatTrack
 var _snd_water: AudioStreamPlayer
 var _snd_flap: AudioStreamPlayer
 var _snd_engine: AudioStreamPlayer
+var _label: Label3D
+var _ring: MeshInstance3D
+var _out_t := 0.0
+var _hold_vis: Node3D
+var _hold_vis_kind := 0
+var _sail_meshes: Array[MeshInstance3D] = []
+var _jib_meshes: Array[MeshInstance3D] = []
+var _main_trim_mat: StandardMaterial3D
+var _jib_trim_mat: StandardMaterial3D
+var _ghost_boom: Node3D
+var _ghost_mat: StandardMaterial3D
+var _trim_on := false
 
 
 func _ready() -> void:
@@ -166,6 +202,66 @@ func optimal_jib_sheet() -> float:
 	return clampf((jib_opt - 0.1) / 1.15, 0.0, 1.0)
 
 
+# ---------------------------------------------------------------- Kollision, Gefahren
+
+## Zusammenstoß mit einem anderen Boot (nur Host/lokal). impact = Annäherungstempo in m/s,
+## aggressor = dieses Boot ist mit mehr Fahrt auf das andere zugefahren.
+func collide(impact: float, aggressor: bool) -> void:
+	if out or towed or impact < 0.5:
+		return
+	var s := clampf(impact / 3.0, 0.2, 1.0) * (1.3 if aggressor else 1.0)
+	vel *= 1.0 - 0.3 * minf(s, 1.0)
+	if penalty <= 0.2:
+		show_message("Kollision – Segel verheddert!", 2.0)
+	penalty = maxf(penalty, 1.5 + 2.0 * s)
+	heel = minf(heel + 0.12 * s, 0.7)
+
+
+## Dauerkontakt (Boote liegen aneinander): bremst beide
+func scrape(delta: float) -> void:
+	vel *= 1.0 - minf(0.6 * delta, 0.5)
+
+
+## Polizeikontrolle (1) oder Sirenengesang (2) hält das Boot fest
+func start_hold(kind: int, focus := Vector2.INF) -> void:
+	if out or towed or hold_kind != 0:
+		return
+	hold_kind = kind
+	hold_time = HOLD_TIMES[kind]
+	hold_focus = focus
+	_set_throttle(0)
+
+
+func _end_hold(announce: bool) -> void:
+	hold_kind = 0
+	hold_time = 0.0
+	hold_focus = Vector2.INF
+	immune_time = IMMUNE_TIME
+	if announce:
+		show_message("Weiter geht's!", 2.5)
+
+
+## Seemine: Boot fliegt in die Luft und scheidet aus
+func explode() -> void:
+	if out:
+		return
+	out = true
+	hold_kind = 0
+	vel = Vector2.ZERO
+	throttle = 0
+	engine = Motor.AUS
+	refueling = false
+	controls_enabled = false
+	show_message("Seemine! Ausgeschieden", 6.0)
+	Sfx.play("explosion", -2.0)
+	_explode_fx()
+
+
+func _explode_fx() -> void:
+	if get_parent():
+		Fx.explosion(get_parent(), Vector3(position.x, 0.5, position.z))
+
+
 # ---------------------------------------------------------------- Schlepper-Schnittstelle
 
 func start_tow(p_tug: Node) -> void:
@@ -195,16 +291,17 @@ func end_tow() -> void:
 
 # ---------------------------------------------------------------- Netzwerk
 
-const NET_FIELDS := 27
+const NET_FIELDS := 30
 
 
 ## Zustand für den Schnappschuss des Hosts
-func net_pack(out: PackedFloat32Array) -> void:
-	out.append_array(PackedFloat32Array([
+func net_pack(dst: PackedFloat32Array) -> void:
+	dst.append_array(PackedFloat32Array([
 		position.x, position.z, heading, vel.x, vel.y, sheet, heel, awa, aws,
 		boom_abs, boom_opt, jib_abs, float(luffing), float(jib_luffing), float(throttle),
 		float(next_target), float(finished), finish_time, float(aground), float(stuck),
-		float(towed), stuck_time, _last_turn, float(engine), fuel, float(refueling), float(has_engine)]))
+		float(towed), stuck_time, _last_turn, float(engine), fuel, float(refueling), float(has_engine),
+		float(out), float(hold_kind), hold_time]))
 
 
 ## Client: Schnappschuss übernehmen
@@ -237,6 +334,12 @@ func net_unpack(d: PackedFloat32Array, o: int) -> void:
 	fuel = d[o + 24]
 	refueling = d[o + 25] > 0.5
 	has_engine = d[o + 26] > 0.5
+	var now_out := d[o + 27] > 0.5
+	if now_out and not out:
+		out = true
+		_explode_fx()
+	hold_kind = int(d[o + 28])
+	hold_time = d[o + 29]
 	if not _net_has:
 		position.x = _net_pos.x
 		position.z = _net_pos.y
@@ -247,7 +350,8 @@ func net_unpack(d: PackedFloat32Array, o: int) -> void:
 func _puppet_step(delta: float) -> void:
 	if message_time > 0.0:
 		message_time -= delta
-	if not _net_has:
+	hold_time = maxf(0.0, hold_time - delta)
+	if out or not _net_has:
 		return
 	current = Currents.at(pos2d())
 	_net_pos += (vel + current) * delta         # zwischen Schnappschüssen weiterrechnen
@@ -285,11 +389,27 @@ func _physics_process(delta: float) -> void:
 		message_time -= delta
 	var p := pos2d()
 	depth = SeaChart.depth_at(p)
+	if out:
+		vel = Vector2.ZERO
+		stuck = false
+		stuck_time = 0.0
+		return
+	boost = maxf(0.0, boost - delta / TACK_BOOST_TIME)
+	_tack_cd = maxf(0.0, _tack_cd - delta)
+	penalty = maxf(0.0, penalty - delta)
+	immune_time = maxf(0.0, immune_time - delta)
 	if towed:
 		aground = false
 		stuck = false
+		if hold_kind != 0:
+			_end_hold(false)
 		_update_sails_for_display(p)
 		return
+	if hold_kind != 0:
+		hold_time -= delta
+		if hold_time <= 0.0:
+			_end_hold(true)
+	var held := hold_kind != 0
 
 	var tw := wind.get_wind(p, self)
 	tws = tw.length()
@@ -299,13 +419,19 @@ func _physics_process(delta: float) -> void:
 
 	# --- Eingabe & Steuern ---
 	var steer := 0.0
-	if controls_enabled and input:
+	if controls_enabled and input and not held:
 		steer = input.steer
 		sheet = clampf(sheet + input.sheet_rate * SHEET_SPEED * delta, 0.0, 1.0)
 		if input.gas_up_pressed:
 			_set_throttle(throttle + 1)
 		elif input.gas_down_pressed:
 			_set_throttle(throttle - 1)
+	elif held and hold_focus != Vector2.INF:
+		# Sirenengesang: das Boot dreht sich langsam zur Insel
+		var to_focus := hold_focus - p
+		var want := atan2(to_focus.x, to_focus.y)
+		steer = 0.0
+		heading = wrapf(heading + clampf(angle_difference(heading, want), -0.5 * delta, 0.5 * delta), -PI, PI)
 	_update_engine(delta)
 
 	var fwd := Vector2(sin(heading), cos(heading))
@@ -346,12 +472,20 @@ func _physics_process(delta: float) -> void:
 
 	# --- Kräfte ---
 	var drive := DRIVE * aws * aws * polar * trim_eff * heel_pen
+	drive *= 1.0 - 0.5 * clampf(penalty / 2.0, 0.0, 1.0)   # Segel verheddert nach Kollision
+	drive += TACK_BOOST * boost
 	if engine == Motor.LAEUFT:
 		drive += ENGINE_THRUST * float(throttle) / THROTTLE_MAX
+	if held:
+		drive = 0.0
 	_detect_maneuver(tw)
 	var turn_drag := absf(turn / delta) * spd_fwd * 0.75
 	spd_fwd += (drive - DRAG * spd_fwd * absf(spd_fwd) - turn_drag) * delta
 	spd_lat *= exp(-LATERAL_DAMP * delta)
+	if held:
+		# festgehalten: Fahrt und Abdrift laufen schnell aus
+		spd_fwd *= exp(-1.8 * delta)
+		spd_lat *= exp(-1.8 * delta)
 	spd_lat -= signf(awa) * heel * 0.4 * delta
 
 	# --- Grund ---
@@ -372,7 +506,7 @@ func _physics_process(delta: float) -> void:
 		stuck_time = 0.0
 
 	vel = fwd * spd_fwd + port * spd_lat
-	var ground := vel + (current if not stuck else Vector2.ZERO)
+	var ground := vel + (current if not (stuck or held) else Vector2.ZERO)
 	var new_p := (p + ground * delta).clamp(Vector2(-WORLD_LIMIT, -WORLD_LIMIT), Vector2(WORLD_LIMIT, WORLD_LIMIT))
 	# Regattagebiet: draußen sanft zurückdrängen, 30 m dahinter ist Schluss
 	if course:
@@ -462,8 +596,16 @@ func _detect_maneuver(tw: Vector2) -> void:
 	var side := 1 if twa > 0.0 else -1
 	if _twa_side != 0 and side != _twa_side:
 		var tack := absf(twa) < PI * 0.5
-		show_message("Wende!" if tack else "Halse!", 1.2)
-		Sfx.play("whoosh", -4.0, randf_range(0.9, 1.1))
+		var speed_fwd := vel.dot(fwd)
+		if tack and _tack_cd <= 0.0 and speed_fwd > TACK_BOOST_MIN:
+			# Wende mit Schwung: Segel schlagen auf der neuen Seite voll durch
+			boost = clampf((speed_fwd - 0.8) / 2.5, 0.35, 1.0)
+			_tack_cd = TACK_COOLDOWN
+			show_message("Wende – Schub!", 1.4)
+			Sfx.play("whoosh", -2.0, randf_range(1.1, 1.2))
+		else:
+			show_message("Wende!" if tack else "Halse!", 1.2)
+			Sfx.play("whoosh", -4.0, randf_range(0.9, 1.1))
 	_twa_side = side
 
 
@@ -525,6 +667,18 @@ func refuel(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	if out:
+		_out_t += delta
+		_visual.position.y = -_out_t * 1.5
+		_visual.rotation.z = minf(_out_t * 0.5, 1.2)
+		_visual.visible = _out_t < 3.0
+		_arrow.visible = false
+		_ring.visible = false
+		_label.modulate = Color(0.45, 0.45, 0.45)
+		_label.text = player_name + " (raus)"
+		_update_hold_visual()
+		_update_trim_overlay(false)
+		return
 	var side := signf(awa) if absf(awa) > 0.01 else 1.0
 	var gust_f := clampf(aws / 6.0, 0.3, 1.2)
 	var flap := sin(_t * 22.0) * 0.08 * gust_f if luffing else 0.0
@@ -545,6 +699,8 @@ func _process(delta: float) -> void:
 	else:
 		_arrow.visible = false
 	_track.add_point(pos2d())
+	_update_hold_visual()
+	_update_trim_overlay(true)
 
 	# Klang: Wasserrauschen nach Tempo, Flattern wenn ein Segel killt
 	var spd := speed()
@@ -556,6 +712,73 @@ func _process(delta: float) -> void:
 	var eng_vol := (0.25 + 0.5 * float(throttle) / THROTTLE_MAX) if engine == Motor.LAEUFT else 0.0
 	_snd_engine.volume_db = lerpf(_snd_engine.volume_db, linear_to_db(eng_vol + 0.0001) + Sfx.LOOP_DB, 1.0 - exp(-6.0 * delta))
 	_snd_engine.pitch_scale = 0.8 + 0.12 * throttle
+
+
+## Polizeiboot bzw. kreisende Noten um ein festgehaltenes Boot
+func _update_hold_visual() -> void:
+	if hold_kind == 0 or out:
+		if _hold_vis:
+			_hold_vis.queue_free()
+			_hold_vis = null
+			_hold_vis_kind = 0
+		return
+	if _hold_vis == null or _hold_vis_kind != hold_kind:
+		if _hold_vis:
+			_hold_vis.queue_free()
+		_hold_vis = HazardVisuals.police_boat() if hold_kind == 1 else HazardVisuals.siren_notes()
+		_hold_vis_kind = hold_kind
+		add_child(_hold_vis)
+	var total: float = HOLD_TIMES[hold_kind]
+	var elapsed := total - hold_time
+	if hold_kind == 1:
+		var k := smoothstep(0.0, 2.2, elapsed) * (1.0 - smoothstep(total - 1.6, total, elapsed))
+		_hold_vis.position = Vector3(lerpf(46.0, 8.0, k), sin(_t * 1.6) * 0.1, lerpf(-30.0, 0.5, k))
+		_hold_vis.rotation.y = lerpf(0.5, 0.0, k)
+		HazardVisuals.flash_lamps(_hold_vis, _t)
+	else:
+		HazardVisuals.orbit_notes(_hold_vis, _t)
+
+
+## Sail-Overlay: Segel färben sich grün (optimal) bis rot (killt), dazu zeigt eine grüne
+## Linie auf dem Wasser, wo der Baum idealerweise stehen sollte.
+func _update_trim_overlay(active: bool) -> void:
+	var want := active and trim_overlay and local_human and _main_trim_mat != null
+	if want != _trim_on:
+		_trim_on = want
+		for mi in _sail_meshes:
+			mi.material_overlay = _main_trim_mat if want else ModelStyle.outline_material()
+		for mi in _jib_meshes:
+			mi.material_overlay = _jib_trim_mat if want else ModelStyle.outline_material()
+		if _ghost_boom:
+			_ghost_boom.visible = want
+	if not want:
+		return
+	_main_trim_mat.albedo_color = _trim_color(luffing, boom_abs, boom_opt)
+	_jib_trim_mat.albedo_color = _trim_color(jib_luffing, jib_abs, jib_opt)
+	var side := signf(awa) if absf(awa) > 0.01 else 1.0
+	_ghost_boom.rotation.y = side * boom_opt
+	var off := absf(boom_abs - boom_opt)
+	_ghost_mat.albedo_color = Color(0.1, 0.8, 0.3, lerpf(0.12, 0.6, smoothstep(0.08, 0.35, off)))
+
+
+func _trim_color(luff: bool, actual: float, opt: float) -> Color:
+	if luff:
+		var blink := 0.5 + 0.5 * sin(_t * 14.0)
+		return Color(0.95, 0.12, 0.1, lerpf(0.35, 0.7, blink))
+	var err := absf(actual - opt)
+	var c := Color(0.15, 0.85, 0.3).lerp(Color(1.0, 0.55, 0.1), smoothstep(0.1, 0.5, err))
+	return Color(c, 0.45)
+
+
+func _make_trim_mat() -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.grow = true
+	m.grow_amount = 0.04
+	m.next_pass = ModelStyle.outline_material()
+	return m
 
 
 func _mat(c: Color, unshaded := false, double_sided := false) -> StandardMaterial3D:
@@ -626,6 +849,23 @@ func _build_visuals() -> void:
 	var ring_mi := _add_mesh(ring, _mat(Color(color, 0.6), true), Vector3(0, 0.05, 0.3), Vector3.ZERO, self)
 	ring_mi.scale = Vector3(1, 0.05, 1)
 	ring_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_ring = ring_mi
+
+	# Trimm-Overlay: Segelfarben und "Geisterbaum" in optimaler Stellung
+	_main_trim_mat = _make_trim_mat()
+	_jib_trim_mat = _make_trim_mat()
+	_ghost_boom = Node3D.new()
+	_ghost_boom.position = Vector3(0, 0.25, 1.6)
+	_ghost_boom.visible = false
+	add_child(_ghost_boom)
+	_ghost_mat = StandardMaterial3D.new()
+	_ghost_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ghost_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_ghost_mat.albedo_color = Color(0.1, 0.8, 0.3, 0.4)
+	var ghost_mesh := BoxMesh.new()
+	ghost_mesh.size = Vector3(0.28, 0.05, 5.4)
+	var ghost_mi := _add_mesh(ghost_mesh, _ghost_mat, Vector3(0, 0, -2.7), Vector3.ZERO, _ghost_boom)
+	ghost_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 	# Pfeil zur nächsten Tonne
 	_arrow = Node3D.new()
@@ -648,6 +888,7 @@ func _build_visuals() -> void:
 	label.modulate = color.darkened(0.1)
 	label.position = Vector3(0, size * 2.1 + 2.0, 0)
 	add_child(label)
+	_label = label
 
 
 ## Dehler 31 aus res://models/ (aus der .blend exportiert). Drehpunkte = Knochen des Rigs.
@@ -665,6 +906,7 @@ func _build_model() -> bool:
 	var main: Node3D = load(MODEL_DIR + "dehler31_main.glb").instantiate()
 	_boom_pivot.add_child(main)
 	ModelStyle.outline(main)
+	_sail_meshes = ModelStyle.meshes_of(main)
 
 	var tack := Vector3(0, 1.1524, 4.92)                  # Fockhals
 	var head := Vector3(0, 11.9, 1.67)                    # Fockkopf am Vorstag
@@ -675,6 +917,7 @@ func _build_model() -> bool:
 	var jib: Node3D = load(MODEL_DIR + "dehler31_jib.glb").instantiate()
 	_jib_pivot.add_child(jib)
 	ModelStyle.outline(jib)
+	_jib_meshes = ModelStyle.meshes_of(jib)
 
 	_tiller_pivot = Node3D.new()
 	_tiller_pivot.position = Vector3(0, 0, -3.35)          # Ruderschaft

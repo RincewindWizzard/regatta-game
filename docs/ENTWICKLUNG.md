@@ -15,6 +15,19 @@ gegen den Strom den Motor an (je nach Stärke) und fährt zum Tanken, wenn eine 
 dem Weg liegt. Vergleichstest aller Stufen auf allen Bahnen:
 `sh tests/ai_compare.sh <godot> <ausgabeordner>`.
 
+## Gefahrengebiete (Technik)
+
+`RestrictedArea` und `SirenIsland` haben `update_boat(boat, delta)`, das `main.gd` jeden
+Physikschritt für jedes Boot aufruft (nur Host bzw. lokal). Sie lösen `Boat.explode()`
+(Seemine, Boot ist `out`) oder `Boat.start_hold(kind)` aus (1 Polizei, 2 Sirenen, Dauer in
+`Boat.HOLD_TIMES`, danach `IMMUNE_TIME` Schonfrist). Beide Zustände laufen im Netzwerk-
+Schnappschuss mit (`out`, `hold_kind`, `hold_time`); Polizeiboot und Noten zeichnet jedes
+Boot selbst aus diesem Zustand. Die Computergegner bekommen die Gebiete über
+`Level.danger_circles()` als Sperrzonen. Tests: `tests/hazard_test.gd`.
+
+Der Windschatten von Land (`WindField._land_shadow`) tastet gegen den Wind über die
+Seekarte (bis 170 m, bis 88 % Windverlust im direkten Lee).
+
 ## Mehrspieler (Technik)
 
 Der Host rechnet die Physik, die anderen schicken nur ihre Eingaben und erhalten 20× pro
@@ -52,6 +65,9 @@ mit den normalen Godot-Gizmos (W/E/R).
 | **CurrentArea** (Strömung) | Strömungsfeld: Stärke in kn, Länge/Breite, optional Gezeitenperiode (Strom kentert). Fließt in Pfeilrichtung (lokal −Z), mit Drehen ausrichten. |
 | **RiverChannel** (Flusslauf) | Ein Godot-`Path3D`: Punkte mit dem Pfad-Werkzeug setzen/ziehen. Gräbt einen Fluss ins Land, Breite (+ `width_curve`), Tiefe, Fließgeschwindigkeit vom ersten zum letzten Punkt, Uferbäume, Name. Schmal = schneller. |
 | **ShoalArea „See“** | gräbt einen See ins Land (für Binnenreviere). |
+| **SeaLife** (Tiere, Wrack) | Dekoration: Tümmler (springen), Wal (bläst, taucht ab), Möwen, Seehunde. `count` Tiere im Umkreis `range_m`. Art **Wrack**: gestrandetes Schiff, für Boote fest (`solid`), die KI umfährt es. |
+| **RestrictedArea** (Sperrgebiet) | Art **Minenfeld**: Boot, das eine Mine berührt, explodiert und scheidet aus. Art **Polizei**: Boote im Gebiet werden angehalten und durchsucht. Radius und Minenzahl im Inspector. |
+| **SirenIsland** (Sirenen-Insel) | Insel (wie ShoalArea), deren Gesang Boote bis `song_range` vom Ufer festhält. |
 | **FuelDock** (Tankstelle) | Steg mit Zapfsäule. Wurzel an Land setzen, Pfeil (lokal −Z) zeigt ins Wasser; der Liegeplatz liegt am Stegkopf. |
 
 Inseln (ShoalArea, Art „Insel“) haben im Inspector unter *Insel-Ausstattung* Bäume, Häuser
@@ -111,7 +127,8 @@ werden. Lautstärken: `MUSIC_DB`, `SFX_DB`, `LOOP_DB` in `scripts/sfx.gd`.
 | `scripts/currents.gd` | Summe aller Strömungen an einem Punkt |
 | `addons/regatta_editor/` | Editor-Plugin: Seegrund-Pinsel und „+ Baustein“ |
 | `scripts/game_state.gd` | Menü-Auswahl, Windstufen, Levelliste |
-| `scripts/boat.gd` | Segelphysik, Motor/Tank, Strömung, Wende-/Halse-Erkennung, Grund, Optik, Klang |
+| `scripts/boat.gd` | Segelphysik, Motor/Tank, Strömung, Wendeschub, Kollisionsstrafe, Haltezustände, Segel-Overlay, Grund, Optik, Klang |
+| `scripts/fx.gd` | Effekte: Wellenring, Explosion |
 | `scripts/sea_chart.gd` | Kartendarstellung (Shader, Lotungen) und Tiefenabfrage |
 | `scripts/course.gd` | Bahnlogik (Start, Tonnen, Ziel) |
 | `scripts/wind_field.gd` / `wind_visuals.gd` | Wind (Dreher, Böen, Windschatten) und seine Darstellung |

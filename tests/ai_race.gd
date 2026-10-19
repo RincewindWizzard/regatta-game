@@ -33,9 +33,10 @@ func _setup() -> void:
 			var b: Boat = _main.boats[i]
 			b.input = AIInput.new(b, _main.wind, _main.course, lv[i], _main._fixed_points)
 			b.input.docks = _main._docks
+			b.input.avoid = _main.level.danger_circles()
 			b.player_name = ["Leicht", "Mittel", "Schwer A", "Schwer B"][i]
 	for b in _main.boats:
-		_stats[b] = {"aground": 0, "tugs": 0, "outside": 0, "was_aground": false, "had_tug": false, "was_out": false, "refuels": 0, "was_ref": false, "motor": 0.0, "where": []}
+		_stats[b] = {"aground": 0, "tugs": 0, "outside": 0, "was_aground": false, "had_tug": false, "was_out": false, "refuels": 0, "was_ref": false, "motor": 0.0, "where": [], "holds": 0, "was_hold": 0, "hits": 0, "was_pen": false}
 
 
 func _physics_process(delta: float) -> bool:
@@ -67,9 +68,16 @@ func _physics_process(delta: float) -> bool:
 		s["was_ref"] = b.refueling
 		if b.engine == Boat.Motor.LAEUFT:
 			s["motor"] += delta
+		if b.hold_kind != 0 and s["was_hold"] == 0:
+			s["holds"] += 1
+		s["was_hold"] = b.hold_kind
+		var pen: bool = b.penalty > 0.0
+		if pen and not s["was_pen"]:
+			s["hits"] += 1
+		s["was_pen"] = pen
 	var all_done := true
 	for b in _main.boats:
-		if not b.finished:
+		if not b.finished and not b.out:
 			all_done = false
 	if all_done or _t > MAX_TIME:
 		_report()
@@ -83,4 +91,6 @@ func _report() -> void:
 	for b in _main.boats:
 		var s: Dictionary = _stats[b]
 		var res: String = "ZIEL %d:%04.1f" % [int(b.finish_time) / 60, fmod(b.finish_time, 60.0)] if b.finished else "nicht im Ziel (Ziel %d/%d, %s)" % [b.next_target, marks, b.pos2d()]
-		print("  %-12s %-34s Grund %d  Schlepper %d  Gebiet verlassen %d  Motor %3ds  Tanken %d  %s" % [b.player_name, res, s["aground"], s["tugs"], s["outside"], s["motor"], s["refuels"], " ".join(s["where"])])
+		if b.out:
+			res = "EXPLODIERT bei %s" % b.pos2d()
+		print("  %-12s %-34s Grund %d  Schlepper %d  Gebiet verlassen %d  Motor %3ds  Tanken %d  Halt %d  Kollision %d  %s" % [b.player_name, res, s["aground"], s["tugs"], s["outside"], s["motor"], s["refuels"], s["holds"], s["hits"], " ".join(s["where"])])

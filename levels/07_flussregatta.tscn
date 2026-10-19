@@ -1,27 +1,29 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
-[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_01fw0"]
-[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="2_2xsns"]
-[ext_resource type="Script" path="res://scripts/level/river_channel.gd" id="3_l4k11"]
-[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="4_y6hca"]
-[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="5_rum5q"]
-[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="6_4jrt8"]
-[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="7_jg84e"]
-[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="8_avot6"]
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_2mj6r"]
+[ext_resource type="Script" path="res://scripts/level/shoal_area.gd" id="2_1lnfb"]
+[ext_resource type="Script" path="res://scripts/level/river_channel.gd" id="3_qln48"]
+[ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="4_m2v24"]
+[ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="5_ir6lm"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="6_cjggp"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="7_by8yf"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="8_1irji"]
+[ext_resource type="Script" path="res://scripts/level/sea_life.gd" id="9_lga6p"]
+[ext_resource type="Script" path="res://scripts/level/restricted_area.gd" id="10_d4e5c"]
 
-[sub_resource type="Curve3D" id="Curve3D_onlrw"]
+[sub_resource type="Curve3D" id="Curve3D_hg4mg"]
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 50, 0, 0, -200, 20, 0, -45, -20, 0, 45, -80, 0, -80, -55, 0, -40, 55, 0, 40, 50, 0, 40, 30, 0, -40, -30, 0, 40, -20, 0, 150, -25, 0, -30, 0, 0, 0, 30, 0, 225),
 "tilts": PackedFloat32Array(0, 0, 0, 0, 0)
 }
 point_count = 5
 
-[sub_resource type="Curve" id="Curve_5xq2v"]
+[sub_resource type="Curve" id="Curve_hlmiu"]
 _data = [Vector2(0, 1.2), 0.0, 0.0, 0, 0, Vector2(0.45, 0.78), 0.0, 0.0, 0, 0, Vector2(0.6, 0.78), 0.0, 0.0, 0, 0, Vector2(1, 1.2), 0.0, 0.0, 0, 0]
 point_count = 4
 
 [node name="Level" type="Node3D"]
-script = ExtResource("1_01fw0")
+script = ExtResource("1_2mj6r")
 level_name = "Flussregatta"
 description = "Binnenrevier: Vom Kleinen See flussaufwärts gegen die Strömung in den Großen See, dort zwei Tonnen runden und mit dem Strom zurück. In der Engstelle fließt der Fluss am schnellsten. Zwei Tankstellen."
 wind_from_deg = 200.0
@@ -40,7 +42,7 @@ depth_paint_png = PackedByteArray()
 
 [node name="GrosserSee" type="Node3D" parent="."]
 transform = Transform3D(1.35, 0, 0, 0, 1, 0, 0, 0, 0.85, 0, 0, -340)
-script = ExtResource("2_2xsns")
+script = ExtResource("2_1lnfb")
 kind = 2
 area_name = "Großer See"
 radius = 190.0
@@ -55,7 +57,7 @@ shore_rocks = true
 
 [node name="KleinerSee" type="Node3D" parent="."]
 transform = Transform3D(1.25, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 315)
-script = ExtResource("2_2xsns")
+script = ExtResource("2_1lnfb")
 kind = 2
 area_name = "Kleiner See"
 radius = 115.0
@@ -69,10 +71,10 @@ houses = 0
 shore_rocks = true
 
 [node name="Muehlenfluss" type="Path3D" parent="."]
-curve = SubResource("Curve3D_onlrw")
-script = ExtResource("3_l4k11")
+curve = SubResource("Curve3D_hg4mg")
+script = ExtResource("3_qln48")
 width = 100.0
-width_curve = SubResource("Curve_5xq2v")
+width_curve = SubResource("Curve_hlmiu")
 depth = 6.0
 flow_kn = 1.1
 river_name = "Mühlenfluss"
@@ -80,7 +82,7 @@ bank_trees = 70
 
 [node name="Moeweninsel" type="Node3D" parent="."]
 transform = Transform3D(1.3, 0, 0, 0, 1, 0, 0, 0, 0.9, 70, 0, -330)
-script = ExtResource("2_2xsns")
+script = ExtResource("2_1lnfb")
 kind = 1
 area_name = "Möweninsel"
 radius = 34.0
@@ -95,7 +97,7 @@ shore_rocks = true
 
 [node name="Krautgrund" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, -390)
-script = ExtResource("2_2xsns")
+script = ExtResource("2_1lnfb")
 kind = 0
 area_name = "Krautgrund"
 radius = 26.0
@@ -110,94 +112,138 @@ shore_rocks = true
 
 [node name="Krautgrund_N" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, -432)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 0
 mark_label = ""
 
 [node name="Krautgrund_S" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, -348)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 2
 mark_label = ""
 
 [node name="Rot1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -81.5088, 0, -134.513)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 5
 mark_label = "2"
 
 [node name="Gruen1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.9718, 0, -90.9288)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 6
 mark_label = "1"
 
 [node name="Rot2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.1403, 0, 15.9543)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 5
 mark_label = "4"
 
 [node name="Gruen2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.86246, 0, -25.662)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 6
 mark_label = "3"
 
 [node name="Rot3" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9864, 0, 62.0521)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 5
 mark_label = "6"
 
 [node name="Gruen3" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.2518, 0, 73.1413)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 6
 mark_label = "5"
 
 [node name="Rot4" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.7606, 0, 156.106)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 5
 mark_label = "8"
 
 [node name="Gruen4" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.62499, 0, 171.329)
-script = ExtResource("4_y6hca")
+script = ExtResource("4_m2v24")
 kind = 6
 mark_label = "7"
 
 [node name="Flusstankstelle" type="Node3D" parent="."]
 transform = Transform3D(0.103469, 0, -0.994633, 0, 1, 0, 0.994633, 0, 0.103469, -142.773, 0, -60.5443)
-script = ExtResource("5_rum5q")
+script = ExtResource("5_ir6lm")
 length = 26.0
 dock_name = "Flusstankstelle"
 
 [node name="Seetankstelle" type="Node3D" parent="."]
 transform = Transform3D(-0.928477, 0, -0.371391, 0, 1, 0, 0.371391, 0, -0.928477, -150, 0, -470)
-script = ExtResource("5_rum5q")
+script = ExtResource("5_ir6lm")
 length = 48.0
 dock_name = "Marina"
 
 [node name="StartZiel" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 330)
-script = ExtResource("6_4jrt8")
+script = ExtResource("6_cjggp")
 half_width = 40.0
 
 [node name="Seetonne1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -400)
-script = ExtResource("7_jg84e")
+script = ExtResource("7_by8yf")
 mark_name = "Seetonne Nord"
 light = "Fl.Y.2s"
 
 [node name="Seetonne2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -160, 0, -290)
-script = ExtResource("7_jg84e")
+script = ExtResource("7_by8yf")
 mark_name = "Seetonne West"
 light = "Fl(2)Y.6s"
 
 [node name="Kompassrose" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 0, -180)
-script = ExtResource("8_avot6")
+script = ExtResource("8_1irji")
 radius = 30.0
+
+[node name="Moewen" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, -300)
+script = ExtResource("9_lga6p")
+kind = 2
+count = 7
+range_m = 70.0
+solid = true
+label = ""
+
+[node name="Moewen_Insel" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0, -330)
+script = ExtResource("9_lga6p")
+kind = 2
+count = 5
+range_m = 40.0
+solid = true
+label = ""
+
+[node name="Seehunde" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, -390)
+script = ExtResource("9_lga6p")
+kind = 3
+count = 3
+range_m = 6.0
+solid = true
+label = ""
+
+[node name="Wrack" type="Node3D" parent="."]
+transform = Transform3D(0.766044, 0, 0.642788, 0, 1, 0, -0.642788, 0, 0.766044, -100, 0, -460)
+script = ExtResource("9_lga6p")
+kind = 4
+count = 1
+range_m = 20.0
+solid = true
+label = ""
+
+[node name="Schutzgebiet" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95, 0, -430)
+script = ExtResource("10_d4e5c")
+kind = 1
+area_name = "Vogelschutzgebiet"
+radius = 35.0
+mine_count = 14

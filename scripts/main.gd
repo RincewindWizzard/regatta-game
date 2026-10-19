@@ -40,6 +40,7 @@ var _local_inputs: Array = []      # Client: [{slot, input, tack, jibe, start}]
 var _tug_puppets := {}             # Client: Boot-Index -> Tug
 var _fixed_points: Array = []      # Tonnen: [Position, Radius]
 var _docks: Array = []             # Tankstellen
+var _hazards: Array = []           # Minenfelder, Polizeigebiete, Sirenen-Inseln
 
 
 func _ready() -> void:
@@ -62,6 +63,7 @@ func _ready() -> void:
 	course.setup(level)
 	_fixed_points = level.collision_points()
 	_docks = level.fuel_docks()
+	_hazards = level.hazards()
 	Currents.set_sources(level.current_sources())
 	course.target_reached.connect(_on_target_reached)
 	course.boat_finished.connect(_on_boat_finished)
@@ -96,8 +98,10 @@ func _ready() -> void:
 		b.has_engine = b.fuel > 0.0
 		var is_bot: bool = slot.get("bot", false)
 		var mine := int(slot["peer"]) == GameState.my_peer and not is_bot
+		b.local_human = mine
 		if is_bot and net != "client":
 			var ai := AIInput.new(b, wind, course, int(slot.get("ai", 1)), _fixed_points)
+			ai.avoid = level.danger_circles()
 			ai.docks = _docks
 			b.input = ai
 		elif net == "client":
@@ -166,10 +170,18 @@ func _physics_process(delta: float) -> void:
 		"racing", "finished":
 			race_time += delta
 	go_flash = maxf(0.0, go_flash - delta)
-	_resolve_collisions()
+	if state == "racing" or state == "finished":
+		for h in _hazards:
+			for b in boats:
+				h.update_boat(b, delta)
+		if state == "racing" and winner == null and boats.all(func(b: Boat): return b.out):
+			state = "finished"
+	_resolve_collisions(delta)
 	_call_tugs()
 	for dock in _docks:
 		for b in boats:
+			if b.out:
+				continue
 			if b.pos2d().distance_to(dock.berth()) < FuelDock.ZONE:
 				b.refuel(delta)
 			elif b.refueling and b.pos2d().distance_to(dock.berth()) < FuelDock.ZONE + 10.0:
@@ -188,7 +200,7 @@ func _physics_process(delta: float) -> void:
 
 func _call_tugs() -> void:
 	for b in boats:
-		if b.tug == null and not b.towed and b.stuck_time > STUCK_WAIT:
+		if b.tug == null and not b.towed and not b.out and b.stuck_time > STUCK_WAIT:
 			var tug := Tug.spawn_for(b)
 			b.tug = tug
 			add_child(tug)
@@ -201,6 +213,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F5:
 				if net != "client":
 					restart()
+			KEY_T:
+				Boat.trim_overlay = not Boat.trim_overlay
 			KEY_ESCAPE:
 				_leave()
 
@@ -249,12 +263,12 @@ func _on_boat_finished(boat: Boat) -> void:
 		state = "finished"
 
 
-func _resolve_collisions() -> void:
+func _resolve_collisions(delta: float) -> void:
 	for i in boats.size():
 		for j in range(i + 1, boats.size()):
 			var a := boats[i]
 			var b := boats[j]
-			if a.towed or b.towed:
+			if a.towed or b.towed or a.out or b.out:
 				continue
 			var d := b.pos2d() - a.pos2d()
 			var dist := d.length()
@@ -267,13 +281,21 @@ func _resolve_collisions() -> void:
 			b.position += Vector3(n.x, 0, n.y) * push
 			var rel := (b.vel - a.vel).dot(n)
 			if rel < 0.0:
+				# Nachteil für beide; stärker für den, der mit mehr Fahrt aufgefahren ist
+				var a_in := a.vel.dot(n)
+				var b_in := -b.vel.dot(n)
 				a.vel += n * rel * 0.6
 				b.vel -= n * rel * 0.6
 				if rel < -1.0:
 					Sfx.play("crunch", -10.0, 1.6)
+				a.collide(-rel, a_in >= b_in)
+				b.collide(-rel, b_in > a_in)
+			# Aneinanderliegen bremst beide
+			a.scrape(delta)
+			b.scrape(delta)
 	# Tonnen sind fest: Boote prallen ab
 	for b in boats:
-		if b.towed:
+		if b.towed or b.out:
 			continue
 		for fp in _fixed_points:
 			var c: Vector2 = fp[0]

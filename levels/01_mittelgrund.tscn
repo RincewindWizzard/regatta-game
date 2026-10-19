@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/level/level.gd" id="1_flfh3"]
 [ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_p6kx5"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="8_1xg2r"]
 [ext_resource type="Script" path="res://scripts/level/current_area.gd" id="9_gjl86"]
 [ext_resource type="Script" path="res://scripts/level/fuel_dock.gd" id="10_2kkw8"]
+[ext_resource type="Script" path="res://scripts/level/sea_life.gd" id="11_qxuox"]
 
 [node name="Level" type="Node3D"]
 script = ExtResource("1_flfh3")
@@ -266,3 +267,48 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 222, 0
 script = ExtResource("10_2kkw8")
 length = 30.0
 dock_name = "Tankstelle Möwenhörn"
+
+[node name="Tuemmler" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, -470)
+script = ExtResource("11_qxuox")
+kind = 0
+count = 3
+range_m = 40.0
+solid = true
+label = ""
+
+[node name="Wal" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -280, 0, -440)
+script = ExtResource("11_qxuox")
+kind = 1
+count = 1
+range_m = 50.0
+solid = true
+label = ""
+
+[node name="Moewen" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255, 0, -270)
+script = ExtResource("11_qxuox")
+kind = 2
+count = 7
+range_m = 45.0
+solid = true
+label = ""
+
+[node name="Seehunde" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, -230)
+script = ExtResource("11_qxuox")
+kind = 3
+count = 4
+range_m = 8.0
+solid = true
+label = ""
+
+[node name="Wrack" type="Node3D" parent="."]
+transform = Transform3D(0.819152, 0, 0.573576, 0, 1, 0, -0.573576, 0, 0.819152, 140, 0, 40)
+script = ExtResource("11_qxuox")
+kind = 4
+count = 1
+range_m = 20.0
+solid = true
+label = ""

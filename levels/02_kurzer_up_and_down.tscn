@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/level/level.gd" id="1_7hvry"]
 [ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_7wbmp"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="5_qse42"]
 [ext_resource type="Script" path="res://scripts/level/sea_mark.gd" id="6_lfcdg"]
 [ext_resource type="Script" path="res://scripts/level/lighthouse.gd" id="7_m8dfr"]
+[ext_resource type="Script" path="res://scripts/level/sea_life.gd" id="8_082cr"]
 
 [node name="Level" type="Node3D"]
 script = ExtResource("1_7hvry")
@@ -110,3 +111,30 @@ rock_radius = 11.0
 tower_name = "Hoher Weg"
 characteristic = "Fl(3)W.12s 18m 12M"
 rotating_beam = true
+
+[node name="Moewen" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 0, -100)
+script = ExtResource("8_082cr")
+kind = 2
+count = 6
+range_m = 40.0
+solid = true
+label = ""
+
+[node name="Tuemmler" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 0, -330)
+script = ExtResource("8_082cr")
+kind = 0
+count = 3
+range_m = 35.0
+solid = true
+label = ""
+
+[node name="Seehunde" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -120, 0, -160)
+script = ExtResource("8_082cr")
+kind = 3
+count = 3
+range_m = 8.0
+solid = true
+label = ""
