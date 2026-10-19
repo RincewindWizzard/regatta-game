@@ -62,7 +62,7 @@ if e > 15.0:
     return _finish(false)                                # Zeitüberschreitung = Fehler
 ```
 
-### Tests mit Grafik (Screenshots)
+### Tests mit Grafik (Screenshots) { #screenshots }
 
 Mit einem Display (oder `xvfb-run` auf dem Server) rendert Godot Bilder:
 
@@ -77,6 +77,7 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3
 | `level_shots.gd` | Übersichten von Bahnen aus freier Kamera |
 | `feature_shots.gd` | Tiere, Wrack, Minenfeld, Polizei, Sirenen, Segel-Overlay, Explosion |
 | `menu_shot.gd` | Menü und Rennstart |
+| `map_shots.gd` | **die ganze Karte jeder Bahn** senkrecht von oben (orthogonale Kamera), auf das Regattagebiet zugeschnitten; speist [Die Karten](../spielen/karten.md) |
 | `showroom.gd`, `closeup.gd`, `ai_shot.gd` | Nahaufnahmen von Modellen, Orten, KI-Rennen |
 
 Der Trick dahinter: Die Kamera des `SplitCameraManager` wird per Skript auf einen Punkt

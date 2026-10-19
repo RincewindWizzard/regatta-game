@@ -1,5 +1,7 @@
 # Die Bahnen
 
+Die vollständigen Karten aller Bahnen stehen unter [Die Karten](karten.md).
+
 Alle Bahnen liegen als Godot-Szenen in `levels/` und erscheinen automatisch im Menü. Wie sie
 aufgebaut sind, steht in [Level und Bausteine](../skripte/level.md); eigene Bahnen baut man
 nach [Eigene Bahnen bauen](../referenz/bahnen-bauen.md).
