@@ -17,6 +17,7 @@ extends Node3D
 ##   SeaLife     – Tümmler, Wale, Möwen, Seehunde und Wracks als Dekoration
 ##   RestrictedArea – Sperrgebiet: Minenfeld (Boot explodiert) oder Polizeikontrolle
 ##   SirenIsland – Insel, deren Gesang vorbeisegelnde Boote festhält
+##   ShippingLane – Schifffahrtsweg mit Berufsschifffahrt, der man ausweichen muss
 ## Binnenrevier: "inland" einschalten – dann ist alles Land, und Flüsse sowie
 ## Seen (ShoalArea, Art „See“) graben das Wasser aus.
 ## Das Regattagebiet (magenta Grenze) umschließt die Bahn mit dem Abstand area_margin.
@@ -213,6 +214,14 @@ func map_bounds(margin := 80.0) -> Rect2:
 	return r
 
 
+## Linien der Schifffahrtswege für Kartenvorschau und Minikarte: [{a, b, name}]
+func lane_lines() -> Array:
+	var out: Array = []
+	for l in shipping_lanes():
+		out.append({"a": l.lane_start(), "b": l.lane_end(), "name": l.lane_name})
+	return out
+
+
 ## Gefahrengebiete für Kartenvorschau und Minikarte: [{pos, radius, kind}],
 ## kind 0 = Minenfeld, 1 = Polizei, 2 = Sirenengesang
 func danger_zones() -> Array:
@@ -222,6 +231,15 @@ func danger_zones() -> Array:
 			out.append({"pos": c.pos2d(), "radius": c.radius, "kind": int(c.kind)})
 		elif c is SirenIsland:
 			out.append({"pos": c.pos2d(), "radius": c.capture_radius(), "kind": 2})
+	return out
+
+
+## Schifffahrtswege (Berufsschifffahrt)
+func shipping_lanes() -> Array:
+	var out: Array = []
+	for c in get_children():
+		if c is ShippingLane:
+			out.append(c)
 	return out
 
 

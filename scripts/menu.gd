@@ -97,6 +97,7 @@ func _read_level(path: String) -> Dictionary:
 		"docks": lvl.fuel_docks().size(),
 		"dock_pos": lvl.fuel_docks().map(func(d): return d.berth()),
 		"zones": lvl.danger_zones(),
+		"lanes": lvl.lane_lines(),
 		"wind": lvl.wind_speed,
 		"gusts": lvl.gusts,
 		"shift": lvl.wind_shift_deg,
@@ -455,6 +456,10 @@ func _draw_preview() -> void:
 		_preview.draw_arc(zc, zr, 0, TAU, 48, Color(MAGENTA, 0.9), 2.0, true)
 		var zname: String = ["Minen", "Sperrgebiet", "Sirenen"][int(z["kind"])]
 		_preview.draw_string(_font_b, zc + Vector2(-30, 5), zname, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MAGENTA)
+	for ln in info["lanes"]:
+		_preview.draw_dashed_line(to_p.call(ln["a"]), to_p.call(ln["b"]), Color(MAGENTA, 0.8), 4.0, 12.0)
+		var mid: Vector2 = to_p.call((ln["a"] + ln["b"]) * 0.5)
+		_preview.draw_string(_font_b, mid + Vector2(10, 0), "Schifffahrt", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MAGENTA)
 	for dp in info["dock_pos"]:
 		var dc: Vector2 = to_p.call(dp)
 		_preview.draw_circle(dc, 9.0, Color(0.85, 0.15, 0.12))

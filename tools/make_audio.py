@@ -530,6 +530,18 @@ def trim(x, seconds, fade=1.0):
     return x
 
 
+def ship_horn():
+    # Typhon eines großen Schiffs: tiefer Dreiklang, lang gehalten, mit leichtem Schwebungseffekt
+    dur = 2.6
+    t = t_axis(dur)
+    x = np.zeros_like(t)
+    for f, a in [(98.0, 1.0), (98.0 * 1.003, 0.8), (147.0, 0.55), (196.0, 0.35), (294.0, 0.15)]:
+        x += a * (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(4 * np.pi * f * t))
+    x = lp(x, 900, 2)
+    x *= env_adsr(len(t), 0.12, 0.2, 0.9, 0.5)
+    return trim(reverb(x, 0.3, 1.4), 3.6, 0.8)
+
+
 def explosion():
     # Seemine: dumpfer Schlag, Druckwelle, prasselnde Trümmer und Wasserplatschen
     dur = 3.2
@@ -597,6 +609,7 @@ if __name__ == "__main__":
         save("explosion", explosion(), -3)
         save("police_siren", police_siren(), -6)
         save("siren_song", siren_song(), -5)
+        save("ship_horn", ship_horn(), -4)
         sys.exit()
     if len(sys.argv) > 1 and sys.argv[1] == "music":
         save("music_loop", music(), -4, stereo=True)

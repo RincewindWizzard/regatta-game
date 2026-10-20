@@ -176,6 +176,13 @@ func _draw_minimap(r: Rect2) -> void:
 		var zr: float = float(z["radius"]) / map_rect.size.x * r.size.x
 		draw_circle(zc, zr, Color(MAGENTA, 0.15))
 		draw_arc(zc, zr, 0.0, TAU, 24, MAGENTA, 1.0, true)
+	for ln in course.level.lane_lines():
+		draw_line(to_map.call(ln["a"]), to_map.call(ln["b"]), Color(MAGENTA, 0.45), 3.0)
+	for lane in course.level.shipping_lanes():
+		for sh in lane.ships_at(ShippingLane.clock):
+			var sp: Vector2 = to_map.call(sh["pos"])
+			var sd: Vector2 = sh["dir"]
+			draw_line(sp - sd * 4.0, sp + sd * 4.0, Color(0.1, 0.12, 0.2), 3.0)
 	for d in course.level.fuel_docks():
 		var dc: Vector2 = to_map.call(d.berth())
 		draw_circle(dc, 3.5, Color(0.85, 0.15, 0.12))

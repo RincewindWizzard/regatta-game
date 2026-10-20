@@ -161,6 +161,15 @@ auf demselben Rechner), bleibt die Suche aus, ohne Fehler.
 `apply_snapshot` liest sie in **derselben Reihenfolge** wieder aus. Alles ist `float32`,
 auch Bool-Werte (`0.0`/`1.0`). Das ist kompakt (ca. 130 Zahlen ≈ 520 Byte bei 4 Booten) und einfach.
 
+### Dinge, die nicht übertragen werden müssen
+
+Die **Berufsschiffe** (`ShippingLane`) haben keinen eigenen Zustand: Ihre Position ist eine
+**reine Funktion der Rennzeit** (`ships_at(t)`). Der Host schickt ohnehin die Rennzeit im
+Schnappschuss, und `main.gd` gibt sie über `ShippingLane.clock` an die Schiffe weiter, sodass
+alle Rechner dieselben Schiffe sehen. Dasselbe Muster gilt für die Minen (fester Seed) und die
+Böen (Seeds im Startpaket): **Was deterministisch berechenbar ist, braucht keine
+Netzwerkdaten.** Nur die Kollision wird allein auf dem Host entschieden.
+
 ### Glätten auf dem Client
 
 Der Client bekommt nur 20 Bilder pro Sekunde, zeichnet aber 60+. Ein Boot (`puppet`) rechnet

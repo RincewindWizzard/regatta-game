@@ -32,6 +32,30 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 * Wer die Linie überfährt, bleibt stehen, das Boot dreht sich langsam zur Insel, rund
   **7 Sekunden** lang. Dann 25 Sekunden Schonfrist.
 
+## Berufsschifffahrt
+
+![Frachter und Tanker in der Lotsenrinne](../bilder/schifffahrt.png)
+
+In der **Lotsenrinne** gibt es einen Schifffahrtsweg: Containerschiffe, Tanker und
+Massengutfrachter (je rund 80 m lang, 7 kn) fahren das Fahrwasser hinauf und hinunter. Auf der
+Karte zeigen magenta **Richtungspfeile** die beiden Fahrspuren, in der Minikarte sind die Schiffe
+dunkle Striche.
+
+* Die Schiffe fahren **rechts** (Rechtsfahrgebot): Nordwärts in der östlichen, südwärts in der
+  westlichen Spur. In der Mitte bleibt eine etwa 28 m breite Lücke.
+* **Ausweichen** ist Pflicht: Ein Schiff weicht nicht aus. Wer mit dem Rumpf zusammenstößt, wird
+  hart zurückgeworfen, verliert 30 % Fahrt und hat **5 Sekunden** lang halb so viel Vortrieb
+  (Meldung „Kollision mit Berufsschiff!“).
+* Ist ein Schiff **näher als 95 m** (bis zum Rumpf), kommt eine Warnung mit dem Namen des
+  Schiffs („Hanse Trader: Berufsschiff! Ausweichen!“) und ein tiefes Signalhorn.
+* Die Schiffe ziehen einen weißen **Kielwasser-Keil** hinter sich her. Er zeigt, wo sie
+  gefahren sind, bremst aber nicht.
+* Ein Schiff **überholt** Boote auch von hinten: Beim Kreuzen im Fahrwasser gelegentlich über
+  die Schulter schauen!
+
+Die Computergegner rechnen die Positionen der Schiffe für die nächsten 12 Sekunden voraus und
+weichen ihnen aus. Technik: [Gefahren, Tiere, Effekte](../skripte/gefahren.md#shipping-lane-gd).
+
 ## Tiere und Wracks
 
 | Tier | Verhalten |

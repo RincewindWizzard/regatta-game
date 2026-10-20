@@ -253,3 +253,101 @@ func update_boat(b: Boat, delta: float) -> void:  # main.gd ruft das jeden Schri
 
 In den Level-Szenenbaum setzen, fertig: `Level.hazards()` und `Level.danger_circles()`
 finden ihn über `has_method`.
+
+## `shipping_lane.gd` { #shipping-lane-gd }
+
+`class_name ShippingLane`, `@tool`, rund 300 Zeilen. Ein **Schifffahrtsweg** mit Berufsschiffen,
+die man als Segler meiden muss. Ein einzelner Baustein genügt für ein ganzes Fahrwasser: Man
+setzt ihn an den Anfang der Strecke, der Pfeil (lokal −Z) zeigt in Fahrtrichtung, `length` ist die
+Länge. In `levels/05_lotsenrinne.tscn` steht er bei `(0, 190)` mit `length = 930`: Er läuft vom
+Start durch die ganze Rinne nach Norden.
+
+### Der Kerngedanke: Schiffe sind eine Funktion der Zeit
+
+Die Schiffe haben **keinen Zustand**, den man speichern oder übertragen müsste. Ihre Position folgt
+allein aus der Rennzeit `t`:
+
+```gdscript
+func ships_at(t: float) -> Array:
+    var speed := speed_kn / 1.944                         # m/s
+    var dur := (length + ship_length) / speed             # so lange braucht ein Schiff für die Strecke
+    for dir_i in 2:                                       # 0 = in Pfeilrichtung, 1 = zurück
+        var phase := phase_out if dir_i == 0 else phase_back
+        var k_min := ceili((t - dur - phase) / interval)  # welche Schiffe sind gerade unterwegs?
+        var k_max := floori((t - phase) / interval)
+        for k in range(k_min, k_max + 1):
+            var c := speed * (t - (phase + k * interval)) - ship_length * 0.5   # Mitte entlang der Bahn
+            var along := c if dir_i == 0 else length - c                         # "zurück" läuft rückwärts
+            var side := lane_offset if dir_i == 0 else -lane_offset              # rechts fahren
+            var g := global_transform * Vector3(side, 0, -along)
+            ...
+```
+
+Schiff Nummer `k` (auch negativ, damit zu Rennbeginn schon welche unterwegs sind) legt zur Zeit
+`phase + k·interval` ab und fährt mit konstanter Geschwindigkeit. Die **Id** `k·2 + Richtung` legt
+Name (`NAMES`) und Typ (Container, Tanker, Massengut) fest. Für jedes Schiff liefert die Funktion
+`{id, pos, dir, vel, half, radius, name, type}`.
+
+**Warum so?**
+
+* **Netzwerk:** Jeder Rechner rechnet dasselbe aus. Es müssen keine Schiffe übertragen werden
+  ([Netzwerk](netzwerk.md)).
+* **Computergegner:** Die KI kann die Positionen in 4, 8, 12 Sekunden **vorausberechnen**
+  ([Computergegner](ki.md)).
+* **Tests:** Man setzt die Zeit auf einen Wert und weiß, wo die Schiffe sind (`tests/hazard_test.gd
+  schiff`).
+* **Keine Fehlerquellen:** Es gibt kein „Schiff ist hängen geblieben“.
+
+!!! note "Wo die Zeit herkommt"
+    `main.gd` schreibt in jedem Physikschritt `ShippingLane.clock = race_time`
+    (`static var`, von allen Lane-Instanzen gelesen) und `running` (nur im Rennen). Die Optik
+    läuft in `_process` mit einer eigenen Uhr `_t`, die zwischen den Takten weiterläuft und bei
+    mehr als 0,25 s Abweichung wieder auf `clock` springt. Im Editor läuft sie von selbst, damit man
+    die Schiffe sieht.
+
+### Kollision und Warnung (`update_boat`)
+
+Wie alle Gefahrengebiete hat die Schifffahrt `update_boat(boat, delta)`, das `main.gd` für jedes
+Boot aufruft. Der Rumpf ist eine **Kapsel**: die Strecke Bug–Heck, aufgeblasen um `beam/2 + 1,5`.
+
+```gdscript
+var cp := Geometry2D.get_closest_point_to_segment(p, heck, bug)   # nächster Punkt der Rumpflinie
+var d := p.distance_to(cp)
+var reach := sh["radius"] + Boat.BOAT_RADIUS
+if d < reach:
+    var n := (p - cp) / d                              # Richtung vom Rumpf weg
+    b.position += Vector3(n.x, 0, n.y) * (reach - d)   # aus dem Rumpf schieben
+    b.ship_hit(n, sh["vel"])                           # zurückwerfen und bestrafen
+```
+
+`Boat.ship_hit` ([Das Boot](boot.md)) zieht von der Relativgeschwindigkeit den Anteil entlang der
+Normalen ab (Abprallen, Faktor 1,6), halbiert fast die Fahrt (`× 0,7`), setzt `penalty = 5 s`
+und lässt das Boot krängen. Die Warnung (Meldung mit Schiffsname, Signalhorn `ship_horn`) kommt
+einmal je Boot und Schiff alle 25 s, sobald der Abstand zum Rumpf unter 95 m liegt.
+
+### Optik
+
+`_process` hält einen **Pool** von Schiffsknoten (`_nodes`, Schlüssel = Id): Neue Schiffe
+bekommen einen Knoten (`_build_ship`), Knoten ohne Schiff werden freigegeben. `top_level = true`
+lässt die Schiffe unabhängig vom Level-Knoten bewegen. Ausrichtung: `rotation.y = atan2(dir.x,
+dir.y)`, dazu leichtes Schaukeln.
+
+`_build_ship(type, name)` baut aus Boxen:
+
+* Rumpf (Box) mit **Bug** (`PrismMesh`) und rotem Unterwasseranstrich,
+* **Brücke** und Schornstein am Heck,
+* je nach Typ: Container in bunten Stapeln, Tanks mit Rohrleitung oder Lukendeckel mit Kränen,
+* **Kielwasser**: weiße, halbtransparente Dreiecke hinter dem Schiff, dazu ein Ring an der Bugspitze,
+* ein schwebendes Namensschild.
+
+Auf der Karte stehen zwei Reihen **Richtungspfeile** (magenta) und die Beschriftung, die
+`Level.lane_lines()` für Vorschau und Minikarte liefert.
+
+### Eigene Schifffahrt einbauen
+
+1. Im Editor „+ Baustein → Schifffahrtsweg (Berufsschiffe)“, an den Anfang der Strecke setzen,
+   so drehen, dass der Pfeil in Fahrtrichtung zeigt.
+2. `length` auf die Länge des Fahrwassers, `lane_offset` etwa ein Viertel der Fahrwasserbreite.
+3. `phase_out`/`phase_back` so wählen, dass **beim Start keine Schiffe in den Startplätzen
+   stehen**. Die Positionen zur Zeit 0 kann man mit `lane.ships_at(0.0)` ausgeben.
+4. `tests/hazard_test.gd` kopieren und prüfen, dass ein Boot im Weg getroffen wird.

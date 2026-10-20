@@ -55,6 +55,7 @@ Jedes Skript des Projekts mit einem Satz zur Aufgabe und dem Kapitel, das es gen
 | `deco.gd` | Bäume, Häuser, Felsen, Türme | [Level](level.md#deco-gd) |
 | `sea_life.gd` | Tümmler, Wal, Möwen, Seehunde, Wrack | [Gefahren, Tiere, Effekte](gefahren.md#sea-life-gd) |
 | `restricted_area.gd` | Minenfeld, Polizei-Sperrgebiet | [Gefahren](gefahren.md#restricted-area-gd) |
+| `shipping_lane.gd` | Schifffahrtsweg mit Berufsschiffen | [Gefahren](gefahren.md#shipping-lane-gd) |
 | `siren_island.gd` | Sirenen-Insel | [Gefahren](gefahren.md#siren-island-gd) |
 | `hazard_visuals.gd` | Polizeiboot, Mine, Noten | [Gefahren](gefahren.md#hazard-visuals-gd) |
 

@@ -5,6 +5,7 @@ extends SceneTree
 const L1 := "res://levels/01_mittelgrund.tscn"
 const L3 := "res://levels/03_rund_um_moewenhoern.tscn"
 const L4 := "res://levels/04_hafenausfahrt.tscn"
+const L5 := "res://levels/05_lotsenrinne.tscn"
 const L6 := "res://levels/06_schaerengarten.tscn"
 
 ## [Level, Blickpunkt, Abstand, Neigung (Grad), Datei, Vorbereitung, Frame der Aufnahme]
@@ -23,6 +24,8 @@ var _shots := [
 	[L1, Vector2(0, -20), 35.0, 60.0, "trimm_gut.png", "trim_good", 90],
 	[L1, Vector2(0, -20), 35.0, 60.0, "trimm_schlecht.png", "trim_bad", 90],
 	[L1, Vector2(0, -20), 55.0, 55.0, "explosion.png", "boom", 70],
+	[L5, Vector2(0, -95), 170.0, 62.0, "schifffahrt.png", "ships", 40],
+	[L5, Vector2(0, -95), 75.0, 55.0, "schiff_nah.png", "ships", 40],
 ]
 
 var _out := "user://"
@@ -81,6 +84,10 @@ func _process(_d: float) -> bool:
 				w._critters[0]["off"] = 0.0
 				w._t = 24.0 * 0.28
 				w._critters[0]["prev"] = 0.27
+			"ships":
+				_main.race_time = 150.0          # Schiffe mitten in der Rinne (Zeit steht im Countdown still)
+				b.position = Vector3(-48, 0, -60)
+				b.heading = PI
 			"police":
 				b.position = Vector3(focus.x - 20, 0, focus.y)
 				b.heading = PI / 2

@@ -89,6 +89,7 @@ func _enter_tree() -> void:
 	pm.add_item("Minenfeld (Sperrgebiet)", 45)
 	pm.add_item("Polizei-Sperrgebiet", 46)
 	pm.add_item("Sirenen-Insel", 47)
+	pm.add_item("Schifffahrtsweg (Berufsschiffe)", 48)
 	pm.id_pressed.connect(_add_piece)
 	_bar.add_child(add)
 	var clear := Button.new()
@@ -122,7 +123,7 @@ func _labelled_spin(text: String, mn: float, mx: float, val: float, suffix: Stri
 
 
 func _handles(object: Object) -> bool:
-	return object is Level or object is ShoalArea or object is SeaMark or object is Mole or object is Lighthouse or object is CourseMark or object is CurrentArea or object is FuelDock or object is SeaLife or object is RestrictedArea
+	return object is Level or object is ShoalArea or object is SeaMark or object is Mole or object is Lighthouse or object is CourseMark or object is CurrentArea or object is FuelDock or object is SeaLife or object is RestrictedArea or object is ShippingLane
 
 
 func _edit(object: Object) -> void:
@@ -289,6 +290,9 @@ func _add_piece(id: int) -> void:
 			r.kind = id - 45
 			r.name = ["Minenfeld", "Sperrgebiet"][id - 45]
 			node = r
+		48:
+			node = ShippingLane.new()
+			node.name = "Schifffahrtsweg"
 		47:
 			var s := SirenIsland.new()
 			s.name = "Sireneninsel"

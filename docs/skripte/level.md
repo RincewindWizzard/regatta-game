@@ -16,7 +16,7 @@ Das Level kennt seine Kinder nicht dem Typ nach, sondern fragt nach **Fähigkeit
 | `carves()` + `carve_grid(grid, res)` | `ShoalArea` (See), `RiverChannel` | `Level.compute_depth` gräbt Wasser aus |
 | `current_at(p)` + `prepare_current()` | `CurrentArea`, `RiverChannel` | `Currents.at(p)` |
 | `collision_points()` | `FuelDock`, `SeaLife` (Wrack) | `Level.collision_points()` |
-| `update_boat(boat, delta)` | `RestrictedArea`, `SirenIsland` | `main.gd` (jeden Physikschritt) |
+| `update_boat(boat, delta)` | `RestrictedArea`, `SirenIsland`, `ShippingLane` | `main.gd` (jeden Physikschritt) |
 | `danger_circle()` | `RestrictedArea`, `SirenIsland` | `Level.danger_circles()` für die KI |
 | `prune_trees()` | `RiverChannel` | `Level.prepare_for_game()` |
 

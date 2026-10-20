@@ -64,6 +64,8 @@ func _ready() -> void:
 	_fixed_points = level.collision_points()
 	_docks = level.fuel_docks()
 	_hazards = level.hazards()
+	ShippingLane.clock = 0.0
+	ShippingLane.running = false
 	Currents.set_sources(level.current_sources())
 	course.target_reached.connect(_on_target_reached)
 	course.boat_finished.connect(_on_boat_finished)
@@ -102,6 +104,7 @@ func _ready() -> void:
 		if is_bot and net != "client":
 			var ai := AIInput.new(b, wind, course, int(slot.get("ai", 1)), _fixed_points)
 			ai.avoid = level.danger_circles()
+			ai.lanes = level.shipping_lanes()
 			ai.docks = _docks
 			b.input = ai
 		elif net == "client":
@@ -170,6 +173,8 @@ func _physics_process(delta: float) -> void:
 		"racing", "finished":
 			race_time += delta
 	go_flash = maxf(0.0, go_flash - delta)
+	ShippingLane.clock = race_time
+	ShippingLane.running = state == "racing" or state == "finished"
 	if state == "racing" or state == "finished":
 		for h in _hazards:
 			for b in boats:
@@ -382,6 +387,8 @@ func apply_snapshot(d: PackedFloat32Array) -> void:
 	state = new_state
 	countdown = d[1]
 	race_time = d[2]
+	ShippingLane.clock = race_time
+	ShippingLane.running = new_state == "racing" or new_state == "finished"
 	go_flash = d[3]
 	if absf(wind.time - d[4]) > 0.25:
 		wind.time = d[4]

@@ -123,6 +123,9 @@ mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schulte
   Schonfrist, um wieder herauszukommen.
 - **Sirenen-Inseln:** Nähert man sich bis auf die gestrichelte Linie, bleibt das Boot stehen
   und lauscht dem Gesang (etwa 7 Sekunden). Danach kurze Schonfrist.
+- **Berufsschifffahrt** (Lotsenrinne): Containerschiffe, Tanker und Frachter fahren im
+  Fahrwasser hin und her, jeweils rechts. Wer mit einem zusammenstößt, wird zurückgeworfen und
+  verliert 5 Sekunden lang viel Vortrieb. Ein Signalhorn warnt, wenn ein Schiff nah ist.
 - **Tümmler, Wale, Möwen, Seehunde** sind nur Dekoration. **Wracks** sind dagegen fest: Man
   prallt ab wie an einer Tonne.
 
@@ -154,7 +157,7 @@ mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schulte
 | 2 | Kurzer Up-and-Down | zum Einsegeln, leichter Wind, keine Tankstelle |
 | 3 | Rund um Möwenhörn | einmal um die Leuchtturminsel, Seehundsstrom, altes Minenfeld im Südosten |
 | 4 | Hafenausfahrt | Start im Hafen zwischen Felsmolen, Strom in der Einfahrt, Marine-Sperrgebiet im Westen |
-| 5 | Lotsenrinne | Kreuzen im betonnten Fahrwasser zwischen zwei Sandbänken, Ebbstrom |
+| 5 | Lotsenrinne | Kreuzen im betonnten Fahrwasser zwischen zwei Sandbänken, Ebbstrom, **Berufsschifffahrt**: Frachter und Tanker, denen man ausweichen muss |
 | 6 | Schärengarten | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind, Tankstelle auf Granholm, Sirenen-Insel im Süden |
 | 7 | Flussregatta | Binnenrevier: den Mühlenfluss gegen den Strom hinauf in den Großen See und zurück |
 

@@ -31,7 +31,7 @@ Programm.
 |---|---|---|
 | `tests/level_check.gd` | Alle Bahnen: Startplätze, Linie, Marken in tiefem Wasser und im Gebiet; Tankstellen: Wurzel an Land, Liegeplatz im Wasser | `godot --headless --path . --script res://tests/level_check.gd` |
 | `tests/polar_test.gd` | **Segelphysik:** Geschwindigkeit je Kurs, Wende, Motor, Verbrauch, Anlasser | `… polar_test.gd` |
-| `tests/hazard_test.gd` | Mine, Polizei, Sirenen, Kollision, Wendeschub | `godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- mine` |
+| `tests/hazard_test.gd` | Mine, Polizei, Sirenen, Berufsschiff (`schiff`), Kollision, Wendeschub | `godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- mine` |
 | `tests/tug_test.gd` | Schlepper befreit ein festgefahrenes Boot | `… tug_test.gd` |
 | `tests/area_test.gd` | Regattagebiet: Boot wird zurückgedrängt, höchstens 30 m hinaus | `… area_test.gd` |
 | `tests/paint_test.gd` | Seegrund-Pinsel wirkt auf die Tiefenberechnung | `… paint_test.gd` |

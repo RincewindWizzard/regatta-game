@@ -205,6 +205,23 @@ func _restricted(l: Level, node_name: String, kind: RestrictedArea.Kind, p: Vect
 	l.add_child(a)
 
 
+## Schifffahrtsweg: Berufsschiffe fahren ab p in Richtung dir (Weltachse), length Meter lang
+func _shipping(l: Level, node_name: String, p: Vector2, dir: Vector2, length: float, interval := 140.0, phase_out := 60.0, phase_back := -40.0, offset := 22.0) -> void:
+	if _has(l, node_name):
+		return
+	var s := ShippingLane.new()
+	s.name = node_name
+	s.length = length
+	s.interval = interval
+	s.phase_out = phase_out
+	s.phase_back = phase_back
+	s.lane_offset = offset
+	s.position = Vector3(p.x, 0, p.y)
+	var n := dir.normalized()
+	s.rotation.y = atan2(-n.x, -n.y)        # lokal −Z soll in Richtung dir zeigen
+	l.add_child(s)
+
+
 ## Sirenen-Insel: Gesang hält Boote bis song_range vom Ufer fest
 func _siren(l: Level, node_name: String, p: Vector2, r: float, song_range := 60.0, trees := 6) -> void:
 	if _has(l, node_name):
@@ -291,6 +308,7 @@ func _extras_hafen(l: Level) -> void:
 func _extras_rinne(l: Level) -> void:
 	_current(l, "Ebbstrom", Vector2(0, -270), 180.0, 1.2, 440.0, 80.0, 600.0)
 	_dock(l, "Tankstelle", Vector2(296, -338), Vector2(0, -1), 46.0, "Vogelsand")
+	_shipping(l, "Berufsschifffahrt", Vector2(0, 190), Vector2(0, -1), 930.0)
 	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(-150, -300), 1, 20.0, 15.0)
 	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(130, -270), 5, 12.0)
 	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(300, -280), 7, 50.0)

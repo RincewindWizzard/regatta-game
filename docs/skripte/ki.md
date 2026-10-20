@@ -95,6 +95,13 @@ for h in candidates:
 | `_hazard(...)` | strafft Kurse, die in Gefahr führen (Land, Untiefe, Tonne, Gebietsgrenze, Gefahrenkreis) |
 | `0,04 · cos(Differenz)` | kleiner Bonus für den bisherigen Wunschkurs: Hysterese |
 
+**Berufsschiffe** gehen über `_ship_preds`: Zu Beginn jedes `_think()` werden die Positionen aller
+Schiffe für **jetzt, +4, +8 und +12 Sekunden** berechnet (`ShippingLane.ships_at`). Im Gefahrenstrahl
+wird für jeden Messpunkt im Abstand `d` das Schiffsbild von ungefähr `d/4` Sekunden später benutzt
+(`_ship_preds[int(d / 16)]`): Dort, wo das Boot dann ankäme, darf kein Rumpf näher als
+`BOAT_RADIUS + 14` m sein. Die KI weicht also **vorausschauend** aus, nicht nur der aktuellen
+Position.
+
 Der beste Kurs wird `_want_heading` (plus Zufallsrauschen `_heading_noise`).
 
 `POLAR` ist die Tabelle der Bootsgeschwindigkeit je Windwinkel, **aus `tests/polar_test.gd`

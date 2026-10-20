@@ -37,6 +37,7 @@ den normalen Godot-Gizmos (`W`/`E`/`R`).
 | **FuelDock** (Tankstelle) | Steg mit Zapfsäule. Wurzel an Land setzen, Pfeil (lokal −Z) zeigt ins Wasser; der Liegeplatz liegt am Stegkopf. |
 | **SeaLife** | Tümmler, Wal, Möwen, Seehunde, Wrack. `count` Tiere im Umkreis `range_m`. Wrack ist fest (`solid`). |
 | **RestrictedArea** | Minenfeld (Boot explodiert, ausgeschieden) oder Polizei-Sperrgebiet (Kontrolle). Radius und Minenzahl im Inspector. |
+| **ShippingLane** | Schifffahrtsweg mit Berufsschiffen: `length`, `speed_kn`, `interval` (Abstand der Schiffe je Richtung), `phase_out`/`phase_back` (wann das erste Schiff startet), `lane_offset` (Abstand der Fahrspur von der Mittellinie), Schiffslänge und -breite. Fährt in Pfeilrichtung (lokal −Z) und zurück. |
 | **SirenIsland** | Insel, deren Gesang Boote bis `song_range` vom Ufer festhält. |
 
 Inseln (ShoalArea, Art „Insel“) haben im Inspector unter *Insel-Ausstattung* Bäume, Häuser und

@@ -73,6 +73,17 @@ Wo ändert man was, damit sich das Spiel anders anfühlt? Eine Sammlung der Wert
 | `song_range` | `SirenIsland` | 70 m (im Inspector) |
 | `mine_count`, `radius` | `RestrictedArea` | 14, 60 m (im Inspector) |
 
+## Berufsschifffahrt (`scripts/level/shipping_lane.gd`, `boat.gd`)
+
+| Wert | Standard | |
+|---|---|---|
+| `speed_kn` | 7 kn | Schiffsgeschwindigkeit |
+| `interval` | 140 s | Abstand zweier Schiffe in **einer** Richtung (beide Richtungen: alle 70 s ein Schiff) |
+| `lane_offset` | 22 m | Fahrspur rechts von der Mittellinie |
+| `ship_length`, `beam` | 80 m, 16 m | Rumpf (Kollisionsradius `beam/2 + 1,5`) |
+| `WARN_DIST`, `WARN_PAUSE` | 95 m, 25 s | Warnung und Horn |
+| `ship_hit`: `0.7`, `5.0 s` | `boat.gd` | Fahrtverlust und Strafzeit |
+
 ## Kamera (`scripts/split_camera.gd`)
 
 `PITCH 68°`, `FOV 50`, `SPLIT_ON 125`, `SPLIT_OFF 95`, `SPLIT_DIST 58`, `MIN_DIST 48`.

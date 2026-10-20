@@ -217,6 +217,22 @@ func collide(impact: float, aggressor: bool) -> void:
 	heel = minf(heel + 0.12 * s, 0.7)
 
 
+## Zusammenstoß mit einem Berufsschiff (Schifffahrtsweg): wird hart zurückgeworfen und verliert
+## viel Fahrt. n = Normale vom Rumpf weg, ship_vel = Geschwindigkeit des Schiffs.
+func ship_hit(n: Vector2, ship_vel: Vector2) -> void:
+	if out or towed:
+		return
+	var into := (vel - ship_vel).dot(n)
+	if into < 0.0:
+		vel -= n * into * 1.6                  # abprallen
+	vel *= 0.7
+	if penalty <= 0.5:
+		show_message("Kollision mit Berufsschiff!", 2.5)
+		Sfx.play("crunch", -2.0, 0.7)
+	penalty = maxf(penalty, 5.0)
+	heel = minf(heel + 0.25, 0.7)
+
+
 ## Dauerkontakt (Boote liegen aneinander): bremst beide
 func scrape(delta: float) -> void:
 	vel *= 1.0 - minf(0.6 * delta, 0.5)

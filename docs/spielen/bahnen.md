@@ -12,7 +12,7 @@ nach [Eigene Bahnen bauen](../referenz/bahnen-bauen.md).
 | 2 | Kurzer Up-and-Down | `02_kurzer_up_and_down.tscn` | zum Einsegeln, leichter Wind, keine Tankstelle |
 | 3 | Rund um Möwenhörn | `03_rund_um_moewenhoern.tscn` | einmal um die Leuchtturminsel, Seehundsstrom, **altes Minenfeld** im Südosten |
 | 4 | Hafenausfahrt | `04_hafenausfahrt.tscn` | Start im Hafen zwischen Felsmolen, Strom in der Einfahrt, **Marine-Sperrgebiet** im Westen |
-| 5 | Lotsenrinne | `05_lotsenrinne.tscn` | Kreuzen im betonnten Fahrwasser zwischen zwei Sandbänken, Ebbstrom, ein Wrack auf der Westerbank |
+| 5 | Lotsenrinne | `05_lotsenrinne.tscn` | Kreuzen im betonnten Fahrwasser zwischen zwei Sandbänken, Ebbstrom, **Berufsschifffahrt** (Frachter, Tanker, Containerschiffe), ein Wrack auf der Westerbank |
 | 6 | Schärengarten | `06_schaerengarten.tscn` | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind, **Tankstelle auf Granholm** im Norden, **Sirenen-Insel** im Süden |
 | 7 | Flussregatta | `07_flussregatta.tscn` | Binnenrevier: den Mühlenfluss gegen den Strom hinauf in den Großen See und zurück, **Vogelschutzgebiet** mit Polizeikontrolle |
 
@@ -30,7 +30,10 @@ Wind, sondern halb. Das Sperrgebiet im Westen liegt genau auf der Kreuzschlag-Li
 Wer zu weit über die Layline hinausfährt, wird von der Wasserschutzpolizei angehalten.
 
 **Lotsenrinne.** Eng. Rot an Backbord, grün an Steuerbord, wer die Tonnen schneidet, sitzt
-fest. Der Ebbstrom schiebt gegen dich.
+fest. Der Ebbstrom schiebt gegen dich. Dazu kommt die **Berufsschifffahrt**: Alle 70 Sekunden
+fährt ein Schiff durch die Rinne, abwechselnd nord- und südwärts, jeweils rechts. Zwischen den
+beiden Spuren bleibt eine Lücke in der Mitte. Warte mit dem Wenden, bis das Schiff vorbei ist,
+und kreuze nicht in dessen Bahn. Die Wendetonne (0, −580) liegt mitten im Schifffahrtsweg.
 
 **Schärengarten.** Die erste Tankstelle liegt auf der **Nordseite von Granholm**, ungefähr
 170 m vom Start, also genau in dem Bereich, in dem man zu Beginn gegen den Wind kreuzt. Die

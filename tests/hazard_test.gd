@@ -8,6 +8,7 @@ var _scenario := ""
 var _phase := 0
 var _t0 := 0.0
 var _ok := false
+var _ship_pos := Vector2.ZERO
 
 
 func _level_for(s: String) -> String:
@@ -18,6 +19,8 @@ func _level_for(s: String) -> String:
 			return "res://levels/04_hafenausfahrt.tscn"
 		"sirene":
 			return "res://levels/06_schaerengarten.tscn"
+		"schiff":
+			return "res://levels/05_lotsenrinne.tscn"
 	return "res://levels/01_mittelgrund.tscn"
 
 
@@ -64,6 +67,15 @@ func _physics_process(delta: float) -> bool:
 				var isle: SirenIsland = _main.level.get_node("Sireneninsel")
 				_place(b, isle.pos2d() + Vector2(0, -isle.capture_radius() - 8.0), 0.0, 3.0)
 				print("Fangradius ", isle.capture_radius())
+			"schiff":
+				var lane: ShippingLane = _main.level.shipping_lanes()[0]
+				_main.race_time = 150.0                      # main.gd gibt diese Rennzeit an die Schiffe weiter
+				var ships := lane.ships_at(_main.race_time)
+				var sh: Dictionary = ships[0]
+				print("Schiffe: ", ships.size(), ", erstes ", sh["name"], " bei ", sh["pos"])
+				# Boot direkt vor den Bug setzen, das Schiff fährt hinein
+				_place(b, sh["pos"] + sh["dir"] * (sh["half"] + 6.0), 0.0, 0.0)
+				_ship_pos = sh["pos"]
 			"kollision":
 				_place(b, Vector2(0, -30), 0.0, 0.0)
 				_place(b2, Vector2(0, -34), 0.0, 0.0)
@@ -101,6 +113,16 @@ func _physics_process(delta: float) -> bool:
 				print("OK: Gesang nach %.1f s vorbei, Fahrt %.2f" % [_t - _t0, b.speed()])
 				return _finish(true)
 			if e > 30.0:
+				return _finish(false)
+		"schiff":
+			if b.penalty >= 4.9:
+				var lane: ShippingLane = _main.level.shipping_lanes()[0]
+				var dmin := INF
+				for sh in lane.ships_at(_main.race_time):
+					dmin = minf(dmin, ShippingLane.hull_distance(sh, b.pos2d()))
+				print("OK: Zusammenstoß nach %.1f s, Strafe %.1f s, Abstand zum Rumpf %.1f m, Meldung: %s" % [e, b.penalty, dmin, b.message])
+				return _finish(dmin > 0.0)
+			if e > 8.0:
 				return _finish(false)
 		"kollision":
 			if b.penalty > 0.0 and b2.penalty > 0.0:

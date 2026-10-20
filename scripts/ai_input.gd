@@ -54,6 +54,8 @@ var _rng := RandomNumberGenerator.new()
 var _last_side := 0
 var docks: Array = []          # Tankstellen des Levels
 var avoid: Array = []          # Gefahrengebiete [Mitte, Radius]: Minen, Polizei, Sirenen
+var lanes: Array = []          # Schifffahrtswege (ShippingLane) mit Berufsschiffen
+var _ship_preds: Array = []    # Schiffspositionen jetzt und in 4, 8, 12 s: [[Schiffe], …]
 var _motor_use := 0.0          # 0 = nie, 1 = gern
 var _motor_reserve := 1.0      # Tankanteil, der für Notfälle bleibt
 var _want_throttle := 0
@@ -148,6 +150,13 @@ func update() -> void:
 
 func _think() -> void:
 	var p := boat.pos2d()
+	_ship_preds.clear()
+	if not lanes.is_empty():
+		for dt in [0.0, 4.0, 8.0, 12.0]:
+			var ships: Array = []
+			for l in lanes:
+				ships.append_array(l.ships_at(ShippingLane.clock + dt))
+			_ship_preds.append(ships)
 	var goal := _target_point(p)
 	# Tank fast leer und eine Tankstelle in der Nähe? Dann dorthin.
 	if _refuel_dock == null and boat.has_engine and _motor_use > 0.0 and boat.fuel_fraction() < 0.2:
@@ -415,6 +424,13 @@ func _hazard(p: Vector2, dir: Vector2, dist_target: float) -> float:
 			for z in avoid:
 				var zc: Vector2 = z[0]
 				if zc.distance_to(q) < float(z[1]) + 8.0:
+					hit = true
+					break
+		if not hit and not _ship_preds.is_empty():
+			# Berufsschiffe: wo das Boot in d/4 Sekunden ankommt, darf kein Schiff sein
+			var ships: Array = _ship_preds[mini(int(d / 16.0), _ship_preds.size() - 1)]
+			for sh in ships:
+				if ShippingLane.hull_distance(sh, q) < Boat.BOAT_RADIUS + 14.0:
 					hit = true
 					break
 		if hit:
