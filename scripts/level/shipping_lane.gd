@@ -108,7 +108,7 @@ func update_boat(b: Boat, _delta: float) -> void:
 		var d := p.distance_to(cp)
 		var reach: float = float(sh["radius"]) + Boat.BOAT_RADIUS
 		if d < reach:
-			# Zusammenstoß: aus dem Rumpf schieben, zurückwerfen, bestrafen
+			# Zusammenstoß: aus dem Rumpf schieben, Boot scheidet aus
 			var n := (p - cp) / d if d > 0.01 else Vector2(-sh["dir"].y, sh["dir"].x)
 			b.position += Vector3(n.x, 0, n.y) * (reach - d)
 			b.ship_hit(n, sh["vel"])
@@ -194,84 +194,11 @@ func _process(delta: float) -> void:
 			_nodes.erase(id)
 
 
-func _mat(c: Color) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = c
-	return m
-
-
-func _box(parent: Node3D, size: Vector3, pos: Vector3, c: Color) -> void:
-	var mi := MeshInstance3D.new()
-	var b := BoxMesh.new()
-	b.size = size
-	mi.mesh = b
-	mi.material_override = _mat(c)
-	mi.position = pos
-	parent.add_child(mi)
-
-
 ## Schiff mit dem Bug nach lokal +Z. type 0 = Containerschiff, 1 = Tanker, 2 = Massengutfrachter
 func _build_ship(type: int, ship_name: String) -> Node3D:
 	var root := Node3D.new()
-	var body := Node3D.new()
-	root.add_child(body)
+	root.add_child(ShipModel.build(type, ship_length, beam))
 	var L := ship_length
-	var hulls := [Color(0.1, 0.2, 0.38), Color(0.55, 0.12, 0.1), Color(0.14, 0.32, 0.26)]
-	var hull_c: Color = hulls[type]
-	var white := Color(0.96, 0.96, 0.94)
-	# Rumpf mit Bug (Prisma) und rotem Unterwasseranstrich am Rand
-	_box(body, Vector3(beam, 5.0, L * 0.82), Vector3(0, 2.0, -L * 0.09), hull_c)
-	var bow := MeshInstance3D.new()
-	var pm := PrismMesh.new()
-	pm.size = Vector3(beam, L * 0.18, 5.0)
-	bow.mesh = pm
-	bow.material_override = _mat(hull_c)
-	bow.position = Vector3(0, 2.0, L * 0.41)
-	bow.rotation = Vector3(PI / 2, 0, 0)
-	body.add_child(bow)
-	_box(body, Vector3(beam + 0.3, 1.0, L * 0.82), Vector3(0, -0.2, -L * 0.09), Color(0.62, 0.15, 0.12))
-	# Aufbauten am Heck: Brücke, Schornstein
-	_box(body, Vector3(beam * 0.8, 6.0, L * 0.12), Vector3(0, 7.5, -L * 0.38), white)
-	_box(body, Vector3(beam * 0.9, 1.0, L * 0.13), Vector3(0, 11.0, -L * 0.38), Color(0.2, 0.22, 0.26))
-	var stack := MeshInstance3D.new()
-	var cm := CylinderMesh.new()
-	cm.top_radius = 1.5
-	cm.bottom_radius = 1.8
-	cm.height = 5.0
-	stack.mesh = cm
-	stack.material_override = _mat(Color(0.85, 0.15, 0.12))
-	stack.position = Vector3(0, 12.5, -L * 0.46)
-	body.add_child(stack)
-	match type:
-		0:   # Container in Stapeln
-			var cols := [Color(0.85, 0.25, 0.15), Color(0.2, 0.45, 0.75), Color(0.9, 0.7, 0.15), Color(0.25, 0.6, 0.35), Color(0.7, 0.7, 0.72)]
-			var z := -L * 0.28
-			var k := 0
-			while z < L * 0.34:
-				for x in [-0.28, 0.0, 0.28]:
-					var h := 3.0 + float((k + int(x * 10)) % 3)
-					_box(body, Vector3(beam * 0.26, h, L * 0.06), Vector3(x * beam, 4.5 + h * 0.5, z), cols[(k + int(x * 10) + 10) % cols.size()])
-				z += L * 0.065
-				k += 1
-		1:   # Tanker: Rohrleitungen und Tankdeckel
-			_box(body, Vector3(1.0, 0.8, L * 0.6), Vector3(0, 5.8, 0.0), Color(0.2, 0.2, 0.22))
-			for i in 5:
-				var tank := MeshInstance3D.new()
-				var tm := CylinderMesh.new()
-				tm.top_radius = beam * 0.3
-				tm.bottom_radius = beam * 0.3
-				tm.height = 0.7
-				tank.mesh = tm
-				tank.material_override = _mat(Color(0.35, 0.37, 0.4))
-				tank.position = Vector3(0, 5.3, -L * 0.25 + i * L * 0.12)
-				body.add_child(tank)
-		2:   # Massengutfrachter: Lukendeckel und Kräne
-			for i in 4:
-				_box(body, Vector3(beam * 0.7, 1.6, L * 0.12), Vector3(0, 5.8, -L * 0.25 + i * L * 0.16), Color(0.75, 0.72, 0.6))
-			for i in 2:
-				_box(body, Vector3(1.2, 8.0, 1.2), Vector3(0, 9.0, -L * 0.17 + i * L * 0.32), Color(0.9, 0.55, 0.1))
-	ModelStyle.outline(body)
-	ModelStyle.no_shadows(body)
 	# Bug- und Heckwelle, Kielwasser
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)

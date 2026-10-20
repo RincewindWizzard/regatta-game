@@ -32,6 +32,7 @@ Weitere Tasten:
 | `M` | Musik an/aus |
 | `T` | Segel-Overlay an/aus |
 | `F11` oder `Alt+Enter` | Vollbild umschalten |
+| `F9` | **Debug-Modus**: Tank bleibt voll, Motor 20-fach stark (ca. 27 kn), damit man schnell jeden Punkt der Karte erreicht. Auch per Startargument `--debug`; im HUD steht „DEBUG“ |
 
 !!! note "Controller"
     Ein Controller kann auch ein Switch-Pro-Controller oder Joy-Con sein, der per Bluetooth

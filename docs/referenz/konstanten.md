@@ -68,9 +68,12 @@ Wo ändert man was, damit sich das Spiel anders anfühlt? Eine Sammlung der Wert
 |---|---|---|
 | `MINE_HIT` | `restricted_area.gd` | 4,8 m |
 | `GRACE` | `restricted_area.gd` | 1,6 s |
-| `HOLD_TIMES` | `boat.gd` | Polizei 8 s, Sirenen 7 s |
+| `HOLD_TIMES` | `boat.gd` | Polizei 12 s, Sirenen 16 s, Abschleppen max. 30 s |
+| `ESCORT_SPEED` | `boat.gd` | 3,2 m/s (Polizei schleppt aus dem Sperrgebiet) |
+| `ACCIDENT_GUILTY` / `ACCIDENT_OTHER` | `main.gd` | 20 s / 7 s Unfallkontrolle |
+| `DEBUG_THRUST` | `boat.gd` | 20 (Faktor auf den Motorschub im Debug-Modus) |
 | `IMMUNE_TIME` | `boat.gd` | 25 s |
-| `song_range` | `SirenIsland` | 70 m (im Inspector) |
+| `song_range` | `SirenIsland` | 35 m (im Inspector) |
 | `mine_count`, `radius` | `RestrictedArea` | 14, 60 m (im Inspector) |
 
 ## Berufsschifffahrt (`scripts/level/shipping_lane.gd`, `boat.gd`)

@@ -146,19 +146,21 @@ func _physics_process(delta: float) -> bool:
 			if e > 6.0:
 				return _finish(false)
 		"schiff":
-			if b.penalty >= 4.9:
+			if b.out:
 				var lane: ShippingLane = _main.level.shipping_lanes()[0]
 				var dmin := INF
 				for sh in lane.ships_at(_main.race_time):
 					dmin = minf(dmin, ShippingLane.hull_distance(sh, b.pos2d()))
-				print("OK: Zusammenstoß nach %.1f s, Strafe %.1f s, Abstand zum Rumpf %.1f m, Meldung: %s" % [e, b.penalty, dmin, b.message])
+				print("OK: Zusammenstoß nach %.1f s, ausgeschieden, Abstand zum Rumpf %.1f m, Meldung: %s" % [e, dmin, b.message])
 				return _finish(dmin > 0.0)
 			if e > 8.0:
 				return _finish(false)
 		"kollision":
 			if b.penalty > 0.0 and b2.penalty > 0.0:
 				print("OK: Kollision, Strafe %.1f s / %.1f s, Fahrt %.2f / %.2f, Meldung: %s" % [b.penalty, b2.penalty, b.speed(), b2.speed(), b.message])
-				return _finish(true)
+				var cases := [b.hold_case, b2.hold_case]
+				print("Polizei: hold_kind %d/%d, Fall %s, Dauer %.0f/%.0f s" % [b.hold_kind, b2.hold_kind, cases, b.hold_total, b2.hold_total])
+				return _finish(b.hold_kind == 1 and b2.hold_kind == 1 and cases.has(1) and cases.has(2) and absf(b.hold_total - b2.hold_total) > 5.0)
 			if e > 5.0:
 				return _finish(false)
 		"wende":

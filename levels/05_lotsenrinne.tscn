@@ -199,7 +199,7 @@ width = 80.0
 tide_period = 600.0
 
 [node name="Tankstelle" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296, 0, -338)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -404, 0, -400)
 script = ExtResource("9_hfsxv")
 length = 46.0
 dock_name = "Vogelsand"

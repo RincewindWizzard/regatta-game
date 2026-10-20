@@ -41,6 +41,8 @@ func _process(_d: float) -> bool:
 			var bd := SeaChart.depth_at(d.berth())
 			if bd < 2.0:
 				problems.append("%s: Liegeplatz zu flach (%.1f m)" % [d.name, bd])
+			if not area.has_point(d.berth()):
+				problems.append("%s: Liegeplatz außerhalb des Regattagebiets (%s, Gebiet %s)" % [d.name, d.berth(), area])
 			if SeaChart.depth_at(d.pos2d()) > 0.5:
 				problems.append("%s: Stegwurzel nicht an Land (%.1f m)" % [d.name, SeaChart.depth_at(d.pos2d())])
 		# Linienenden sollten befahrbar sein

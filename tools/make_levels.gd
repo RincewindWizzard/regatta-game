@@ -307,7 +307,7 @@ func _extras_hafen(l: Level) -> void:
 
 func _extras_rinne(l: Level) -> void:
 	_current(l, "Ebbstrom", Vector2(0, -270), 180.0, 1.2, 440.0, 80.0, 600.0)
-	_dock(l, "Tankstelle", Vector2(296, -338), Vector2(0, -1), 46.0, "Vogelsand")
+	_dock(l, "Tankstelle", Vector2(-404, -400), Vector2(1, 0), 46.0, "Vogelsand")
 	_shipping(l, "Berufsschifffahrt", Vector2(0, 190), Vector2(0, -1), 930.0)
 	_life(l, "Wrack", SeaLife.Kind.WRACK, Vector2(-150, -300), 1, 20.0, 15.0)
 	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(130, -270), 5, 12.0)
@@ -319,7 +319,7 @@ func _extras_schaeren(l: Level) -> void:
 	_current(l, "Sundstrom", Vector2(-100, 160), 45.0, 1.8, 120.0, 45.0)
 	_current(l, "Holmstrom", Vector2(10, 165), -60.0, 1.2, 90.0, 40.0)
 	_dock(l, "Tankstelle", Vector2(-150, 88), Vector2(0, -1), 40.0, "Granholm Bränsle")
-	_siren(l, "Sireneninsel", Vector2(-150, 385), 20.0, 45.0, 5)
+	_siren(l, "Sireneninsel", Vector2(-150, 385), 20.0, 25.0, 5)
 	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(-150, 120), 8, 55.0)
 	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(100, 300), 3, 40.0)
 	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(-170, 315), 4, 6.0)

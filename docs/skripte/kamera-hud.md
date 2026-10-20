@@ -66,7 +66,7 @@ func _draw() -> void:
     var vs := get_viewport_rect().size
     _draw_frame(vs)                                # Kartenrahmen mit Minuten-Skala
     _draw_wind(Vector2(vs.x * 0.5, 66.0))          # Windrose
-    _draw_minimap(Rect2(vs.x * 0.5 - 70.0, 138.0, 140.0, 135.0))
+    _draw_minimap(Rect2(vs.x - FRAME - 10.0 - 140.0, FRAME + 12.0, 140.0, 135.0))
     ...                                            # Spielerpanels links/rechts unten
     _draw_time(...)                                # Rennuhr
     _draw_leaderboard(...)                         # bei Netzwerk oder mehr als 2 Booten

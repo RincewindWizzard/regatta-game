@@ -316,7 +316,7 @@ entlang der Verbindungslinie, `aggressor` ist, wer mit mehr Fahrt auf den andere
 
 | Funktion | Wer ruft | Wirkung |
 |---|---|---|
-| `start_hold(kind, focus)` | `RestrictedArea` (1 Polizei), `SirenIsland` (2 Sirenen) | `hold_kind`, `hold_time` (8 s bzw. 7 s, `HOLD_TIMES`), Gas auf 0 |
+| `start_hold(kind, focus)` | `RestrictedArea` (1 Polizei), `SirenIsland` (2 Sirenen) | `hold_kind` (1 Polizei, 2 Sirenen, 3 Abschleppen), `hold_time` (12 s / 16 s, `HOLD_TIMES`), Gas auf 0 |
 | `_end_hold(announce)` | Ablauf, Abschleppen | `immune_time = 25 s` (`IMMUNE_TIME`), Meldung „Weiter geht's!“ |
 | `explode()` | Minenfeld | `out = true`, Fahrt 0, Motor aus, Ton, `Fx.explosion` |
 
@@ -438,7 +438,7 @@ damit die Linie **nicht** mit dem Boot mitfährt.
 | `FUEL_BURN` | 0,2 l/s | Verbrauch Vollgas |
 | `REFUEL_RATE` | 2,2 l/s | Tankgeschwindigkeit |
 | `TACK_BOOST`, `_TIME`, `_MIN`, `_COOLDOWN` | 1,5 / 2,2 s / 1,3 m/s / 5 s | Wendeschub |
-| `HOLD_TIMES` | 8 s / 7 s | Polizei / Sirenen |
+| `HOLD_TIMES` | 12 s / 16 s / 30 s | Polizei / Sirenen / Abschleppen |
 | `IMMUNE_TIME` | 25 s | Schonfrist |
 
 Weitere Stellschrauben: [Konstanten und Stellschrauben](../referenz/konstanten.md).

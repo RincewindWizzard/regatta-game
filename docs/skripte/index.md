@@ -58,7 +58,9 @@ Jedes Skript des Projekts mit einem Satz zur Aufgabe und dem Kapitel, das es gen
 | `restricted_area.gd` | Minenfeld, Polizei-Sperrgebiet | [Gefahren](gefahren.md#restricted-area-gd) |
 | `shipping_lane.gd` | Schifffahrtsweg mit Berufsschiffen | [Gefahren](gefahren.md#shipping-lane-gd) |
 | `siren_island.gd` | Sirenen-Insel | [Gefahren](gefahren.md#siren-island-gd) |
-| `hazard_visuals.gd` | Polizeiboot, Mine, Noten | [Gefahren](gefahren.md#hazard-visuals-gd) |
+| `hazard_visuals.gd` | Mine, Noten, Blaulicht | [Gefahren](gefahren.md#hazard-visuals-gd) |
+| `police_boat.gd` | 3D-Modell des Polizeiboots (Loft) | [Gefahren](gefahren.md#police-boat-gd) |
+| `ship_model.gd` | 3D-Modelle der Berufsschiffe (Loft) | [Gefahren](gefahren.md#ship-model-gd) |
 
 ## Hilfen
 

@@ -43,7 +43,7 @@ Start zwischen den beiden Felsmolen am unteren Rand, die Hafenstadt ganz unten. 
 
 ![Karte Lotsenrinne](../bilder/karte_05_lotsenrinne.png)
 
-Die Rinne zwischen den beiden Sandbänken ist durch rote und grüne Tonnen markiert. Auf der Westerbank liegt ein Wrack, die Seehunde sonnen sich auf der Osterbank.
+Die Rinne zwischen den beiden Sandbänken ist durch rote und grüne Tonnen markiert. Die **Tankstelle** liegt am Westufer (links), innerhalb des Regattagebiets. Auf der Westerbank liegt ein Wrack, die Seehunde sonnen sich auf der Osterbank.
 
 ## Schärengarten
 

@@ -27,8 +27,10 @@ Das Gebiet entscheidet selbst, ob das Boot betroffen ist, und löst eine **Boot-
 | Auslöser | Boot-Funktion | Wirkung |
 |---|---|---|
 | Mine berührt | `explode()` | `out = true`, Explosion, ausgeschieden |
-| Polizeigebiet | `start_hold(1)` | 8 s festgehalten |
-| Sirenen-Insel | `start_hold(2, focus)` | 7 s festgehalten, Boot dreht zur Insel |
+| Polizeigebiet | `start_hold(1, exit_punkt)` | 12 s Kontrolle, dann Abschleppen (`hold_kind` 3) zum Austrittspunkt `_exit_point()` |
+| Unfall (`main.gd`, `_police_accident`) | `start_hold(1, INF, 20 s / 7 s, case 1 / 2)` | Verursacher nach KVR 20 s, Beteiligter 7 s; kein Abschleppen |
+| Sirenen-Insel | `start_hold(2, focus)` | 16 s festgehalten, Boot dreht zur Insel |
+| Berufsschiff berührt | `explode(text, "crunch")` | `out = true`, ausgeschieden |
 
 Dazu kommt `danger_circle()` (für die KI) und `danger_zones()` des Levels (für Karten).
 Die Gebiete laufen nur **beim Host bzw. lokal**: Clients bekommen das Ergebnis über den
@@ -118,8 +120,8 @@ Linie gibt es eine Warnmeldung.
 
 | Funktion | Ergebnis |
 |---|---|
-| `police_boat()` | weißes Boot mit blauem Streifen, Steuerhaus, Blaulicht (zwei Lampen), Schriftzug „POLIZEI“ |
-| `flash_lamps(police, t)` | lässt die Lampen abwechselnd blinken (`sin(t·11 + i·π) > 0`) |
+| `police_boat()` | ruft `PoliceBoat.build()` auf (siehe [`police_boat.gd`](#police-boat-gd)); Blaulichter und Radar liegen in den Meta-Einträgen `lamps` und `radar` |
+| `flash_lamps(police, t)` | lässt die Lampen abwechselnd blinken (`sin(t·11 + i·π) > 0`) und dreht das Radar |
 | `mine()` | schwarze Kugel, zehn Stacheln, rot blinkende Lampe; Meta-Einträge `body`, `lamp` |
 | `siren_notes()` | vier Noten (Kopf, Hals, Fähnchen) in bunten, leuchtenden Farben |
 | `orbit_notes(notes, t)` | Noten kreisen um das Boot (`cos/sin` mit Zeitoffset) |
@@ -132,6 +134,41 @@ mit seiner Achse nach **+Y**. Um ihn in Richtung `d` zu drehen, nimmt man
 Das **Polizeiboot** und die **Noten** hängt das Boot selbst an sich (`_update_hold_visual` in
 `boat.gd`), abhängig von `hold_kind`. Weil dieser Zustand im Schnappschuss steht, sehen auch
 Clients Polizeiboot und Noten, ohne dass sie extra übertragen werden müssten.
+
+## `police_boat.gd` { #police-boat-gd }
+
+`class_name PoliceBoat`, `@tool`, nur `static`-Funktionen. `PoliceBoat.build()` liefert das
+Polizeiboot im Stil von Schlepper und Segelboot (12 m lang, Bug nach +Z, Wasserlinie y = 0).
+
+Der **Rumpf** entsteht als *Loft*: Entlang der Länge liegen 27 Querschnitte („Spanten“). Jeder
+Spant ist ein Halbkreis-ähnliches Profil, dessen Breite `half_beam(z)`, Deckskante `sheer(z)` und
+Kiel `bottom(z)` vorgeben. Benachbarte Spanten werden mit Vierecken verbunden
+(`_hull_surfaces`). Die Vierecke werden je nach Höhe in drei Flächen sortiert: weiße Bordwand,
+blauer Streifen, roter Unterwasseranstrich. Darauf kommen Deck, Fender, Bugreling, Steuerhaus mit
+dunklen Scheiben, Blaulichtbalken, Suchscheinwerfer, Radarmast mit drehender Antenne, Außenborder,
+Flagge, Rettungsring und „POLIZEI“-Schriftzüge. `ModelStyle.outline` gibt die Tusche-Kontur,
+damit es zu den anderen Booten passt.
+
+**Ablauf einer Kontrolle** (in `boat.gd`): `start_hold(1, exit)` setzt `hold_kind = 1`; nach
+`HOLD_TIMES[1]` = 12 s ruft `_begin_escort()` den Abschleppmodus (`hold_kind = 3`) auf, falls
+`SeaChart.path_clear` einen freien Weg zum Austrittspunkt kennt. `_escort_step(delta)` dreht das
+Boot zum Ziel (höchstens 1 rad/s) und zieht es mit `ESCORT_SPEED` = 3,2 m/s; `_update_hold_visual`
+lässt das Polizeiboot vor den Bug gleiten und spannt eine Leine (`_set_rope`). Am Ziel
+(`_end_hold`) fährt das Polizeiboot davon (`_release_hold_visual`). `RestrictedArea._exit_point(p)`
+sucht den Punkt knapp außerhalb des Radius, bevorzugt in Richtung des Bootes.
+
+Bei Unfällen unterscheidet `hold_case` die Ansagen (0 Sperrgebiet, 1 Verursacher, 2 Beteiligter),
+`hold_total` speichert die Dauer.
+
+## `ship_model.gd` { #ship-model-gd }
+
+`class_name ShipModel`, `@tool`: `ShipModel.build(type, length, beam)` baut die Berufsschiffe
+(0 Containerschiff, 1 Tanker, 2 Massengutfrachter). Der Rumpf ist wie beim Polizeiboot ein Loft aus
+41 Spanten: `half_beam(t, beam)` formt Heck, Parallelkörper und Bug, `bottom(t)` den Kiel. Dazu
+kommen Schanzkleid, ein vierstöckiges Brückenhaus mit Fensterbändern, Schornstein mit Farbband,
+Radarmast, Rettungsboote und je Typ die Ladung (Container in Stapeln, Rohrleitungen mit Tankdomen,
+Lukendeckel mit Kränen). `ShippingLane._build_ship` hängt das Modell ein und ergänzt Kielwasser und
+Namensschild.
 
 ## `sea_life.gd` { #sea-life-gd }
 

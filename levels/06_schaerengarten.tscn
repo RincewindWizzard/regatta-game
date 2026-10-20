@@ -216,7 +216,7 @@ dock_name = "Granholm Bränsle"
 [node name="Sireneninsel" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 0, 385)
 script = ExtResource("10_phw32")
-song_range = 45.0
+song_range = 25.0
 kind = 1
 area_name = "Sirenenfelsen"
 radius = 20.0

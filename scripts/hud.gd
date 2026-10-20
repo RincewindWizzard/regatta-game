@@ -60,7 +60,7 @@ func _draw() -> void:
 	var vs := get_viewport_rect().size
 	_draw_frame(vs)
 	_draw_wind(Vector2(vs.x * 0.5, 66.0))
-	_draw_minimap(Rect2(vs.x * 0.5 - 70.0, 138.0, 140.0, 135.0))
+	_draw_minimap(Rect2(vs.x - FRAME - 10.0 - 140.0, FRAME + 12.0, 140.0, 135.0))   # Ecke oben rechts: verdeckt das eigene Boot in der Bildmitte nicht
 	var py := vs.y - FRAME - 10.0 - 168.0
 	var own: Array = cams.boats
 	if own.size() >= 2:
@@ -165,8 +165,8 @@ func _draw_wind(c: Vector2) -> void:
 
 
 func _draw_minimap(r: Rect2) -> void:
-	draw_rect(r.grow(3.0), PAPER)
-	draw_texture_rect(_map_tex, r, false)
+	draw_rect(r.grow(3.0), Color(PAPER, 0.85))
+	draw_texture_rect(_map_tex, r, false, Color(1, 1, 1, 0.88))
 	draw_rect(r, INK, false, 1.0)
 	var to_map := func(p: Vector2) -> Vector2:
 		var n := (p - map_rect.position) / map_rect.size
@@ -240,7 +240,7 @@ func _draw_panel(b: Boat, o: Vector2) -> void:
 		warn = "Wird abgeschleppt ..."
 		warn_col = MAGENTA
 	elif b.out:
-		warn = "Seemine – ausgeschieden!"
+		warn = "Ausgeschieden!"
 	elif b.hold_kind == 1:
 		warn = "Polizeikontrolle … noch %d s" % ceili(b.hold_time)
 		warn_col = Color(0.1, 0.25, 0.65)

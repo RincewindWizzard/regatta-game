@@ -572,7 +572,7 @@ def police_siren():
     return trim(reverb(x, 0.2, 0.7), 7.6, 0.6)
 
 
-def siren_song():
+def siren_phrase():
     # Gesang der Sirenen: zwei sanfte, vibrierende Stimmen in Terzen über einem Pentatonik-Motiv
     dur = 7.5
     t = t_axis(dur)
@@ -596,7 +596,13 @@ def siren_song():
             x[i0:i0 + n] += amp * voice * env_adsr(n, 0.25, 0.2, 0.8, 0.45)
     breath = bp(noise(dur), 2500, 6000) * 0.02 * smooth_random(dur, 6)
     x = x / (np.max(np.abs(x)) + 1e-9) + breath
-    return trim(reverb(x, 0.45, 1.8), 8.8, 1.5)
+    return x
+
+
+def siren_song():
+    # zwei Strophen hintereinander: der Gesang hält an, solange das Boot festsitzt (16 s)
+    x = np.concatenate([siren_phrase(), siren_phrase() * 0.9])
+    return trim(reverb(x, 0.45, 1.8), 16.8, 1.5)
 
 
 if __name__ == "__main__":

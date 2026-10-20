@@ -46,7 +46,7 @@ const REFUEL_RATE := 2.2      ## Liter pro Sekunde an der Tankstelle
 
 enum Motor { AUS, ANLASSER, LAEUFT }
 ## Boot wird festgehalten: 1 = Polizeikontrolle, 2 = Sirenengesang (Dauer in Sekunden)
-const HOLD_TIMES := {1: 12.0, 2: 7.0, 3: 30.0}
+const HOLD_TIMES := {1: 12.0, 2: 16.0, 3: 30.0}
 const ESCORT_SPEED := 3.2     ## so schnell zieht die Polizei das Boot aus dem Sperrgebiet (m/s)
 const IMMUNE_TIME := 25.0     ## nach einem Halt so lange keine neue Kontrolle / kein neuer Gesang
 ## Segel-Overlay (Taste T): zeigt am Segel selbst, ob die Stellung stimmt
@@ -82,6 +82,9 @@ var penalty := 0.0            ## Sekunden verhedderte Segel nach einer Kollision
 var out := false              ## ausgeschieden (Seemine)
 var hold_kind := 0            ## 0 frei, 1 Polizeikontrolle, 2 Sirenengesang, 3 Polizei geleitet das Boot hinaus
 var hold_time := 0.0
+var hold_case := 0            ## Polizei: 0 Sperrgebiet, 1 Unfall (Verursacher), 2 Unfall (Beteiligter)
+var hold_total := 12.0
+var _hold_peak := 0.0         ## längste gesehene hold_time (für die Optik auch bei Mitspielern)
 var hold_focus := Vector2.INF ## Sirenen: die Insel (Boot dreht sich hin); Polizei: Punkt außerhalb des Sperrgebiets
 var immune_time := 0.0
 
@@ -240,20 +243,11 @@ func collide(impact: float, aggressor: bool) -> void:
 	heel = minf(heel + 0.12 * s, 0.7)
 
 
-## Zusammenstoß mit einem Berufsschiff (Schifffahrtsweg): wird hart zurückgeworfen und verliert
-## viel Fahrt. n = Normale vom Rumpf weg, ship_vel = Geschwindigkeit des Schiffs.
-func ship_hit(n: Vector2, ship_vel: Vector2) -> void:
+## Zusammenstoß mit einem Berufsschiff (Schifffahrtsweg): das Boot wird überfahren und scheidet aus.
+func ship_hit(_n: Vector2, _ship_vel: Vector2) -> void:
 	if out or towed:
 		return
-	var into := (vel - ship_vel).dot(n)
-	if into < 0.0:
-		vel -= n * into * 1.6                  # abprallen
-	vel *= 0.7
-	if penalty <= 0.5:
-		show_message("Kollision mit Berufsschiff!", 2.5)
-		Sfx.play("crunch", -2.0, 0.7)
-	penalty = maxf(penalty, 5.0)
-	heel = minf(heel + 0.25, 0.7)
+	explode("Kollision mit Berufsschiff! Ausgeschieden", "crunch")
 
 
 ## Dauerkontakt (Boote liegen aneinander): bremst beide
@@ -262,11 +256,15 @@ func scrape(delta: float) -> void:
 
 
 ## Polizeikontrolle (1) oder Sirenengesang (2) hält das Boot fest
-func start_hold(kind: int, focus := Vector2.INF) -> void:
+## duration < 0: Standarddauer. hold_case (nur Polizei): 0 Sperrgebiet, 1 Unfallverursacher, 2 Unfallbeteiligter
+func start_hold(kind: int, focus := Vector2.INF, duration := -1.0, p_case := 0) -> void:
 	if out or towed or hold_kind != 0:
 		return
 	hold_kind = kind
-	hold_time = HOLD_TIMES[kind]
+	hold_case = p_case
+	hold_total = duration if duration > 0.0 else HOLD_TIMES[kind]
+	_hold_peak = hold_total
+	hold_time = hold_total
 	hold_focus = focus
 	_hold_stage = 0
 	_set_throttle(0)
@@ -314,7 +312,7 @@ func _escort_step(delta: float) -> void:
 
 
 ## Seemine: Boot fliegt in die Luft und scheidet aus
-func explode() -> void:
+func explode(text := "Seemine! Ausgeschieden", sound := "explosion") -> void:
 	if out:
 		return
 	out = true
@@ -324,8 +322,8 @@ func explode() -> void:
 	engine = Motor.AUS
 	refueling = false
 	controls_enabled = false
-	show_message("Seemine! Ausgeschieden", 6.0)
-	Sfx.play("explosion", 6.0)
+	show_message(text, 6.0)
+	Sfx.play(sound, 6.0 if sound == "explosion" else 2.0, 1.0 if sound == "explosion" else 0.6)
 	_explode_fx()
 
 
@@ -483,19 +481,36 @@ func _physics_process(delta: float) -> void:
 		hold_time -= delta
 		if hold_kind == 1:
 			# Ansagen der Polizei während der Kontrolle
-			var el: float = HOLD_TIMES[1] - hold_time
-			if _hold_stage == 0 and el >= 2.6:
-				_hold_stage = 1
-				show_message("Führerschein und Fahrzeugpapiere, bitte!", 4.0)
-			elif _hold_stage == 1 and el >= 7.0:
-				_hold_stage = 2
-				show_message("Hmm … Papiere in Ordnung. Aber das hier ist Sperrgebiet!", 3.6)
-			elif _hold_stage == 2 and el >= 10.6:
-				_hold_stage = 3
-				show_message("Sie werden aus dem Sperrgebiet geleitet.", 3.0)
+			var el := hold_total - hold_time
+			if hold_case == 0:
+				if _hold_stage == 0 and el >= 2.6:
+					_hold_stage = 1
+					show_message("Führerschein und Fahrzeugpapiere, bitte!", 4.0)
+				elif _hold_stage == 1 and el >= 7.0:
+					_hold_stage = 2
+					show_message("Hmm … Papiere in Ordnung. Aber das hier ist Sperrgebiet!", 3.6)
+				elif _hold_stage == 2 and el >= 10.6:
+					_hold_stage = 3
+					show_message("Sie werden aus dem Sperrgebiet geleitet.", 3.0)
+			elif hold_case == 1:
+				if _hold_stage == 0 and el >= 2.6:
+					_hold_stage = 1
+					show_message("Führerschein und Fahrzeugpapiere, bitte!", 4.0)
+				elif _hold_stage == 1 and el >= 8.0:
+					_hold_stage = 2
+					show_message("Sie hatten nach KVR Ausweichpflicht – das gibt eine Verwarnung!", 4.5)
+				elif _hold_stage == 2 and el >= 14.0:
+					_hold_stage = 3
+					show_message("Und jetzt: Pusten Sie mal …", 3.0)
+			else:
+				if _hold_stage == 0 and el >= 2.6:
+					_hold_stage = 1
+					show_message("Sie hatten Vorfahrt – bitte nur kurz Ihre Aussage!", 3.0)
 		if hold_time <= 0.0:
-			if hold_kind == 1:
+			if hold_kind == 1 and hold_case == 0:
 				_begin_escort()
+			elif hold_kind == 1:
+				_end_hold(true, "Gute Fahrt – und bitte weiter Abstand halten!")
 			else:
 				_end_hold(true, "Weiter geht's – aber nicht wieder ins Sperrgebiet!" if hold_kind == 3 else "Weiter geht's!")
 	if hold_kind == 3:
@@ -824,7 +839,8 @@ func _update_hold_visual() -> void:
 		add_child(_hold_vis)
 	if vis_kind == 1:
 		if hold_kind == 1:
-			var elapsed: float = HOLD_TIMES[1] - hold_time
+			_hold_peak = maxf(_hold_peak, hold_time)
+			var elapsed := _hold_peak - hold_time
 			var k := smoothstep(0.0, 2.2, elapsed)
 			_hold_vis.position = Vector3(lerpf(46.0, 8.0, k), sin(_t * 1.6) * 0.1, lerpf(-30.0, 0.5, k))
 			_hold_vis.rotation.y = lerpf(0.5, 0.0, k)

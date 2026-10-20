@@ -122,13 +122,14 @@ mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schulte
   Seemine berührt, fliegt in die Luft und ist aus dem Rennen. Das Rennen geht für die
   anderen weiter.
 - **Polizei-Sperrgebiete:** Wer hineinfährt, wird nach kurzer Zeit von der
-  Wasserschutzpolizei angehalten und etwa 8 Sekunden durchsucht. Danach gibt es eine
-  Schonfrist, um wieder herauszukommen.
+  Wasserschutzpolizei angehalten und 12 Sekunden kontrolliert („Führerschein und
+  Fahrzeugpapiere, bitte!“). Danach schleppt die Polizei das Boot aus dem Sperrgebiet heraus,
+  mit anschließender Schonfrist. Auch nach einem **Zusammenstoß zweier Boote** kommt die
+  Polizei: Der nach KVR Ausweichpflichtige wird 20 s kontrolliert, der andere nur 7 s.
 - **Sirenen-Inseln:** Nähert man sich bis auf die gestrichelte Linie, bleibt das Boot stehen
-  und lauscht dem Gesang (etwa 7 Sekunden). Danach kurze Schonfrist.
+  und lauscht dem Gesang (16 Sekunden, nur ca. 25 m Reichweite). Danach kurze Schonfrist.
 - **Berufsschifffahrt** (Lotsenrinne): Containerschiffe, Tanker und Frachter fahren im
-  Fahrwasser hin und her, jeweils rechts. Wer mit einem zusammenstößt, wird zurückgeworfen und
-  verliert 5 Sekunden lang viel Vortrieb. Ein Signalhorn warnt, wenn ein Schiff nah ist.
+  Fahrwasser hin und her, jeweils rechts. Wer mit einem zusammenstößt, **scheidet aus**. Ein Signalhorn warnt, wenn ein Schiff nah ist.
 - **Tümmler, Wale, Möwen, Seehunde** sind nur Dekoration. **Wracks** sind dagegen fest: Man
   prallt ab wie an einer Tonne.
 

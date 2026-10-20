@@ -10,7 +10,7 @@ extends ShoalArea
 const NOTE_COUNT := 4
 
 ## Abstand vom Ufer, ab dem der Gesang wirkt
-@export_range(30.0, 200.0, 1.0, "suffix:m") var song_range := 70.0:
+@export_range(30.0, 200.0, 1.0, "suffix:m") var song_range := 35.0:
 	set(v):
 		song_range = v
 		_rebuild()

@@ -10,7 +10,7 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 
 * Schwarze Kugeln mit Stacheln und rot blinkendem Licht, umgeben von gelben Sperrtonnen.
 * Wer eine Seemine **berührt** (Abstand unter 4,8 m), **explodiert**: Feuerball, Rauch,
-  Trümmer, Druckwelle. Das Boot sinkt und ist **aus dem Rennen**.
+  Trümmer, Druckwelle und einem lauten **Explosionsknall**. Das Boot sinkt und ist **aus dem Rennen**.
 * Die anderen segeln weiter. Sind alle Boote draußen, endet das Rennen mit „Alle Boote
   verloren!“.
 * 30 m vor der Grenze erscheint die Meldung „Achtung: Minenfeld voraus!“.
@@ -19,18 +19,35 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 
 * Wer hineinfährt, bekommt „Sperrgebiet! Sofort umkehren!“. Bleibt das Boot **1,6 Sekunden**
   im Gebiet, nähert sich die **Wasserschutzpolizei** mit Blaulicht und Sirene.
-* Das Boot wird **8 Sekunden** festgehalten und durchsucht (Motor aus, Fahrt läuft aus,
-  Steuern und Schot gesperrt).
-* Danach gibt es **25 Sekunden Schonfrist**, damit man das Gebiet verlassen kann.
+* Das Boot wird **12 Sekunden** festgehalten und kontrolliert (Motor aus, Fahrt läuft aus,
+  Steuern und Schot gesperrt). Das Polizeiboot legt sich daneben, nach gut 2 Sekunden kommt
+  die Ansage **„Führerschein und Fahrzeugpapiere, bitte!“**, später „Papiere in Ordnung. Aber
+  das hier ist Sperrgebiet!“.
+* Danach nimmt die Polizei das Segelboot an die **Leine und schleppt es aus dem Sperrgebiet
+  heraus** (mit gut 6 kn, höchstens 30 s). Am Ende gibt es **25 Sekunden Schonfrist**, damit
+  man nicht gleich wieder hineinfährt.
+* Das **Polizeiboot** ist wie Schlepper und Segelboot im Kartenstil modelliert: gestrakter
+  Rumpf, weiße Bordwand mit blauem Streifen, Steuerhaus, Blaulichtbalken, Radar,
+  Suchscheinwerfer und Schriftzug „POLIZEI“.
+
+### Polizei nach einem Unfall
+
+Stoßen zwei Boote kräftig zusammen (Aufprall über 1,5 m/s), kommt auch dann die
+Wasserschutzpolizei und hält **beide** an. Wer nach den [KVR-Regeln](kvr.md) hätte **ausweichen
+müssen**, ist der Verursacher und wird **20 Sekunden** kontrolliert („Sie hatten nach KVR
+Ausweichpflicht …“). Der andere Beteiligte gibt nur **7 Sekunden** seine Aussage ab. Ist die
+Lage unklar (z. B. Gegenkurs), gilt als Verursacher, wer mit mehr Fahrt aufgefahren ist.
+Danach 25 Sekunden Schonfrist, damit nicht sofort die nächste Kontrolle folgt.
 
 ## Sirenen-Insel
 
 ![Sirenen-Insel](../bilder/sireneninsel.png)
 
 * Die Insel hat Sirenen auf den Felsen, wandernde Noten und türkise Wellenringe. Die
-  gestrichelte magenta Linie zeigt, **wie nah man ihr kommen darf**.
-* Wer die Linie überfährt, bleibt stehen, das Boot dreht sich langsam zur Insel, rund
-  **7 Sekunden** lang. Dann 25 Sekunden Schonfrist.
+  gestrichelte magenta Linie zeigt, **wie nah man ihr kommen darf** (nur etwa 25 m vom Ufer,
+  der Gesang trägt nicht weit).
+* Wer die Linie überfährt, bleibt stehen, das Boot dreht sich langsam zur Insel, **16 Sekunden**
+  lang (der Gesang hat zwei Strophen). Dann 25 Sekunden Schonfrist.
 
 ## Berufsschifffahrt
 
@@ -44,8 +61,11 @@ dunkle Striche.
 * Die Schiffe fahren **rechts** (Rechtsfahrgebot): Nordwärts in der östlichen, südwärts in der
   westlichen Spur. In der Mitte bleibt eine etwa 28 m breite Lücke.
 * **Ausweichen** ist Pflicht: Ein Schiff weicht nicht aus. Wer mit dem Rumpf zusammenstößt, wird
-  hart zurückgeworfen, verliert 30 % Fahrt und hat **5 Sekunden** lang halb so viel Vortrieb
-  (Meldung „Kollision mit Berufsschiff!“).
+  überfahren und **scheidet aus dem Rennen aus** (Meldung „Kollision mit Berufsschiff!
+  Ausgeschieden“).
+* Die Schiffe sind wie Schlepper und Polizeiboot aus gestrakten Rümpfen modelliert: Containerschiff
+  mit bunten Stapeln, Tanker mit Rohrleitungen und Tankdomen, Massengutfrachter mit Lukendeckeln und
+  Kränen; achtern eine mehrgeschossige Brücke mit Schornstein und Radarmast.
 * Ist ein Schiff **näher als 95 m** (bis zum Rumpf), kommt eine Warnung mit dem Namen des
   Schiffs („Hanse Trader: Berufsschiff! Ausweichen!“) und ein tiefes Signalhorn.
 * Die Schiffe ziehen einen weißen **Kielwasser-Keil** hinter sich her. Er zeigt, wo sie

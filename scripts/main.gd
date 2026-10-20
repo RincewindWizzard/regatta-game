@@ -10,6 +10,8 @@ extends Node
 
 const COLORS := [Color(0.85, 0.18, 0.15), Color(0.15, 0.4, 0.85), Color(0.12, 0.6, 0.3), Color(0.95, 0.55, 0.1)]
 const MENU_SCENE := "res://scenes/menu.tscn"
+const ACCIDENT_GUILTY := 20.0            # Polizei nach Unfall: Verursacher (KVR) wird so lange kontrolliert
+const ACCIDENT_OTHER := 7.0              # der andere Beteiligte nur kurz
 const STUCK_WAIT := 4.0                 # so lange festsitzen, bis der Schlepper gerufen wird
 const WAIT_TIMEOUT := 20.0              # Host wartet höchstens so lange auf langsame Clients
 const STATES := ["waiting", "countdown", "racing", "finished"]
@@ -281,6 +283,24 @@ func _on_boat_finished(boat: Boat) -> void:
 		state = "finished"
 
 
+## Nach einem Zusammenstoß kommt die Wasserschutzpolizei: Wer nach KVR hätte ausweichen müssen
+## (bei Gegenkurs/unklar: wer mit mehr Fahrt aufgefahren ist), wird länger kontrolliert.
+func _police_accident(a: Boat, b: Boat, a_aggressor: bool) -> void:
+	if state != "racing" or a.hold_kind != 0 or b.hold_kind != 0 or a.immune_time > 0.0 or b.immune_time > 0.0:
+		return
+	var r := Kvr.assess(a, b, WindField.dir_to_blow(wind.dir_at(a.pos2d())))
+	var a_guilty := a_aggressor
+	if not r.is_empty() and r["a_kind"] != r["b_kind"]:
+		a_guilty = r["a_kind"] == Kvr.Kind.AUSWEICHEN
+	var guilty := a if a_guilty else b
+	var other := b if a_guilty else a
+	guilty.start_hold(1, Vector2.INF, ACCIDENT_GUILTY, 1)
+	other.start_hold(1, Vector2.INF, ACCIDENT_OTHER, 2)
+	guilty.show_message("Zusammenstoß! Wasserschutzpolizei: Stopp – Kontrolle!", 3.0)
+	other.show_message("Zusammenstoß! Wasserschutzpolizei: Stopp – Kontrolle!", 3.0)
+	Sfx.play("police_siren", -2.0)
+
+
 func _resolve_collisions(delta: float) -> void:
 	for i in boats.size():
 		for j in range(i + 1, boats.size()):
@@ -308,6 +328,8 @@ func _resolve_collisions(delta: float) -> void:
 					Sfx.play("crunch", -10.0, 1.6)
 				a.collide(-rel, a_in >= b_in)
 				b.collide(-rel, b_in > a_in)
+				if rel < -1.5:
+					_police_accident(a, b, a_in >= b_in)
 			# Aneinanderliegen bremst beide
 			a.scrape(delta)
 			b.scrape(delta)
