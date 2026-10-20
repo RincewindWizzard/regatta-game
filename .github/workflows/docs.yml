@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: read   # auch zum Laden der Release-Dateien
   pages: write
   id-token: write
 
@@ -41,6 +41,15 @@ jobs:
       - run: pip install -r requirements-docs.txt
       # --strict: kaputte Querverweise und fehlende Seiten lassen den Build fehlschlagen
       - run: mkdocs build --strict
+      # Spiel-Downloads des neuesten Releases auf die Seite legen (falls es schon eines gibt)
+      - name: Downloads des neuesten Releases einbinden
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p site/downloads
+          gh release download --repo "$GITHUB_REPOSITORY" --pattern "Regatta-*.zip" --dir site/downloads \
+            || echo "Noch kein Release vorhanden – es werden keine Downloads eingebunden."
+          ls -lh site/downloads
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

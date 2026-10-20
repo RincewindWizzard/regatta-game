@@ -1,0 +1,118 @@
+name: Spiel bauen und veröffentlichen
+
+# Exportiert das Spiel mit Godot für Windows, Linux und macOS, veröffentlicht die Zip-Dateien als
+# GitHub Release und stößt danach den Bau der Dokumentation an. Diese legt die Downloads
+# zusätzlich auf der GitHub-Pages-Seite ab (Seite „Download“).
+#
+# Auslöser:
+#   * manuell: Actions -> „Spiel bauen und veröffentlichen“ -> Run workflow (Version angeben)
+#   * automatisch beim Pushen eines Tags wie v1.2.0
+# Voraussetzung: Settings -> Actions -> General -> Workflow permissions: „Read and write permissions“.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versionsnummer des Releases, z. B. v1.2.0"
+        required: true
+        default: "v1.0.0"
+
+env:
+  GODOT_VERSION: "4.7.2"      # Engine-Version; Export-Vorlagen müssen exakt dazu passen
+
+permissions:
+  contents: write             # Release anlegen
+  actions: write              # Dokumentations-Workflow anstoßen
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot und Export-Vorlagen laden (gecacht)
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: ~/godot-cache
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Godot installieren
+        run: |
+          set -e
+          BASE="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          mkdir -p ~/godot-cache
+          if [ ! -f ~/godot-cache/godot ]; then
+            curl -fsSL -o godot.zip "$BASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+            unzip -q godot.zip
+            mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" ~/godot-cache/godot
+          fi
+          if [ ! -d ~/godot-cache/templates ]; then
+            curl -fsSL -o templates.tpz "$BASE/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+            unzip -q templates.tpz -d tpl
+            mv tpl/templates ~/godot-cache/templates
+          fi
+          chmod +x ~/godot-cache/godot
+          sudo ln -sf ~/godot-cache/godot /usr/local/bin/godot
+          mkdir -p ~/.local/share/godot/export_templates
+          ln -sfn ~/godot-cache/templates ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          godot --version
+
+      - name: Projekt importieren
+        run: godot --headless --path . --import || true     # erzeugt .godot/ (Texturen, Audio)
+
+      - name: Tests (Level prüfen)
+        run: |
+          godot --headless --path . --script res://tests/level_check.gd | tee check.log
+          grep -q "ALLE OK" check.log
+
+      - name: Exportieren
+        run: |
+          set -e
+          mkdir -p build/windows build/linux build/macos dist
+          godot --headless --path . --export-release "Windows Desktop" build/windows/Regatta.exe
+          godot --headless --path . --export-release "Linux" build/linux/Regatta.x86_64
+          godot --headless --path . --export-release "macOS" build/macos/Regatta.zip
+          chmod +x build/linux/Regatta.x86_64
+          (cd build/windows && zip -9 -q ../../dist/Regatta-windows.zip Regatta.exe)
+          (cd build/linux && zip -9 -q ../../dist/Regatta-linux.zip Regatta.x86_64)
+          cp build/macos/Regatta.zip dist/Regatta-macos.zip
+          ls -lh dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regatta-builds
+          path: dist/*.zip
+          if-no-files-found: error
+
+  release:
+    needs: export
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: regatta-builds
+          path: dist
+      - name: Release anlegen
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          name: Regatta ${{ github.event.inputs.version || github.ref_name }}
+          generate_release_notes: true
+          files: dist/*.zip
+          body: |
+            Spielbare Builds für **Windows**, **Linux** und **macOS** (Godot ${{ env.GODOT_VERSION }}).
+            Entpacken und starten. Hinweise zu macOS und Linux stehen auf der Seite „Download“ der Dokumentation.
+
+  docs:
+    # Die Dokumentation holt sich beim Bauen das neueste Release und legt die Dateien unter /downloads ab
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dokumentation neu bauen und veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run docs.yml --repo "$GITHUB_REPOSITORY" --ref "${{ github.event.repository.default_branch }}"

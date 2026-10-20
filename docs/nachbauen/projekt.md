@@ -16,7 +16,7 @@ config_version=5
 [application]
 config/name="Regatta"
 run/main_scene="res://scenes/menu.tscn"      ; Startszene
-config/features=PackedStringArray("4.3", "Forward Plus")
+config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
 Net="*res://scripts/net/net.gd"

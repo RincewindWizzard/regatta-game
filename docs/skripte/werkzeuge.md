@@ -125,7 +125,34 @@ Bug +Z. Die Skripte drehen beim Export so, dass in Godot der Bug nach `+z` zeigt
 
 **Alternative ohne Blender:** `boat.gd` und `tug.gd` haben Ersatzmodelle aus Boxen.
 
+## Build und Release { #build-und-release }
+
+Zwei GitHub-Actions-Workflows in `.github/workflows/` bauen und veröffentlichen das Projekt:
+
+| Datei | Aufgabe |
+|---|---|
+| `docs.yml` | baut die Dokumentation mit MkDocs und veröffentlicht sie auf GitHub Pages; holt dabei die Dateien des neuesten Releases nach `/downloads` |
+| `release.yml` | exportiert das Spiel für Windows, Linux und macOS, legt ein GitHub Release an und stößt `docs.yml` an |
+
+**`release.yml` im Detail.** Ausgelöst wird er von Hand (*Actions → Spiel bauen und
+veröffentlichen → Run workflow*, mit Versionsnummer wie `v1.2.0`) oder durch das Pushen eines
+Tags `v*`. Der Job `export` lädt Godot **4.7.2** und die passenden Export-Vorlagen (zusammen
+gecacht, die Version steht in `GODOT_VERSION`), importiert das Projekt, führt `level_check.gd`
+aus und exportiert mit den Presets aus `export_presets.cfg` die drei Plattformen. Daraus werden
+`Regatta-windows.zip`, `Regatta-linux.zip` und `Regatta-macos.zip`. Der Job `release` hängt sie
+an ein GitHub Release (Namen **ohne** Versionsnummer, damit der Link
+`…/releases/latest/download/Regatta-windows.zip` immer funktioniert). Der Job `docs` startet
+danach `docs.yml` auf dem Hauptzweig; so liegen die Downloads auch auf der Seite
+[Download](../spielen/download.md).
+
+Einmalig im Repository einzustellen: *Settings → Actions → General → Workflow permissions →
+Read and write permissions*, und *Settings → Pages → Source → GitHub Actions*.
+
+**Export-Presets.** `export_presets.cfg` enthält drei Presets: Windows (x86_64, Programm und Daten
+in einer `.exe`), Linux (x86_64, eine Datei) und macOS (universal, nicht signiert, als Zip mit
+`.app`). `exclude_filter` hält Dokumentation, Tests und Werkzeuge aus dem Spiel heraus.
+
 ## Zwei Godot-Versionen testen
 
-Der Code ist mit Godot **4.3 und 4.7** getestet. Ein `godot --headless --path . --import`
+Entwickelt und getestet wird mit Godot **4.7.2** (das Projekt ist auf 4.7 eingestellt); der Code läuft auch noch mit 4.3. Ein `godot --headless --path . --import`
 liest das Projekt ein, danach laufen alle obigen Tests unverändert.

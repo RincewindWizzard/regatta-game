@@ -41,7 +41,7 @@ eine Sirenen-Insel und dekorative Tiere.
 
 | | |
 |---|---|
-| Engine | Godot 4.3 oder neuer (getestet mit 4.3 und 4.7) |
+| Engine | Godot 4.7.2 (ältere 4.x ab 4.3 laufen meist auch) |
 | Sprache | GDScript, rund 10 000 Zeilen in etwa 45 Skripten |
 | Render-Modus | Forward Plus, Seekarte per Shader, Modelle mit Tusche-Kontur |
 | Physik | eigene 2D-Segelphysik in der Wasserebene, **keine** Godot-Physik-Engine |

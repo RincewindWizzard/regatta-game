@@ -40,6 +40,7 @@ extra_css:
 nav:
   - Start: index.md
   - Spielen:
+      - Download: spielen/download.md
       - Spielanleitung: spielen/anleitung.md
       - Die Bahnen: spielen/bahnen.md
       - Die Karten: spielen/karten.md
