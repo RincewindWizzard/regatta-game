@@ -118,6 +118,7 @@ func update_boat(b: Boat, _delta: float) -> void:
 			if clock - float(_warned.get(key, -1000.0)) > WARN_PAUSE:
 				_warned[key] = clock
 				b.show_message("%s: Berufsschiff! Ausweichen!" % sh["name"], 3.0)
+				b.show_kvr("KVR 9 – Enges Fahrwasser", "Berufsschifffahrt hat Vorrang: nicht behindern", 2)
 				Sfx.play("ship_horn", -4.0)
 
 

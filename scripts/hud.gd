@@ -218,6 +218,8 @@ func _draw_panel(b: Boat, o: Vector2) -> void:
 	draw_rect(Rect2(o, Vector2(w, h)), INK, false, 1.5)
 	draw_rect(Rect2(o + Vector2(3, 3), Vector2(w - 6, h - 6)), INK, false, 0.6)
 	draw_rect(Rect2(o + Vector2(3, 3), Vector2(6, h - 6)), b.color)
+	if b.kvr_time > 0.0:
+		_draw_kvr(b, o)
 	var x := o.x + 20.0
 	_text("%s  ·  Platz %d" % [b.player_name, main.rank_of(b)], Vector2(x, o.y + 26), 19, b.color.darkened(0.15), _font_b)
 	_text("%.1f kn" % (b.speed() * 1.944), Vector2(x, o.y + 60), 28, INK, _font_b)
@@ -277,6 +279,18 @@ func _draw_panel(b: Boat, o: Vector2) -> void:
 	_text(info, Vector2(x, o.y + 140), 14, Color(0.15, 0.3, 0.5), _font_i)
 	if warn != "":
 		_text(warn, Vector2(x, o.y + 159), 16, warn_col, _font_b)
+
+
+## KVR-Einblendung über dem Spielerfeld: grün = Wegerecht, orange = ausweichen, blau = Hinweis
+func _draw_kvr(b: Boat, o: Vector2) -> void:
+	var col: Color = [Color(0.15, 0.3, 0.55), Color(0.1, 0.55, 0.25), Color(0.85, 0.45, 0.05)][clampi(b.kvr_kind, 0, 2)]
+	var fade := clampf(b.kvr_time, 0.0, 1.0)
+	var r := Rect2(o + Vector2(0, -50), Vector2(PANEL_W, 44))
+	draw_rect(r, Color(PAPER, 0.96 * fade))
+	draw_rect(r, Color(INK, fade), false, 1.2)
+	draw_rect(Rect2(r.position, Vector2(7, r.size.y)), Color(col, fade))
+	_text(b.kvr_title, r.position + Vector2(18, 19), 17, Color(col.darkened(0.2), fade), _font_b)
+	_text(b.kvr_sub, r.position + Vector2(18, 37), 14, Color(INK, fade), _font_i)
 
 
 ## Gasstufen als Kästchen und Motorzustand

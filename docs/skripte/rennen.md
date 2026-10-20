@@ -208,3 +208,64 @@ Abstand. Es braucht keine Rundenzeit-Verfolgung.
 
 `target_pos(i)`, `target_name(i)` (für das HUD) und `static course_length(level)` (Bahnlänge in
 Metern für die Menüanzeige).
+
+## `kvr.gd`: Vorfahrtsregeln als Einblendung { #kvr-gd }
+
+`class_name Kvr`, `extends RefCounted`. Eine kleine Lehrfunktion: Wenn sich zwei Boote auf
+Kollisionskurs nähern, sagt das Spiel jedem, **wer ausweichen muss**, mit der passenden Regel der
+Kollisionsverhütungsregeln. `main.gd` ruft `_kvr.update(boats, wind, race_time)` alle 0,25 s im
+Zustand `racing` auf. Es hat keinen Einfluss auf Physik oder Ergebnis.
+
+### Wann gilt eine Annäherung? CPA und TCPA
+
+Der **CPA** (Closest Point of Approach) ist der kleinste Abstand, den zwei Boote haben werden,
+wenn beide den Kurs halten. Der **TCPA** ist die Zeit bis dahin. Aus Relativposition `r` und
+Relativgeschwindigkeit `v`:
+
+```gdscript
+var tcpa := -r.dot(v) / v.length_squared()      # Zeitpunkt des geringsten Abstands
+var cpa := (r + v * tcpa).length()              # Abstand dann
+```
+
+`approaching(a, b)` meldet `true`, wenn die Boote näher als 70 m sind, sich nähern
+(`0 < tcpa < 14 s`) und `cpa < 22 m` wäre. Dasselbe rechnet die Seefahrt mit Radar.
+
+### Die Regeln (`assess`)
+
+Die Prüfung geht in dieser Reihenfolge, die erste passende Regel gilt:
+
+1. **Regel 18:** läuft genau eines der Boote mit Motor, weicht es dem Segler aus.
+2. **Regel 13 (Überholen):** `_overtakes(o, t)`: Liegt `o` im **135°-Sektor hinter** `t` (67,5° nach
+   beiden Seiten vom Heck) und ist schneller, ist `o` der Überholer und weicht aus.
+3. **Regel 12 (beide Segler):** Mit `_wind_from_port` wird geprüft, auf welcher Seite der Wind
+   einfällt (Skalarprodukt mit dem Backbord-Vektor). Auf verschiedenen Seiten weicht das
+   **Backbordbug-Boot** aus („Baum links, bringt's!“ für das andere). Auf derselben Seite
+   weicht das **Luvboot** aus: Leeseite ist, wer weiter in Windrichtung (`dot(blow)`) liegt.
+   Steht ein Boot im Wind (`|awa| < 0,12`), gibt es keine Aussage.
+4. **Regel 14/15 (beide Motor):** Gegenkurs (`dot(Kurs_a, Kurs_b) < −0,98`): beide nach Steuerbord.
+   Sonst weicht aus, wer den anderen an **Steuerbord** hat (`_on_starboard`).
+
+`_result(...)` füllt das Ergebnis für beide Boote (Titel, Untertitel, Art: Info, Wegerecht,
+ausweichen).
+
+### Anzeige und Netzwerk
+
+* `Boat.show_kvr(title, sub, kind)` setzt `kvr_title`, `kvr_sub`, `kvr_kind`, `kvr_time = 5 s`.
+* `RaceHud._draw_kvr` malt über dem Spielerfeld einen Streifen: **grün = Wegerecht**,
+  **orange = ausweichen**, **blau = Hinweis**, mit weichem Ausblenden in der letzten Sekunde.
+* Im Netzwerk schickt der Host die Meldung als Ereignis (`Net.send_event("kvr", …)`), damit der
+  Client sie sieht (`main.on_net_event`).
+* Nur **Boote von Menschen** bekommen Hinweise (`input` ist kein `AIInput`). Pro Bootspaar gibt es
+  höchstens alle 14 Sekunden eine Meldung.
+
+### Test
+
+`tests/hazard_test.gd kvr` setzt zwei Boote auf Gegenkurs bei Nordwind (eines Backbordbug, das
+andere Steuerbordbug) und prüft, dass das erste „ausweichen“ und das zweite „Baum links, bringt's“
+meldet.
+
+### Eine Regel ergänzen
+
+Ein neuer Fall ist ein weiterer `if`-Zweig in `assess`, der mit `_result(...)` antwortet. Zum
+Beispiel Regel 17 (Kurshalten des Vorfahrtberechtigten) oder eine Warnung, wenn man auf
+Kollisionskurs gar nichts tut (CPA < 8 m).

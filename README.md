@@ -92,6 +92,9 @@ mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schulte
   das an den fehlenden Windstrichen.
 - **Wende mit Schub:** Wer mit Fahrt durch den Wind dreht, bekommt einen kurzen
   Beschleunigungsschub („Wende – Schub!“). Wer zu langsam wendet, bleibt im Wind hängen.
+- **Vorfahrtsregeln (KVR):** Nähern sich zwei Boote, blendet das Spiel die passende Regel ein
+  („Baum links, bringt's!“). Grün heißt Wegerecht, orange heißt ausweichen. Das hat keine
+  Folgen, es soll nur unterhalten und etwas beibringen.
 - **Segel-Overlay:** Die Segel färben sich grün, wenn die Stellung stimmt, über gelb und
   orange bis rot, wenn sie zu dicht oder zu offen stehen, und blinken rot, wenn sie killen.
   Die grüne Linie auf dem Wasser zeigt, wo der Baum idealerweise stehen sollte. Mit `T` aus.

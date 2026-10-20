@@ -15,6 +15,7 @@ Jedes Skript des Projekts mit einem Satz zur Aufgabe und dem Kapitel, das es gen
 | `scripts/wind_field.gd` | 125 | Wind, Böen, Dreher, Windschatten von Booten und Land | [Wind und Strömung](wind.md#wind-field-gd) |
 | `scripts/wind_visuals.gd` | 110 | Windstriche (MultiMesh), Böen-Textur | [Wind und Strömung](wind.md#wind-visuals-gd) |
 | `scripts/currents.gd` | 30 | Summe aller Strömungen an einem Punkt | [Wind und Strömung](wind.md#currents-gd) |
+| `scripts/kvr.gd` | 230 | Vorfahrtsregeln (KVR) als Einblendung bei Annäherung zweier Boote | [Rennablauf](rennen.md#kvr-gd) |
 | `scripts/boat_track.gd` | 55 | Gestrichelte Kielwasserlinie hinter dem Boot | [Das Boot](boot.md#boat-track-gd) |
 | `scripts/tug.gd` | 310 | Schlepper (Zustandsmaschine) | [Schlepper](schlepper.md) |
 

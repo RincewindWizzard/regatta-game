@@ -82,6 +82,7 @@ func _draw() -> void:
 | `_draw_minimap` | Kartenbild, Startlinie, Tonnen, **Warngebiete, Tankstellen, Schifffahrtswege mit den Schiffen (live)**, Boote mit Kurs, Zielstrich |
 | `_draw_panel(boat, pos)` | Name und Platz, Geschwindigkeit in kn, nächste Tonne und Abstand, Schot-Balken, Gas, Tankuhr, Tiefe/Strom, Warnzeile |
 | `_draw_sheet_bar` | Balken der Schot; **grüner Strich = optimal**; Text „zu dicht/zu offen/killt/optimal“ |
+| `_draw_kvr` | Einblendung der Vorfahrtsregeln (KVR) über dem Panel, siehe [Rennablauf](rennen.md#kvr-gd) |
 | `_draw_engine` | vier Kästchen Gas und Motorzustand |
 | `_draw_fuel_gauge` | Tankuhr mit Zeiger, roter Reserve, „E“ und „F“ |
 | `_draw_leaderboard` | Rangliste mit Fortschritt („2/3“), Zielzeit, „raus“ |

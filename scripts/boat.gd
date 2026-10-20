@@ -66,6 +66,10 @@ var heel := 0.0               ## Krängung (rad)
 var controls_enabled := false
 var maneuver_left := 0.0      ## (nicht mehr benutzt, Wenden geht übers Lenken)
 var local_human := false      ## von einem Menschen an diesem Rechner gesteuert (zeigt das Segel-Overlay)
+var kvr_title := ""           ## KVR-Einblendung bei Annäherung (siehe kvr.gd), nur zur Belehrung
+var kvr_sub := ""
+var kvr_kind := 0
+var kvr_time := 0.0
 
 # --- Schub, Kollision, Gefahrengebiete ---
 var boost := 0.0              ## Wendeschub (1 = frisch, klingt auf 0 ab)
@@ -192,6 +196,17 @@ func show_message(text: String, duration := 2.5, relay := true) -> void:
 	var net := get_node_or_null("/root/Net")
 	if relay and net and net.is_host_racing():
 		net.send_event("msg", [player_index, text, duration])
+
+
+## KVR-Hinweis einblenden (Titel, Untertitel, Art: 0 Info, 1 Wegerecht, 2 ausweichen)
+func show_kvr(title: String, sub: String, kind: int, relay := true) -> void:
+	kvr_title = title
+	kvr_sub = sub
+	kvr_kind = kind
+	kvr_time = 5.0
+	var net := get_node_or_null("/root/Net")
+	if relay and net and net.is_host_racing():
+		net.send_event("kvr", [player_index, title, sub, kind])
 
 
 func optimal_sheet() -> float:
@@ -366,6 +381,7 @@ func net_unpack(d: PackedFloat32Array, o: int) -> void:
 func _puppet_step(delta: float) -> void:
 	if message_time > 0.0:
 		message_time -= delta
+	kvr_time = maxf(0.0, kvr_time - delta)
 	hold_time = maxf(0.0, hold_time - delta)
 	if out or not _net_has:
 		return
@@ -403,6 +419,7 @@ func _physics_process(delta: float) -> void:
 		input.update()
 	if message_time > 0.0:
 		message_time -= delta
+	kvr_time = maxf(0.0, kvr_time - delta)
 	var p := pos2d()
 	depth = SeaChart.depth_at(p)
 	if out:

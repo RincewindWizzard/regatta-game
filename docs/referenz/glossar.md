@@ -25,6 +25,10 @@
 | **Scheinbarer / wahrer Wind** | Wind, den das fahrende Boot spürt / Wind über Grund |
 | **Böe, Dreher** | kurzzeitig stärkerer Wind / langsame Richtungsänderung |
 | **Windschatten** | Bereich im Lee eines Hindernisses mit weniger Wind |
+| **KVR** | Kollisionsverhütungsregeln: die Vorfahrtsregeln auf See |
+| **CPA / TCPA** | kleinster Abstand zweier Schiffe auf jetzigem Kurs / Zeit bis dahin |
+| **Wegerecht** | wer Kurs und Fahrt halten darf, der andere weicht aus |
+| **Baum links, bringt's** | Merkspruch: Großbaum links (Wind von Steuerbord) heißt Wegerecht |
 | **VMG** | Velocity Made Good: Geschwindigkeit **in Richtung Ziel** |
 | **Layline** | Linie, ab der man die Tonne ohne weitere Wende erreicht |
 | **Bb / Stb** | Backbord (links) / Steuerbord (rechts) |

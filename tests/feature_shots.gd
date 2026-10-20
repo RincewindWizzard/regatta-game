@@ -24,6 +24,7 @@ var _shots := [
 	[L1, Vector2(0, -20), 35.0, 60.0, "trimm_gut.png", "trim_good", 90],
 	[L1, Vector2(0, -20), 35.0, 60.0, "trimm_schlecht.png", "trim_bad", 90],
 	[L1, Vector2(0, -20), 55.0, 55.0, "explosion.png", "boom", 70],
+	[L1, Vector2(0, 0), 90.0, 62.0, "kvr.png", "kvr", 45],
 	[L5, Vector2(0, -95), 170.0, 62.0, "schifffahrt.png", "ships", 40],
 	[L5, Vector2(0, -95), 75.0, 55.0, "schiff_nah.png", "ships", 40],
 ]
@@ -84,6 +85,11 @@ func _process(_d: float) -> bool:
 				w._critters[0]["off"] = 0.0
 				w._t = 24.0 * 0.28
 				w._critters[0]["prev"] = 0.27
+			"kvr":
+				b.position = Vector3(-40, 0, 0)
+				b.heading = PI / 2
+				_main.boats[1].position = Vector3(40, 0, 0)
+				_main.boats[1].heading = -PI / 2
 			"ships":
 				_main.race_time = 150.0          # Schiffe mitten in der Rinne (Zeit steht im Countdown still)
 				b.position = Vector3(-48, 0, -60)
@@ -113,6 +119,11 @@ func _process(_d: float) -> bool:
 		cam.look_at(t, Vector3.UP)
 		_main.hud.visible = false
 	match shot[5]:
+		"kvr":
+			if _frame == 20:
+				b.show_kvr("KVR 12 – Backbordbug weicht aus", "Wind von Backbord: Ausweichen!", 2, false)
+			if _frame >= 5:
+				_main.hud.visible = true
 		"police":
 			if _frame == 20:
 				b.start_hold(1)

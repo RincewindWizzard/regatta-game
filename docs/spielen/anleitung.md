@@ -77,6 +77,29 @@ Weitere Tasten:
     Zieh die Schot, bis das Segel **gerade nicht mehr flattert**, und lass sie dann einen
     Hauch locker. Das Overlay zeigt genau diesen Punkt: Wenn die Segel grün sind, passt es.
 
+## Vorfahrtsregeln (KVR)
+
+Nähern sich zwei Boote auf Kollisionskurs, blendet das Spiel über dem Spielerfeld **die passende
+Regel der Kollisionsverhütungsregeln (KVR)** ein. Das hat **keine Folgen** für das Rennen, es
+soll nur unterhalten und etwas beibringen. Grün heißt: Du hast **Wegerecht**, orange: Du musst
+**ausweichen**.
+
+![KVR-Einblendung](../bilder/kvr.png)
+
+| Situation | Wer weicht aus? | Meldung |
+|---|---|---|
+| Beide unter Segel, Wind auf **verschiedenen Seiten** (Regel 12) | Wind von **Backbord** (links) weicht aus. Wer den **Baum links** hat (Wind von Steuerbord), hat Wegerecht. | „Baum links, bringt's!“ |
+| Beide unter Segel, Wind von **derselben Seite** (Regel 12) | das **Luvboot** (dem Wind näher) weicht dem Leeboot aus | „Luv gibt Lee Raum“ |
+| Eines **überholt** (Regel 13, aus dem Sektor hinter dem anderen, schneller) | der **Überholer** | „Überholer hält Abstand“ |
+| Eines läuft mit **Motor**, das andere segelt (Regel 18) | das **Maschinenfahrzeug** | „Maschine weicht Segler aus“ |
+| Beide mit Motor, **Gegenkurs** (Regel 14) | beide nach Steuerbord | „Gegenkurs“ |
+| Beide mit Motor, **kreuzend** (Regel 15) | wer den anderen an **Steuerbord** hat | „Kurs kreuzt“ |
+| Berufsschiff im Fahrwasser (Regel 9) | du | „Enges Fahrwasser“ |
+
+!!! tip "Merkspruch"
+    **„Baum links, bringt's!“** Liegt dein Großbaum an der linken Seite, weht der Wind von
+    rechts (Steuerbord). Dann hast du Wegerecht. Wer den Baum rechts hat, muss ausweichen.
+
 ## Kollisionen
 
 Wer mit einem anderen Boot zusammenstößt, **verliert Fahrt** und hat eine Weile

@@ -76,6 +76,10 @@ func _physics_process(delta: float) -> bool:
 				# Boot direkt vor den Bug setzen, das Schiff fährt hinein
 				_place(b, sh["pos"] + sh["dir"] * (sh["half"] + 6.0), 0.0, 0.0)
 				_ship_pos = sh["pos"]
+			"kvr":
+				# Gegenkurs: A (Kurs Ost) hat bei Nordwind den Wind von Backbord, B (Kurs West) von Steuerbord
+				_place(b, Vector2(-30, 0), PI / 2, 3.0)
+				_place(b2, Vector2(30, 0), -PI / 2, 3.0)
 			"kollision":
 				_place(b, Vector2(0, -30), 0.0, 0.0)
 				_place(b2, Vector2(0, -34), 0.0, 0.0)
@@ -113,6 +117,15 @@ func _physics_process(delta: float) -> bool:
 				print("OK: Gesang nach %.1f s vorbei, Fahrt %.2f" % [_t - _t0, b.speed()])
 				return _finish(true)
 			if e > 30.0:
+				return _finish(false)
+		"kvr":
+			_place(b, b.pos2d(), PI / 2, 3.0)
+			_place(b2, b2.pos2d(), -PI / 2, 3.0)
+			if b.kvr_time > 0.0 and b2.kvr_time > 0.0:
+				print("A: %s | %s (Art %d)" % [b.kvr_title, b.kvr_sub, b.kvr_kind])
+				print("B: %s | %s (Art %d)" % [b2.kvr_title, b2.kvr_sub, b2.kvr_kind])
+				return _finish(b.kvr_kind == 2 and b2.kvr_kind == 1 and b2.kvr_title.contains("Baum links"))
+			if e > 6.0:
 				return _finish(false)
 		"schiff":
 			if b.penalty >= 4.9:

@@ -41,6 +41,8 @@ var _tug_puppets := {}             # Client: Boot-Index -> Tug
 var _fixed_points: Array = []      # Tonnen: [Position, Radius]
 var _docks: Array = []             # Tankstellen
 var _hazards: Array = []           # Minenfelder, Polizeigebiete, Sirenen-Inseln
+var _kvr := Kvr.new()              # Vorfahrtsregeln als Einblendung
+var _kvr_timer := 0.0
 
 
 func _ready() -> void:
@@ -181,6 +183,10 @@ func _physics_process(delta: float) -> void:
 				h.update_boat(b, delta)
 		if state == "racing" and winner == null and boats.all(func(b: Boat): return b.out):
 			state = "finished"
+	_kvr_timer -= delta
+	if _kvr_timer <= 0.0 and state == "racing":
+		_kvr_timer = 0.25
+		_kvr.update(boats, wind, race_time)
 	_resolve_collisions(delta)
 	_call_tugs()
 	for dock in _docks:
@@ -435,6 +441,10 @@ func apply_snapshot(d: PackedFloat32Array) -> void:
 ## Client: Meldungen vom Host
 func on_net_event(kind: String, args: Array) -> void:
 	match kind:
+		"kvr":
+			var k := int(args[0])
+			if k >= 0 and k < boats.size():
+				boats[k].show_kvr(args[1], args[2], int(args[3]), false)
 		"msg":
 			var i := int(args[0])
 			if i >= 0 and i < boats.size():
