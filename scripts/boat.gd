@@ -50,6 +50,10 @@ const HOLD_TIMES := {1: 8.0, 2: 7.0}
 const IMMUNE_TIME := 25.0     ## nach einem Halt so lange keine neue Kontrolle / kein neuer Gesang
 ## Segel-Overlay (Taste T): zeigt am Segel selbst, ob die Stellung stimmt
 static var trim_overlay := true
+## Debug-Modus (Taste F9 oder Startargument --debug): unbegrenzter Sprit und ein sehr starker
+## Motor, um schnell alle Punkte einer Bahn abzufahren
+static var debug_mode := false
+const DEBUG_THRUST := 20.0    ## Faktor auf ENGINE_THRUST im Debug-Modus (ca. 27 kn bei Vollgas)
 
 var player_index := 0
 var player_name := "Spieler 1"
@@ -452,6 +456,9 @@ func _physics_process(delta: float) -> void:
 
 	# --- Eingabe & Steuern ---
 	var steer := 0.0
+	if debug_mode:
+		has_engine = true
+		fuel = TANK                                       # Debug: der Tank wird nie leer
 	if controls_enabled and input and not held:
 		steer = input.steer
 		sheet = clampf(sheet + input.sheet_rate * SHEET_SPEED * delta, 0.0, 1.0)
@@ -508,7 +515,7 @@ func _physics_process(delta: float) -> void:
 	drive *= 1.0 - 0.5 * clampf(penalty / 2.0, 0.0, 1.0)   # Segel verheddert nach Kollision
 	drive += TACK_BOOST * boost
 	if engine == Motor.LAEUFT:
-		drive += ENGINE_THRUST * float(throttle) / THROTTLE_MAX
+		drive += ENGINE_THRUST * (DEBUG_THRUST if debug_mode else 1.0) * float(throttle) / THROTTLE_MAX
 	if held:
 		drive = 0.0
 	_detect_maneuver(tw)

@@ -48,6 +48,8 @@ var _kvr_timer := 0.0
 func _ready() -> void:
 	randomize()
 	Sfx.ensure(get_tree())
+	if OS.get_cmdline_user_args().has("--debug"):
+		Boat.debug_mode = true
 	net = GameState.net_mode
 	_build_environment()
 
@@ -226,6 +228,11 @@ func _unhandled_input(event: InputEvent) -> void:
 					restart()
 			KEY_T:
 				Boat.trim_overlay = not Boat.trim_overlay
+			KEY_F9:
+				if net != "client":
+					Boat.debug_mode = not Boat.debug_mode
+					for b in local_boats:
+						b.show_message("Debug-Modus an: Turbo-Motor, Tank voll" if Boat.debug_mode else "Debug-Modus aus", 3.0)
 			KEY_ESCAPE:
 				_leave()
 

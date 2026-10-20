@@ -355,6 +355,9 @@ func _draw_time(o: Vector2) -> void:
 	draw_rect(Rect2(o, Vector2(150, 34)), PAPER)
 	draw_rect(Rect2(o, Vector2(150, 34)), INK, false, 1.2)
 	_text("Zeit  " + _fmt_time(main.race_time), o + Vector2(12, 24), 19, INK, _font_b)
+	if Boat.debug_mode:
+		draw_rect(Rect2(o + Vector2(0, 38), Vector2(150, 24)), Color(0.8, 0.1, 0.1))
+		_text("DEBUG  F9 = aus", o + Vector2(10, 56), 15, Color.WHITE, _font_b)
 
 
 func _draw_center(vs: Vector2) -> void:

@@ -76,6 +76,12 @@ func _physics_process(delta: float) -> bool:
 				# Boot direkt vor den Bug setzen, das Schiff fährt hinein
 				_place(b, sh["pos"] + sh["dir"] * (sh["half"] + 6.0), 0.0, 0.0)
 				_ship_pos = sh["pos"]
+			"debug":
+				Boat.debug_mode = true
+				_place(b, Vector2(100, 100), PI, 0.0)       # freie Fahrt nach Norden
+				b.fuel = 0.0
+				b.has_engine = false
+				b.sheet = 1.0
 			"kvr":
 				# Gegenkurs: A (Kurs Ost) hat bei Nordwind den Wind von Backbord, B (Kurs West) von Steuerbord
 				_place(b, Vector2(-30, 0), PI / 2, 3.0)
@@ -118,6 +124,13 @@ func _physics_process(delta: float) -> bool:
 				return _finish(true)
 			if e > 30.0:
 				return _finish(false)
+		"debug":
+			if e < 0.5:
+				b._set_throttle(4)
+			if e > 12.0:
+				print("Debug: Tempo %.1f m/s (%.0f kn), Tank %.1f l, Motor %s" % [b.speed(), b.speed() * 1.944, b.fuel, b.engine])
+				Boat.debug_mode = false
+				return _finish(b.speed() > 10.0 and b.fuel >= Boat.TANK - 0.01)
 		"kvr":
 			_place(b, b.pos2d(), PI / 2, 3.0)
 			_place(b2, b2.pos2d(), -PI / 2, 3.0)
