@@ -1,6 +1,6 @@
 extends SceneTree
 ## Misst die CPU-Zeit je Bild mit vier Computerbooten (ohne Grafik).
-## Aufruf: godot --headless --path . --script res://tests/perf_test.gd -- <level.tscn>
+## Aufruf: godot --headless --path . --script res://tests/perf_test.gd -- <level.tscn> [Startzeit in s]
 
 var _main: Node
 var _frames := 0
@@ -23,6 +23,8 @@ func _process(_d: float) -> bool:
 	if _main.state != "racing":
 		return false
 	_frames += 1
+	if _frames == 2 and OS.get_cmdline_user_args().size() > 1:
+		_main.race_time = float(OS.get_cmdline_user_args()[1])     # z. B. 60: Schiffe sind gerade in Startnähe
 	if _frames == 60:
 		_t0 = Time.get_ticks_usec()
 	if _frames > 60:

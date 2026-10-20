@@ -178,7 +178,7 @@ class Parts:
             # damit große Flächen eben bleiben und nur die Kanten weich auslaufen
             bev = o.modifiers.new("Bevel", 'BEVEL')
             bev.width = 0.22
-            bev.segments = 3
+            bev.segments = 2
             bev.limit_method = 'ANGLE'
             bev.angle_limit = math.radians(30.0)
             wn = o.modifiers.new("Normalen", 'WEIGHTED_NORMAL')

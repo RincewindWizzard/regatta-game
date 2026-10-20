@@ -37,7 +37,7 @@ func setup(p_boats: Array) -> void:
 		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(c)
 		var vp := SubViewport.new()
-		vp.msaa_3d = Viewport.MSAA_4X
+		vp.msaa_3d = Viewport.MSAA_2X
 		vp.audio_listener_enable_3d = i == 0
 		c.add_child(vp)
 		var cam := Camera3D.new()

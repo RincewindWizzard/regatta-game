@@ -16,6 +16,7 @@ const WARN_PAUSE := 25.0       ## Sekunden bis zur nächsten Warnung für dassel
 
 ## Rennzeit in Sekunden; setzt main.gd (Host/lokal jeden Schritt, Client aus dem Schnappschuss)
 static var clock := 0.0
+var _ships_cache := {}          # Zeit -> Schiffe (mehrfache Abfragen im selben Bild kosten nichts)
 static var running := false
 
 @export_range(100.0, 1500.0, 10.0, "suffix:m") var length := 900.0:
@@ -66,6 +67,8 @@ func lane_end() -> Vector2:
 
 ## Alle Schiffe zum Zeitpunkt t: [{id, pos, dir, vel, length, beam, name, type}]
 func ships_at(t: float) -> Array:
+	if _ships_cache.has(t):
+		return _ships_cache[t]
 	var out: Array = []
 	var speed := speed_kn / 1.944
 	var dur := (length + ship_length) / speed
@@ -84,11 +87,14 @@ func ships_at(t: float) -> Array:
 			out.append({"id": id, "pos": Vector2(g.x, g.z), "dir": dir, "vel": dir * speed,
 				"length": ship_length, "beam": beam,
 				"name": NAMES[posmod(id, NAMES.size())], "type": posmod(id, 3)})
+	if _ships_cache.size() > 24:
+		_ships_cache.clear()
+	_ships_cache[t] = out
 	return out
 
 
 ## Nächster Punkt der Rumpfkontur zu p: {cp (Weltkoordinaten), d (Abstand zur Außenhaut, negativ innen)}
-static func hull_query(sh: Dictionary, p: Vector2) -> Dictionary:
+static func hull_query(sh: Dictionary, p: Vector2, coarse := false) -> Dictionary:
 	var dir: Vector2 = sh["dir"]
 	var right := Vector2(dir.y, -dir.x)
 	var rel: Vector2 = p - sh["pos"]
@@ -99,7 +105,7 @@ static func hull_query(sh: Dictionary, p: Vector2) -> Dictionary:
 	var gap := Vector2(maxf(absf(local.x) - half_b, 0.0), maxf(absf(local.y) - half_l, 0.0))
 	if gap.length() > 30.0:
 		return {"cp": p, "d": gap.length()}
-	var poly := ShipModel.outline(int(sh["type"]), float(sh["length"]), float(sh["beam"]))
+	var poly := ShipModel.outline(int(sh["type"]), float(sh["length"]), float(sh["beam"]), coarse)
 	var best := INF
 	var best_pt := Vector2.ZERO
 	for i in poly.size():
@@ -115,7 +121,7 @@ static func hull_query(sh: Dictionary, p: Vector2) -> Dictionary:
 
 ## Abstand eines Punktes zur Außenhaut des Schiffs (negativ im Rumpf)
 static func hull_distance(sh: Dictionary, p: Vector2) -> float:
-	return float(hull_query(sh, p)["d"])
+	return float(hull_query(sh, p, true)["d"])      # grobes Vieleck genügt für die KI
 
 
 # ---------------------------------------------------------------- Spiellogik
@@ -149,6 +155,7 @@ func update_boat(b: Boat, _delta: float) -> void:
 # ---------------------------------------------------------------- Aufbau und Bewegung
 
 func _rebuild() -> void:
+	_ships_cache.clear()
 	if not is_inside_tree():
 		return
 	if _vis:

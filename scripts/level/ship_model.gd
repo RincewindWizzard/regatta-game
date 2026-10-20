@@ -39,15 +39,20 @@ static func build(type: int, length: float, beam: float) -> Node3D:
 
 
 ## Rumpfkontur als Vieleck in Schiffskoordinaten: x = quer, y = längs (Bug +)
-static func outline(type: int, length: float, beam: float) -> PackedVector2Array:
-	var key := "%d:%.1f:%.1f" % [type, length, beam]
+## coarse = true liefert ein grobes Vieleck (jeder 4. Punkt) für schnelle Abstandsabfragen der KI
+static func outline(type: int, length: float, beam: float, coarse := false) -> PackedVector2Array:
+	var key := "%d:%.1f:%.1f:%s" % [type, length, beam, coarse]
 	if _outlines.has(key):
 		return _outlines[key]
 	_load_hulls()
 	var out := PackedVector2Array()
 	var rows: Array = _hulls.get(KINDS[type % KINDS.size()], [])
+	if coarse and not rows.is_empty() and (rows.size() - 1) % 4 != 0:
+		coarse = false
 	var side := PackedVector2Array()
-	for r in rows:
+	var step := 4 if coarse else 1
+	for ri in range(0, rows.size(), step):
+		var r = rows[ri]
 		side.append(Vector2(float(r[1]) * beam * 0.5, float(r[0]) * length))
 	out.append_array(side)
 	for i in range(side.size() - 1, -1, -1):

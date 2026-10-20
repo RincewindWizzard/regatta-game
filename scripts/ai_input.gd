@@ -145,7 +145,7 @@ func update() -> void:
 		_think()
 	_guard_timer -= delta
 	if _guard_timer <= 0.0:
-		_guard_timer = 0.12
+		_guard_timer = 0.25
 		_ship_guard()
 	_trim(delta)
 	_steer(delta)
@@ -169,7 +169,7 @@ func _ship_guard() -> void:
 	if threats.is_empty():
 		_guard_active = false
 		return
-	var times := [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 13.0]
+	var times := [0.0, 3.0, 6.0, 9.0, 13.0]
 	var clear_now := _clearance(threats, p, boat.vel, times)
 	if clear_now > Boat.BOAT_RADIUS + 20.0:
 		_guard_active = false
@@ -179,8 +179,8 @@ func _ship_guard() -> void:
 	var can_motor := boat.has_engine and boat.fuel > 0.5
 	var best := -INF
 	var best_h := boat.heading
-	for k in 24:
-		var h := -PI + TAU * k / 24.0
+	for k in 16:
+		var h := -PI + TAU * k / 16.0
 		var dir := Vector2(sin(h), cos(h))
 		var spd := maxf(_polar(absf(_twa(h, from_dir))) * 0.45 * maxf(wind.base_speed, 1.0), 3.2 if can_motor else 0.0)
 		var clear := _clearance(threats, p, dir * spd, times)
