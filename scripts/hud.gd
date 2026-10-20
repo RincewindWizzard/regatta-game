@@ -72,6 +72,17 @@ func _draw() -> void:
 	if boats.size() > local_boats.size() or boats.size() > 2 or main.net != "":
 		_draw_leaderboard(Vector2(FRAME + 10.0, FRAME + 54.0))
 	_draw_center(vs)
+	_draw_fps(vs)
+
+
+## Kleine Bildraten-Anzeige unten rechts
+func _draw_fps(vs: Vector2) -> void:
+	var fps := Engine.get_frames_per_second()
+	var col := INK if fps >= 50 else (Color(0.8, 0.45, 0.0) if fps >= 30 else Color(0.8, 0.1, 0.1))
+	var txt := "%d FPS" % fps
+	var w := _font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+	draw_rect(Rect2(vs.x - FRAME - 14.0 - w - 6.0, vs.y - FRAME - 24.0, w + 12.0, 20.0), Color(PAPER, 0.8))
+	_text(txt, Vector2(vs.x - FRAME - 14.0 - w, vs.y - FRAME - 9.0), 13, col, _font)
 
 
 ## Rangliste aller Boote (Netzwerk / mehr als 2 Boote)

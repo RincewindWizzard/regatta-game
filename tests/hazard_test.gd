@@ -74,8 +74,11 @@ func _physics_process(delta: float) -> bool:
 				var sh: Dictionary = ships[0]
 				print("Schiffe: ", ships.size(), ", erstes ", sh["name"], " bei ", sh["pos"])
 				# Boot direkt vor den Bug setzen, das Schiff fährt hinein
-				_place(b, sh["pos"] + sh["dir"] * (sh["half"] + 6.0), 0.0, 0.0)
+				_place(b, sh["pos"] + sh["dir"] * (sh["length"] * 0.5 + 6.0), 0.0, 0.0)
 				_ship_pos = sh["pos"]
+			"rammen":
+				_place(b, Vector2(100, 100), PI, 0.0)
+				b.start_hold(1, Vector2.INF, 14.0, 1)
 			"debug":
 				Boat.debug_mode = true
 				_place(b, Vector2(100, 100), PI, 0.0)       # freie Fahrt nach Norden
@@ -128,6 +131,20 @@ func _physics_process(delta: float) -> bool:
 				print("OK: Gesang nach %.1f s vorbei, Fahrt %.2f" % [_t - _t0, b.speed()])
 				return _finish(true)
 			if e > 30.0:
+				return _finish(false)
+		"rammen":
+			if e > 6.0 and _phase == 1:
+				var circles: Array = b.police_circles()
+				if circles.is_empty():
+					return _finish(false)
+				var c: Vector2 = circles[1][0]
+				_place(b2, c + Vector2(0, -14), 0.0, 3.0)        # von Süden auf das Polizeiboot zu
+				_phase = 2
+				print("Polizeiboot bei ", c)
+			if _phase == 2 and b2.hold_kind == 1 and b2.hold_case == 3:
+				print("OK: Rammen löst Kontrolle aus, Dauer %.0f s" % b2.hold_total)
+				return _finish(true)
+			if e > 20.0:
 				return _finish(false)
 		"debug":
 			if e < 0.5:

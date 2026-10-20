@@ -64,7 +64,7 @@ func lane_end() -> Vector2:
 	return Vector2(g.x, g.z)
 
 
-## Alle Schiffe zum Zeitpunkt t: [{id, pos, dir, vel, half, radius, name, type}]
+## Alle Schiffe zum Zeitpunkt t: [{id, pos, dir, vel, length, beam, name, type}]
 func ships_at(t: float) -> Array:
 	var out: Array = []
 	var speed := speed_kn / 1.944
@@ -82,16 +82,40 @@ func ships_at(t: float) -> Array:
 			var dir := Vector2(f.x, f.z).normalized() * (1.0 if dir_i == 0 else -1.0)
 			var id := k * 2 + dir_i
 			out.append({"id": id, "pos": Vector2(g.x, g.z), "dir": dir, "vel": dir * speed,
-				"half": ship_length * 0.5, "radius": beam * 0.5 + 1.5,
+				"length": ship_length, "beam": beam,
 				"name": NAMES[posmod(id, NAMES.size())], "type": posmod(id, 3)})
 	return out
 
 
-## Abstand eines Punktes zum Schiffsrumpf (Strecke Bug–Heck), abzüglich Rumpfradius
+## Nächster Punkt der Rumpfkontur zu p: {cp (Weltkoordinaten), d (Abstand zur Außenhaut, negativ innen)}
+static func hull_query(sh: Dictionary, p: Vector2) -> Dictionary:
+	var dir: Vector2 = sh["dir"]
+	var right := Vector2(dir.y, -dir.x)
+	var rel: Vector2 = p - sh["pos"]
+	var local := Vector2(rel.dot(right), rel.dot(dir))
+	var half_l: float = float(sh["length"]) * 0.5
+	var half_b: float = float(sh["beam"]) * 0.5
+	# weit weg: grobe Untergrenze genügt (spart Rechenzeit für die KI)
+	var gap := Vector2(maxf(absf(local.x) - half_b, 0.0), maxf(absf(local.y) - half_l, 0.0))
+	if gap.length() > 30.0:
+		return {"cp": p, "d": gap.length()}
+	var poly := ShipModel.outline(int(sh["type"]), float(sh["length"]), float(sh["beam"]))
+	var best := INF
+	var best_pt := Vector2.ZERO
+	for i in poly.size():
+		var c := Geometry2D.get_closest_point_to_segment(local, poly[i], poly[(i + 1) % poly.size()])
+		var dd := local.distance_to(c)
+		if dd < best:
+			best = dd
+			best_pt = c
+	var inside := Geometry2D.is_point_in_polygon(local, poly)
+	var cp: Vector2 = sh["pos"] + right * best_pt.x + dir * best_pt.y
+	return {"cp": cp, "d": -best if inside else best}
+
+
+## Abstand eines Punktes zur Außenhaut des Schiffs (negativ im Rumpf)
 static func hull_distance(sh: Dictionary, p: Vector2) -> float:
-	var a: Vector2 = sh["pos"] - sh["dir"] * sh["half"]
-	var b: Vector2 = sh["pos"] + sh["dir"] * sh["half"]
-	return p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b)) - float(sh["radius"])
+	return float(hull_query(sh, p)["d"])
 
 
 # ---------------------------------------------------------------- Spiellogik
@@ -102,18 +126,18 @@ func update_boat(b: Boat, _delta: float) -> void:
 		return
 	var p := b.pos2d()
 	for sh in ships_at(clock):
-		var a: Vector2 = sh["pos"] - sh["dir"] * sh["half"]
-		var e: Vector2 = sh["pos"] + sh["dir"] * sh["half"]
-		var cp := Geometry2D.get_closest_point_to_segment(p, a, e)
-		var d := p.distance_to(cp)
-		var reach: float = float(sh["radius"]) + Boat.BOAT_RADIUS
-		if d < reach:
+		var q := hull_query(sh, p)
+		var d: float = q["d"]
+		if d < Boat.BOAT_RADIUS:
 			# Zusammenstoß: aus dem Rumpf schieben, Boot scheidet aus
-			var n := (p - cp) / d if d > 0.01 else Vector2(-sh["dir"].y, sh["dir"].x)
-			b.position += Vector3(n.x, 0, n.y) * (reach - d)
+			var cp: Vector2 = q["cp"]
+			var n := (p - cp).normalized() if d >= 0.0 else (cp - p).normalized()
+			if n.length() < 0.5:
+				n = Vector2(-sh["dir"].y, sh["dir"].x)
+			b.position += Vector3(n.x, 0, n.y) * (Boat.BOAT_RADIUS - d)
 			b.ship_hit(n, sh["vel"])
 			continue
-		if d - reach < WARN_DIST and b.penalty <= 0.5:
+		if d - Boat.BOAT_RADIUS < WARN_DIST and b.penalty <= 0.5:
 			var key := [b, sh["id"]]
 			if clock - float(_warned.get(key, -1000.0)) > WARN_PAUSE:
 				_warned[key] = clock
@@ -194,22 +218,10 @@ func _process(delta: float) -> void:
 			_nodes.erase(id)
 
 
-## Schiff mit dem Bug nach lokal +Z. type 0 = Containerschiff, 1 = Tanker, 2 = Massengutfrachter
+## Schiff mit dem Bug nach lokal +Z (Modell aus Blender, siehe ShipModel)
 func _build_ship(type: int, ship_name: String) -> Node3D:
 	var root := Node3D.new()
 	root.add_child(ShipModel.build(type, ship_length, beam))
-	var L := ship_length
-	# Bug- und Heckwelle, Kielwasser
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for s in [-1.0, 1.0]:
-		var a := Vector2(s * beam * 0.5, L * 0.35)
-		var b := Vector2(s * beam * 0.5, -L * 0.5)
-		var c := Vector2(s * (beam * 0.5 + 26.0), -L * 0.5 - 130.0)
-		SeaChart.add_triangle(st, a, b, c, 0.14)
-		SeaChart.add_triangle(st, a, c, Vector2(s * (beam * 0.5 + 9.0), L * 0.2), 0.14)
-	SeaChart.add_ring(st, Vector2(0, L * 0.5), 5.0, 1.2, 0.15, 24)
-	root.add_child(SeaChart.mesh_from(st, Color(1, 1, 1, 0.42)))
 	var tag := Label3D.new()
 	tag.text = ship_name
 	tag.font = SeaChart.font(true)

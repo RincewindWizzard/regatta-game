@@ -31,7 +31,8 @@ Programm.
 |---|---|---|
 | `tests/level_check.gd` | Alle Bahnen: Startplätze, Linie, Marken in tiefem Wasser und im Gebiet; Tankstellen: Wurzel an Land, Liegeplatz im Wasser | `godot --headless --path . --script res://tests/level_check.gd` |
 | `tests/polar_test.gd` | **Segelphysik:** Geschwindigkeit je Kurs, Wende, Motor, Verbrauch, Anlasser | `… polar_test.gd` |
-| `tests/hazard_test.gd` | Mine, Polizei, Sirenen, Berufsschiff (`schiff`), Kollision, Wendeschub | `godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- mine` |
+| `tests/perf_test.gd` | misst die CPU-Zeit je Bild mit vier Computerbooten (`-- res://levels/05_lotsenrinne.tscn`) |
+| `tests/hazard_test.gd` | Mine, Polizei, Sirenen, Berufsschiff (`schiff`), Kollision, Polizei rammen (`rammen`), Wendeschub, KVR, Debug | `godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- mine` |
 | `tests/tug_test.gd` | Schlepper befreit ein festgefahrenes Boot | `… tug_test.gd` |
 | `tests/area_test.gd` | Regattagebiet: Boot wird zurückgedrängt, höchstens 30 m hinaus | `… area_test.gd` |
 | `tests/paint_test.gd` | Seegrund-Pinsel wirkt auf die Tiefenberechnung | `… paint_test.gd` |
@@ -117,8 +118,9 @@ Siehe [Klang](klang.md#tools-make-audio-py).
 |---|---|
 | `tools/export_dehler.py` | zerlegt das Blender-Modell „Dehler 31“ in vier `.glb`: Rumpf, Großsegel mit Baum, Fock, Pinne mit Ruder. Der Drehpunkt (`ORIGIN`) ist der Root-Knochen des Rigs. |
 | `tools/build_tug.py` | baut den stilisierten Schlepper aus Primitiven und exportiert `models/tug.glb` |
+| `tools/build_ships.py` | baut die drei Berufsschiffe (Loft-Rumpf, Aufbauten, Ladung, Schaumstreifen) und schreibt `models/ship_*.glb` sowie die Rumpfkontur `models/ship_hulls.json` |
 
-Beide laufen **in Blender** (`blender --background --python tools/build_tug.py -- models/tug.glb`).
+Die Skripte laufen **in Blender** (`blender --background --python tools/build_tug.py -- models/tug.glb`, `blender --background --python tools/build_ships.py -- models`). Ohne Blender-Installation geht es auch mit dem Python-Modul: `pip install bpy` und dann `python tools/build_ships.py models`.
 Wichtig ist die **Koordinatenumrechnung**: Blender hat Z oben und Bug +X, Godot Y oben und
 Bug +Z. Die Skripte drehen beim Export so, dass in Godot der Bug nach `+z` zeigt und Backbord
 `+x` ist, genau wie `boat.gd` es erwartet.

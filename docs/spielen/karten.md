@@ -12,6 +12,8 @@ seine Grenze). Sie entstehen automatisch mit `tests/map_shots.gd`
       **Start- und Ziellinie**.
     * **Magenta gestrichelte Kreise mit Tonnen** sind Gefahrengebiete (Minen, Polizei,
       Sirenen). **Orange Stege** sind Tankstellen.
+    * Die **rote Linie** ist die **1-m-Tiefenlinie**: Dahinter ist es flacher als der Tiefgang (1 m),
+      das Boot läuft auf Grund.
     * **Pfeile** zeigen Strömungen, die **Schraffur** zeigt Böen.
     * Die **grauen Linien** sind ein Raster im Abstand von 100 m.
 

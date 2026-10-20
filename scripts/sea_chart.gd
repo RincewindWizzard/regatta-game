@@ -355,6 +355,7 @@ uniform vec3 c_d5 : source_color = vec3(0.74, 0.87, 0.95);
 uniform vec3 c_d10 : source_color = vec3(0.88, 0.94, 0.98);
 uniform vec3 c_deep : source_color = vec3(0.99, 0.99, 0.97);
 uniform vec3 c_contour : source_color = vec3(0.22, 0.38, 0.55);
+uniform vec3 c_shoal : source_color = vec3(0.85, 0.08, 0.1);
 uniform vec3 c_ink : source_color = vec3(0.08, 0.08, 0.1);
 uniform vec3 c_grid : source_color = vec3(0.45, 0.5, 0.55);
 uniform vec3 c_gust : source_color = vec3(0.16, 0.3, 0.5);
@@ -409,6 +410,7 @@ void fragment() {
 	float c = max(max(iso(d, 2.0, 1.0), iso(d, 5.0, 1.0)), max(iso(d, 10.0, 1.0), iso(d, 20.0, 1.0)));
 	col = mix(col, c_contour, c * 0.8);
 	col = mix(col, c_contour, iso(d, 0.0, 0.9) * 0.6);
+	col = mix(col, c_shoal, iso(d, 1.0, 1.3) * 0.95);    // 1-m-Linie in Rot: flacher als der Tiefgang
 	col = mix(col, c_ink, iso(d, -0.8, 1.7));
 
 	ALBEDO = col;

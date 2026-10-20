@@ -56,6 +56,8 @@ var docks: Array = []          # Tankstellen des Levels
 var avoid: Array = []          # Gefahrengebiete [Mitte, Radius]: Minen, Polizei, Sirenen
 var lanes: Array = []          # Schifffahrtswege (ShippingLane) mit Berufsschiffen
 var _ship_preds: Array = []    # Schiffspositionen jetzt und in 4, 8, 12 s: [[Schiffe], …]
+var _guard_timer := 0.0        # Notfall-Ausweichen vor Berufsschiffen: Prüfintervall
+var _guard_active := false
 var _motor_use := 0.0          # 0 = nie, 1 = gern
 var _motor_reserve := 1.0      # Tankanteil, der für Notfälle bleibt
 var _want_throttle := 0
@@ -141,9 +143,68 @@ func update() -> void:
 	if _think_timer <= 0.0:
 		_think_timer = _think_every
 		_think()
+	_guard_timer -= delta
+	if _guard_timer <= 0.0:
+		_guard_timer = 0.12
+		_ship_guard()
 	_trim(delta)
 	_steer(delta)
 	_apply_throttle()
+
+
+# ---------------------------------------------------------------- Notfall: Berufsschiffe
+
+## Eine Kollision mit einem Berufsschiff scheidet aus. Deshalb prüft jedes Computerboot alle 0,12 s,
+## ob es in den nächsten 8 s einem Rumpf zu nahe käme, und weicht dann mit dem besten Fluchtkurs
+## (und notfalls Motor) aus, unabhängig von der normalen Kursplanung.
+func _ship_guard() -> void:
+	if lanes.is_empty():
+		return
+	var p := boat.pos2d()
+	var threats: Array = []
+	for l in lanes:
+		for sh in l.ships_at(ShippingLane.clock):
+			if (sh["pos"] as Vector2).distance_to(p) < 190.0:
+				threats.append(sh)
+	if threats.is_empty():
+		_guard_active = false
+		return
+	var times := [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 13.0]
+	var clear_now := _clearance(threats, p, boat.vel, times)
+	if clear_now > Boat.BOAT_RADIUS + 20.0:
+		_guard_active = false
+		return
+	_guard_active = true
+	var from_dir := _wind_from(p)
+	var can_motor := boat.has_engine and boat.fuel > 0.5
+	var best := -INF
+	var best_h := boat.heading
+	for k in 24:
+		var h := -PI + TAU * k / 24.0
+		var dir := Vector2(sin(h), cos(h))
+		var spd := maxf(_polar(absf(_twa(h, from_dir))) * 0.45 * maxf(wind.base_speed, 1.0), 3.2 if can_motor else 0.0)
+		var clear := _clearance(threats, p, dir * spd, times)
+		var score := minf(clear, 40.0)
+		score -= 60.0 * _hazard(p, dir, 40.0)
+		score += 4.0 * cos(angle_difference(h, boat.heading))      # nicht unnötig wenden
+		if score > best:
+			best = score
+			best_h = h
+	_want_heading = best_h
+	if can_motor:
+		_want_throttle = Boat.THROTTLE_MAX
+	_since_maneuver = 99.0
+
+
+## Kleinster Abstand zu allen Schiffsrümpfen, wenn das Boot mit Geschwindigkeit v weiterfährt
+func _clearance(ships: Array, p: Vector2, v: Vector2, times: Array) -> float:
+	var worst := INF
+	for sh in ships:
+		for t in times:
+			var s2: Dictionary = (sh as Dictionary).duplicate()
+			s2["pos"] = (sh["pos"] as Vector2) + (sh["vel"] as Vector2) * t
+			worst = minf(worst, ShippingLane.hull_distance(s2, p + v * t))
+	return worst
 
 
 # ---------------------------------------------------------------- Entscheiden
@@ -224,6 +285,8 @@ func _think() -> void:
 		if score > best:
 			best = score
 			best_h = h
+	if _guard_active:
+		return                      # Notfallkurs vor einem Berufsschiff hat Vorrang
 	_want_heading = best_h + _rng.randf_range(-1.0, 1.0) * _heading_noise
 	_want_throttle = motor
 

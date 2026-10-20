@@ -11,7 +11,8 @@ extends Node
 const COLORS := [Color(0.85, 0.18, 0.15), Color(0.15, 0.4, 0.85), Color(0.12, 0.6, 0.3), Color(0.95, 0.55, 0.1)]
 const MENU_SCENE := "res://scenes/menu.tscn"
 const ACCIDENT_GUILTY := 20.0            # Polizei nach Unfall: Verursacher (KVR) wird so lange kontrolliert
-const ACCIDENT_OTHER := 7.0              # der andere Beteiligte nur kurz
+const ACCIDENT_OTHER := 7.0
+const RAM_TIME := 16.0                   # wer ein Polizeiboot rammt, wird so lange kontrolliert              # der andere Beteiligte nur kurz
 const STUCK_WAIT := 4.0                 # so lange festsitzen, bis der Schlepper gerufen wird
 const WAIT_TIMEOUT := 20.0              # Host wartet höchstens so lange auf langsame Clients
 const STATES := ["waiting", "countdown", "racing", "finished"]
@@ -340,6 +341,32 @@ func _resolve_collisions(delta: float) -> void:
 				_police_accident(a, b, a.vel.length() >= b.vel.length())
 			a.scrape(delta)
 			b.scrape(delta)
+	# Polizeiboote sind fest: Wer eines rammt, wird selbst kontrolliert
+	for o in boats:
+		var circles: Array = o.police_circles()
+		if circles.is_empty():
+			continue
+		for b in boats:
+			if b == o or b.out or b.towed:
+				continue
+			for c in circles:
+				var dv: Vector2 = b.pos2d() - c[0]
+				var md: float = float(c[1]) + Boat.BOAT_RADIUS
+				var dl := dv.length()
+				if dl >= md or dl < 0.001:
+					continue
+				var nn := dv / dl
+				b.position += Vector3(nn.x, 0, nn.y) * (md - dl)
+				var into := b.vel.dot(-nn)
+				if into > 0.0:
+					b.vel += nn * into * 1.4
+				b.vel *= 0.85
+				if state == "racing" and b.hold_kind == 0 and b.immune_time <= 0.0:
+					b.collide(maxf(into, 1.0), true)
+					Sfx.play("crunch", -4.0, 0.8)
+					b.start_hold(1, Vector2.INF, RAM_TIME, 3)
+					b.show_message("Sie haben die Polizei gerammt! Stopp – Kontrolle!", 3.0)
+					Sfx.play("police_siren", -2.0)
 	# Tonnen sind fest: Boote prallen ab
 	for b in boats:
 		if b.towed or b.out:

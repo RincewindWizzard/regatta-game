@@ -84,6 +84,10 @@ var hold_kind := 0            ## 0 frei, 1 Polizeikontrolle, 2 Sirenengesang, 3 
 var hold_time := 0.0
 var hold_case := 0            ## Polizei: 0 Sperrgebiet, 1 Unfall (Verursacher), 2 Unfall (Beteiligter)
 var hold_total := 12.0
+var _pol_side := 1.0          ## Polizeiboot fährt an Backbord (+1) oder Steuerbord (-1) heran
+var _pol_scale := 1.0         ## Anfahrtsweg verkürzt, wenn Land im Weg ist
+var _pol_lead := 19.0         ## Abstand vor dem Bug beim Abschleppen
+var _pol_planned := false
 var _hold_peak := 0.0         ## längste gesehene hold_time (für die Optik auch bei Mitspielern)
 var hold_focus := Vector2.INF ## Sirenen: die Insel (Boot dreht sich hin); Polizei: Punkt außerhalb des Sperrgebiets
 var immune_time := 0.0
@@ -287,6 +291,7 @@ func _begin_escort() -> void:
 		_end_hold(true)
 		return
 	hold_kind = 3
+	_pol_planned = false
 	hold_time = minf(p.distance_to(hold_focus) / ESCORT_SPEED + 2.0, HOLD_TIMES[3])
 
 
@@ -493,13 +498,13 @@ func _physics_process(delta: float) -> void:
 				elif _hold_stage == 2 and el >= 10.6:
 					_hold_stage = 3
 					show_message("Sie werden aus dem Sperrgebiet geleitet.", 3.0)
-			elif hold_case == 1:
+			elif hold_case == 1 or hold_case == 3:
 				if _hold_stage == 0 and el >= 2.6:
 					_hold_stage = 1
 					show_message("Führerschein und Fahrzeugpapiere, bitte!", 4.0)
 				elif _hold_stage == 1 and el >= 8.0:
 					_hold_stage = 2
-					show_message("Sie hatten nach KVR Ausweichpflicht – das gibt eine Verwarnung!", 4.5)
+					show_message("Sie hatten nach KVR Ausweichpflicht – das gibt eine Verwarnung!" if hold_case == 1 else "Ein Polizeiboot rammen! Das gibt eine Anzeige!", 4.5)
 				elif _hold_stage == 2 and el >= 14.0:
 					_hold_stage = 3
 					show_message("Und jetzt: Pusten Sie mal …", 3.0)
@@ -843,22 +848,57 @@ func _update_hold_visual() -> void:
 		_hold_vis = HazardVisuals.police_boat() if vis_kind == 1 else HazardVisuals.siren_notes()
 		_hold_vis_kind = vis_kind
 		add_child(_hold_vis)
+		_pol_planned = false
 	if vis_kind == 1:
+		if not _pol_planned:
+			_plan_police()
+		var sd := _pol_side
+		var sc := _pol_scale
 		if hold_kind == 1:
 			# Anfahrt wie ein Boot: Kurve von hinten heran, Bug immer in Fahrtrichtung, am Ende parallel
 			_hold_peak = maxf(_hold_peak, hold_time)
-			var k := clampf((_hold_peak - hold_time) / 4.0, 0.0, 1.0)
-			k = smoothstep(0.0, 1.0, k)
-			_place_police(Vector3(46.0, 0.0, -30.0), Vector3(30.0, 0.0, -10.0), Vector3(8.0, 0.0, -12.0), Vector3(8.0, 0.0, 0.5), k)
+			var k := smoothstep(0.0, 1.0, clampf((_hold_peak - hold_time) / 4.0, 0.0, 1.0))
+			_place_police(Vector3(46.0 * sd * sc, 0.0, -30.0 * sc), Vector3(30.0 * sd * sc, 0.0, -10.0 * sc), Vector3(8.0 * sd, 0.0, -12.0 * sc), Vector3(8.0 * sd, 0.0, 0.5), k)
 			_set_rope(false)
 		else:
 			# Abschleppen: das Polizeiboot zieht in einer Kurve nach vorn vor den Bug, Leine gespannt
 			var k := smoothstep(0.0, 1.0, clampf(_escort_age / 3.0, 0.0, 1.0))
-			_place_police(Vector3(8.0, 0.0, 0.5), Vector3(8.0, 0.0, 8.0), Vector3(0.0, 0.0, 12.0), Vector3(0.0, 0.0, 19.0), k)
+			_place_police(Vector3(8.0 * sd, 0.0, 0.5), Vector3(8.0 * sd, 0.0, _pol_lead * 0.42), Vector3(0.0, 0.0, _pol_lead * 0.63), Vector3(0.0, 0.0, _pol_lead), k)
 			_set_rope(k > 0.9)
 		HazardVisuals.flash_lamps(_hold_vis, _t)
 	else:
 		HazardVisuals.orbit_notes(_hold_vis, _t)
+
+
+## Wählt Seite, Anfahrtsweg und Vorlauf so, dass das Polizeiboot nur im Wasser fährt
+func _plan_police() -> void:
+	_pol_planned = true
+	var water := func(local: Vector3) -> bool:
+		return SeaChart.depth_at(pos2d_of(local)) > 1.5
+	if hold_kind == 3:
+		for lead in [19.0, 13.0, 8.0]:
+			if water.call(Vector3(0, 0, lead)) and water.call(Vector3(0, 0, lead * 0.5)):
+				_pol_lead = lead
+				return
+		_pol_lead = 6.0
+		return
+	for sc in [1.0, 0.6, 0.3]:
+		for sd in [1.0, -1.0]:
+			var a := Vector3(46.0 * sd * sc, 0.0, -30.0 * sc)
+			var m := Vector3(20.0 * sd * sc, 0.0, -15.0 * sc)
+			var b := Vector3(8.0 * sd, 0.0, 0.5)
+			if water.call(a) and water.call(m) and water.call(b) and SeaChart.path_clear(pos2d_of(a), pos2d_of(m)) and SeaChart.path_clear(pos2d_of(m), pos2d_of(b)):
+				_pol_side = sd
+				_pol_scale = sc
+				return
+	_pol_side = 1.0
+	_pol_scale = 0.2
+
+
+## Boot-Koordinaten (x, z) in Weltkoordinaten der Karte
+func pos2d_of(local: Vector3) -> Vector2:
+	var g := global_transform * local
+	return Vector2(g.x, g.z)
 
 
 ## Polizeiboot auf einer Bezierkurve (Boot-Koordinaten); der Bug zeigt in Fahrtrichtung
@@ -869,6 +909,21 @@ func _place_police(p0: Vector3, p1: Vector3, p2: Vector3, p3: Vector3, k: float)
 	pos.y = sin(_t * 1.6) * 0.1
 	_hold_vis.position = pos
 	_hold_vis.rotation.y = atan2(d.x, d.z)
+
+
+## Kollisionskörper des Polizeiboots: drei Kreise entlang des Rumpfes [[Mitte, Radius], ...]
+## (leer, solange kein Polizeiboot bei diesem Boot liegt)
+func police_circles() -> Array:
+	var out: Array = []
+	if _hold_vis == null or not is_instance_valid(_hold_vis) or not _hold_vis.is_inside_tree():
+		return out
+	if _hold_vis_kind != 1 or hold_kind == 0 or hold_case == 2:
+		return out
+	var c := _hold_vis.global_position
+	var f := _hold_vis.global_basis.z
+	for k in [-1, 0, 1]:
+		out.append([Vector2(c.x + f.x * 4.2 * k, c.z + f.z * 4.2 * k), 2.3])
+	return out
 
 
 ## Leine zwischen Bug des Seglers und Heck des Polizeiboots
@@ -913,8 +968,13 @@ func _release_hold_visual() -> void:
 	tw.tween_method(func(v: float) -> void:
 		var dt: float = v - last[0]
 		last[0] = v
-		vis.global_position += vis.global_basis.z * 9.0 * dt
-		vis.rotate_y(-0.18 * dt), 0.0, 7.0, 7.0)
+		var step: Vector3 = vis.global_basis.z * 9.0 * dt
+		var ahead: Vector3 = vis.global_position + vis.global_basis.z * 8.0
+		if SeaChart.depth_at(Vector2(ahead.x, ahead.z)) < 2.0:
+			vis.rotate_y(1.2 * dt)                      # Land voraus: abdrehen statt darüber zu fahren
+		else:
+			vis.global_position += step
+			vis.rotate_y(-0.18 * dt), 0.0, 7.0, 7.0)
 	tw.tween_callback(vis.queue_free)
 
 

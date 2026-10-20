@@ -59,9 +59,7 @@ static func _mat(c: Color, rough := 0.5, emissive := false) -> StandardMaterial3
 
 static func _box(parent: Node3D, size: Vector3, pos: Vector3, c: Color, rot := Vector3.ZERO, emissive := false) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
-	var b := BoxMesh.new()
-	b.size = size
-	mi.mesh = b
+	mi.mesh = ModelStyle.rounded_box(size, minf(0.12, minf(size.x, minf(size.y, size.z)) * 0.3), 2)
 	mi.material_override = _mat(c, 0.5, emissive)
 	mi.position = pos
 	mi.rotation = rot

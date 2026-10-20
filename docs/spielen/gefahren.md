@@ -26,6 +26,7 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 * Danach nimmt die Polizei das Segelboot an die **Leine und schleppt es aus dem Sperrgebiet
   heraus** (mit gut 6 kn, höchstens 30 s). Am Ende gibt es **25 Sekunden Schonfrist**, damit
   man nicht gleich wieder hineinfährt.
+* Das Polizeiboot hat einen **Kollisionskörper** (drei Kreise entlang des Rumpfes). Wer es **rammt**, prallt ab und wird selbst **16 Sekunden** kontrolliert („Ein Polizeiboot rammen! Das gibt eine Anzeige!“).
 * Das **Polizeiboot** ist wie Schlepper und Segelboot im Kartenstil modelliert: gestrakter
   Rumpf, weiße Bordwand mit blauem Streifen, Steuerhaus, Blaulichtbalken, Radar,
   Suchscheinwerfer und Schriftzug „POLIZEI“.

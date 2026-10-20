@@ -102,6 +102,14 @@ wird für jeden Messpunkt im Abstand `d` das Schiffsbild von ungefähr `d/4` Sek
 `BOAT_RADIUS + 14` m sein. Die KI weicht also **vorausschauend** aus, nicht nur der aktuellen
 Position.
 
+**Notfall-Ausweichen (`_ship_guard`).** Weil ein Zusammenstoß mit einem Berufsschiff jetzt
+ausscheiden lässt, reicht die normale Planung nicht. Alle 0,12 s prüft jedes Computerboot, ob es
+in den nächsten 13 s (Zeitpunkte 0, 2, …, 13 s) einem Rumpf näher als `BOAT_RADIUS + 20` m käme
+(`_clearance`, Abstand zum Rumpfvieleck mit `ShippingLane.hull_distance`). Wenn ja, bewertet es
+24 Fluchtkurse nach dem erreichbaren Abstand (Fahrt aus der Polare, mit Motor mindestens
+3,2 m/s), zieht Land ab und fährt den besten, notfalls mit Vollgas. Solange `_guard_active`
+gilt, überschreibt `_think()` den Kurs nicht.
+
 Der beste Kurs wird `_want_heading` (plus Zufallsrauschen `_heading_noise`).
 
 `POLAR` ist die Tabelle der Bootsgeschwindigkeit je Windwinkel, **aus `tests/polar_test.gd`

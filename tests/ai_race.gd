@@ -34,6 +34,7 @@ func _setup() -> void:
 			b.input = AIInput.new(b, _main.wind, _main.course, lv[i], _main._fixed_points)
 			b.input.docks = _main._docks
 			b.input.avoid = _main.level.danger_circles()
+			b.input.lanes = _main.level.shipping_lanes()
 			b.player_name = ["Leicht", "Mittel", "Schwer A", "Schwer B"][i]
 	for b in _main.boats:
 		_stats[b] = {"aground": 0, "tugs": 0, "outside": 0, "was_aground": false, "had_tug": false, "was_out": false, "refuels": 0, "was_ref": false, "motor": 0.0, "where": [], "holds": 0, "was_hold": 0, "hits": 0, "was_pen": false}

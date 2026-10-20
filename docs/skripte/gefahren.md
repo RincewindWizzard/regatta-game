@@ -162,13 +162,32 @@ Bei Unfällen unterscheidet `hold_case` die Ansagen (0 Sperrgebiet, 1 Verursache
 
 ## `ship_model.gd` { #ship-model-gd }
 
-`class_name ShipModel`, `@tool`: `ShipModel.build(type, length, beam)` baut die Berufsschiffe
-(0 Containerschiff, 1 Tanker, 2 Massengutfrachter). Der Rumpf ist wie beim Polizeiboot ein Loft aus
-41 Spanten: `half_beam(t, beam)` formt Heck, Parallelkörper und Bug, `bottom(t)` den Kiel. Dazu
-kommen Schanzkleid, ein vierstöckiges Brückenhaus mit Fensterbändern, Schornstein mit Farbband,
-Radarmast, Rettungsboote und je Typ die Ladung (Container in Stapeln, Rohrleitungen mit Tankdomen,
-Lukendeckel mit Kränen). `ShippingLane._build_ship` hängt das Modell ein und ergänzt Kielwasser und
-Namensschild.
+`class_name ShipModel`, `@tool`. Die Berufsschiffe entstehen **zuerst in Blender** und werden erst
+dann in Godot importiert: `tools/build_ships.py` (siehe [Werkzeuge](werkzeuge.md#modelle-aus-blender))
+baut Containerschiff, Tanker und Massengutfrachter und exportiert `models/ship_container.glb`,
+`ship_tanker.glb`, `ship_bulker.glb`.
+
+Der Rumpf ist ein **geschlossenes Netz** (null offene Kanten, das Skript prüft das): 49 Spanten
+längs, 13 Punkte je Spant, am Bug laufen die Spanten auf eine Linie zusammen
+(`remove_doubles`), das Heck bekommt einen Spiegel. Das beseitigt die früheren
+Überschneidungsfehler am Bug. Aufbauten und Ladung sind Quader und Zylinder, nach Material in
+je ein Objekt zusammengefasst, mit **Bevel** (Kanten abgerundet) und flächengewichteten Normalen
+(*Weighted Normal*), damit die Schiffe weich aussehen. Container werden nur dort gesetzt, wo sie
+noch innerhalb des Rumpfes liegen. Statt Leuchtkegeln und Ring am Bug gibt es einen flachen,
+halbtransparenten **Schaumstreifen** („Foam“) rund um den Wasserpass.
+
+Zur Laufzeit gilt:
+
+| Funktion | Aufgabe |
+|---|---|
+| `build(type, length, beam)` | lädt die `.glb`, skaliert auf die Maße der `ShippingLane`, legt Kontur an (außer beim Schaum) |
+| `outline(type, length, beam)` | **Kollisionsvieleck** aus `models/ship_hulls.json` (vom Blender-Skript mitgeschrieben): Steuerbordkontur plus gespiegelte Backbordseite |
+
+`ShippingLane.hull_query(schiff, punkt)` rechnet damit den vorzeichenbehafteten Abstand zur
+Außenhaut (negativ im Rumpf) und den nächsten Punkt aus. Damit passt die Kollision genau zum
+sichtbaren Rumpf, auch am spitzen Bug und am Heck (vorher eine Kapsel mit runden Enden). Die KI
+nutzt `hull_distance` für ihre Ausweichrechnung. Die JSON-Datei wird mit `include_filter` in den
+Export aufgenommen.
 
 ## `sea_life.gd` { #sea-life-gd }
 

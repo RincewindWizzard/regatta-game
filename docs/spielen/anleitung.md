@@ -32,6 +32,7 @@ Weitere Tasten:
 | `M` | Musik an/aus |
 | `T` | Segel-Overlay an/aus |
 | `F11` oder `Alt+Enter` | Vollbild umschalten |
+| *(immer)* | unten rechts zeigt eine kleine Anzeige die **Bilder pro Sekunde** (FPS) |
 | `F9` | **Debug-Modus**: Tank bleibt voll, Motor 20-fach stark (ca. 27 kn), damit man schnell jeden Punkt der Karte erreicht. Auch per Startargument `--debug`; im HUD steht „DEBUG“ |
 
 !!! note "Controller"
