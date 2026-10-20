@@ -331,12 +331,12 @@ func _resolve_collisions(delta: float) -> void:
 					Sfx.play("crunch", -10.0, 1.6)
 				a.collide(-rel, a_in >= b_in)
 				b.collide(-rel, b_in > a_in)
-				if rel < -0.6:
+				if rel < -1.0:
 					_police_accident(a, b, a_in >= b_in)
 			# Aneinanderliegen bremst beide; wer länger festhängt, ruft ebenfalls die Polizei
 			var key := "%d:%d" % [i, j]
 			_contact[key] = float(_contact.get(key, 0.0)) + delta
-			if _contact[key] > 0.8:
+			if _contact[key] > 1.6:
 				_contact[key] = 0.0
 				_police_accident(a, b, a.vel.length() >= b.vel.length())
 			a.scrape(delta)

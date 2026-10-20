@@ -33,7 +33,7 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 
 ### Polizei nach einem Unfall
 
-Stoßen zwei Boote zusammen (Aufprall über 0,6 m/s) oder bleiben sie länger als 0,8 Sekunden
+Stoßen zwei Boote zusammen (Aufprall über 1 m/s; knappes Vorbeifahren zählt nicht) oder bleiben sie länger als 1,6 Sekunden
 aneinander hängen, kommt auch dann die Wasserschutzpolizei und hält **beide** an. Es kommt
 **ein einziges Polizeiboot**: Es nimmt sich den Verursacher vor, der andere Beteiligte wartet
 und gibt seine Aussage ab. Wer nach den [KVR-Regeln](kvr.md) hätte **ausweichen
