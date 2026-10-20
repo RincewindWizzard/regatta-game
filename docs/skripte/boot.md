@@ -383,10 +383,10 @@ Dazu kommen: Ring in Spielerfarbe, Zielpfeil, Namensschild (`Label3D`, `billboar
 
 ## Netzwerk: `net_pack`, `net_unpack`, Puppet
 
-Auf dem **Host** rechnet das Boot normal. Pro Schnappschuss packt `net_pack(dst)` **30 Zahlen**
+Auf dem **Host** rechnet das Boot normal. Pro Schnappschuss packt `net_pack(dst)` **31 Zahlen**
 (`NET_FIELDS`) in ein `PackedFloat32Array`: Position, Kurs, Geschwindigkeit, Schot,
 Krängung, Windwinkel, Baumwinkel, Flags (`luffing`, `aground`, `stuck`, `towed`, `finished`),
-Motor, Tank, `out`, `hold_kind`, `hold_time` …
+Motor, Tank, `out`, `hold_kind`, `hold_time`, `hold_case` …
 
 Auf einem **Client** ist `puppet = true`: `_physics_process` ruft nur `_puppet_step`, das
 `net_unpack` ausliest, zwischen zwei Schnappschüssen weiterrechnet
