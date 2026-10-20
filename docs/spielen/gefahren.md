@@ -32,8 +32,10 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 
 ### Polizei nach einem Unfall
 
-Stoßen zwei Boote kräftig zusammen (Aufprall über 1,5 m/s), kommt auch dann die
-Wasserschutzpolizei und hält **beide** an. Wer nach den [KVR-Regeln](kvr.md) hätte **ausweichen
+Stoßen zwei Boote zusammen (Aufprall über 0,6 m/s) oder bleiben sie länger als 0,8 Sekunden
+aneinander hängen, kommt auch dann die Wasserschutzpolizei und hält **beide** an. Es kommt
+**ein einziges Polizeiboot**: Es nimmt sich den Verursacher vor, der andere Beteiligte wartet
+und gibt seine Aussage ab. Wer nach den [KVR-Regeln](kvr.md) hätte **ausweichen
 müssen**, ist der Verursacher und wird **20 Sekunden** kontrolliert („Sie hatten nach KVR
 Ausweichpflicht …“). Der andere Beteiligte gibt nur **7 Sekunden** seine Aussage ab. Ist die
 Lage unklar (z. B. Gegenkurs), gilt als Verursacher, wer mit mehr Fahrt aufgefahren ist.

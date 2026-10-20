@@ -45,6 +45,7 @@ var _docks: Array = []             # Tankstellen
 var _hazards: Array = []           # Minenfelder, Polizeigebiete, Sirenen-Inseln
 var _kvr := Kvr.new()              # Vorfahrtsregeln als Einblendung
 var _kvr_timer := 0.0
+var _contact := {}                # Bootspaar -> Sekunden Dauerkontakt (löst die Polizei aus)
 
 
 func _ready() -> void:
@@ -312,6 +313,7 @@ func _resolve_collisions(delta: float) -> void:
 			var dist := d.length()
 			var min_d := Boat.BOAT_RADIUS * 2.0
 			if dist >= min_d or dist < 0.001:
+				_contact.erase("%d:%d" % [i, j])
 				continue
 			var n := d / dist
 			var push := (min_d - dist) * 0.5
@@ -328,9 +330,14 @@ func _resolve_collisions(delta: float) -> void:
 					Sfx.play("crunch", -10.0, 1.6)
 				a.collide(-rel, a_in >= b_in)
 				b.collide(-rel, b_in > a_in)
-				if rel < -1.5:
+				if rel < -0.6:
 					_police_accident(a, b, a_in >= b_in)
-			# Aneinanderliegen bremst beide
+			# Aneinanderliegen bremst beide; wer länger festhängt, ruft ebenfalls die Polizei
+			var key := "%d:%d" % [i, j]
+			_contact[key] = float(_contact.get(key, 0.0)) + delta
+			if _contact[key] > 0.8:
+				_contact[key] = 0.0
+				_police_accident(a, b, a.vel.length() >= b.vel.length())
 			a.scrape(delta)
 			b.scrape(delta)
 	# Tonnen sind fest: Boote prallen ab

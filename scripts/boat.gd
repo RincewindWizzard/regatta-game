@@ -361,7 +361,7 @@ func end_tow() -> void:
 
 # ---------------------------------------------------------------- Netzwerk
 
-const NET_FIELDS := 30
+const NET_FIELDS := 31
 
 
 ## Zustand für den Schnappschuss des Hosts
@@ -371,7 +371,7 @@ func net_pack(dst: PackedFloat32Array) -> void:
 		boom_abs, boom_opt, jib_abs, float(luffing), float(jib_luffing), float(throttle),
 		float(next_target), float(finished), finish_time, float(aground), float(stuck),
 		float(towed), stuck_time, _last_turn, float(engine), fuel, float(refueling), float(has_engine),
-		float(out), float(hold_kind), hold_time]))
+		float(out), float(hold_kind), hold_time, float(hold_case)]))
 
 
 ## Client: Schnappschuss übernehmen
@@ -410,6 +410,7 @@ func net_unpack(d: PackedFloat32Array, o: int) -> void:
 		_explode_fx()
 	hold_kind = int(d[o + 28])
 	hold_time = d[o + 29]
+	hold_case = int(d[o + 30])
 	if not _net_has:
 		position.x = _net_pos.x
 		position.z = _net_pos.y
@@ -831,6 +832,11 @@ func _update_hold_visual() -> void:
 			_release_hold_visual()
 		return
 	var vis_kind := 1 if hold_kind == 3 else hold_kind
+	if vis_kind == 1 and hold_case == 2:
+		# Unfall: ein Polizeiboot genügt, es liegt beim Verursacher
+		if _hold_vis:
+			_release_hold_visual()
+		return
 	if _hold_vis == null or _hold_vis_kind != vis_kind:
 		if _hold_vis:
 			_hold_vis.queue_free()
