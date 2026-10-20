@@ -20,7 +20,7 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 * Wer hineinfährt, bekommt „Sperrgebiet! Sofort umkehren!“. Bleibt das Boot **1,6 Sekunden**
   im Gebiet, nähert sich die **Wasserschutzpolizei** mit Blaulicht und Sirene.
 * Das Boot wird **12 Sekunden** festgehalten und kontrolliert (Motor aus, Fahrt läuft aus,
-  Steuern und Schot gesperrt). Das Polizeiboot legt sich daneben, nach gut 2 Sekunden kommt
+  Steuern und Schot gesperrt). Das Polizeiboot nähert sich auf einer Kurve von hinten (der Bug zeigt immer in Fahrtrichtung, es fährt nie seitwärts) und legt sich parallel daneben, nach gut 2 Sekunden kommt
   die Ansage **„Führerschein und Fahrzeugpapiere, bitte!“**, später „Papiere in Ordnung. Aber
   das hier ist Sperrgebiet!“.
 * Danach nimmt die Polizei das Segelboot an die **Leine und schleppt es aus dem Sperrgebiet

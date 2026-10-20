@@ -153,7 +153,7 @@ damit es zu den anderen Booten passt.
 `HOLD_TIMES[1]` = 12 s ruft `_begin_escort()` den Abschleppmodus (`hold_kind = 3`) auf, falls
 `SeaChart.path_clear` einen freien Weg zum Austrittspunkt kennt. `_escort_step(delta)` dreht das
 Boot zum Ziel (höchstens 1 rad/s) und zieht es mit `ESCORT_SPEED` = 3,2 m/s; `_update_hold_visual`
-lässt das Polizeiboot vor den Bug gleiten und spannt eine Leine (`_set_rope`). Am Ziel
+führt das Polizeiboot über `_place_police` auf einer Bezierkurve heran (Bug = Richtung der Kurventangente, also nie seitwärts) und vor den Bug und spannt eine Leine (`_set_rope`). Am Ziel
 (`_end_hold`) fährt das Polizeiboot davon (`_release_hold_visual`). `RestrictedArea._exit_point(p)`
 sucht den Punkt knapp außerhalb des Radius, bevorzugt in Richtung des Bootes.
 

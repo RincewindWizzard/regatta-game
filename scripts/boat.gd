@@ -839,21 +839,30 @@ func _update_hold_visual() -> void:
 		add_child(_hold_vis)
 	if vis_kind == 1:
 		if hold_kind == 1:
+			# Anfahrt wie ein Boot: Kurve von hinten heran, Bug immer in Fahrtrichtung, am Ende parallel
 			_hold_peak = maxf(_hold_peak, hold_time)
-			var elapsed := _hold_peak - hold_time
-			var k := smoothstep(0.0, 2.2, elapsed)
-			_hold_vis.position = Vector3(lerpf(46.0, 8.0, k), sin(_t * 1.6) * 0.1, lerpf(-30.0, 0.5, k))
-			_hold_vis.rotation.y = lerpf(0.5, 0.0, k)
+			var k := clampf((_hold_peak - hold_time) / 4.0, 0.0, 1.0)
+			k = smoothstep(0.0, 1.0, k)
+			_place_police(Vector3(46.0, 0.0, -30.0), Vector3(30.0, 0.0, -10.0), Vector3(8.0, 0.0, -12.0), Vector3(8.0, 0.0, 0.5), k)
 			_set_rope(false)
 		else:
-			# Abschleppen: Polizeiboot gleitet vor den Bug, Leine gespannt
-			var k := smoothstep(0.0, 2.0, _escort_age)
-			_hold_vis.position = Vector3(lerpf(8.0, 0.0, k), sin(_t * 1.6) * 0.1, lerpf(0.5, 19.0, k))
-			_hold_vis.rotation.y = 0.0
-			_set_rope(k > 0.5)
+			# Abschleppen: das Polizeiboot zieht in einer Kurve nach vorn vor den Bug, Leine gespannt
+			var k := smoothstep(0.0, 1.0, clampf(_escort_age / 3.0, 0.0, 1.0))
+			_place_police(Vector3(8.0, 0.0, 0.5), Vector3(8.0, 0.0, 8.0), Vector3(0.0, 0.0, 12.0), Vector3(0.0, 0.0, 19.0), k)
+			_set_rope(k > 0.9)
 		HazardVisuals.flash_lamps(_hold_vis, _t)
 	else:
 		HazardVisuals.orbit_notes(_hold_vis, _t)
+
+
+## Polizeiboot auf einer Bezierkurve (Boot-Koordinaten); der Bug zeigt in Fahrtrichtung
+func _place_police(p0: Vector3, p1: Vector3, p2: Vector3, p3: Vector3, k: float) -> void:
+	var u := 1.0 - k
+	var pos := u * u * u * p0 + 3.0 * u * u * k * p1 + 3.0 * u * k * k * p2 + k * k * k * p3
+	var d := 3.0 * u * u * (p1 - p0) + 6.0 * u * k * (p2 - p1) + 3.0 * k * k * (p3 - p2)
+	pos.y = sin(_t * 1.6) * 0.1
+	_hold_vis.position = pos
+	_hold_vis.rotation.y = atan2(d.x, d.z)
 
 
 ## Leine zwischen Bug des Seglers und Heck des Polizeiboots
@@ -892,9 +901,14 @@ func _release_hold_visual() -> void:
 		vis.queue_free()
 		return
 	vis.reparent(get_parent(), true)
-	var away := vis.global_position + (vis.global_basis * Vector3(40.0, 0.0, 30.0))
+	# Abfahrt: geradeaus in Bugrichtung, dabei sanft nach Steuerbord eindrehen
+	var last := [0.0]
 	var tw := vis.create_tween()
-	tw.tween_property(vis, "global_position", away, 6.0)
+	tw.tween_method(func(v: float) -> void:
+		var dt: float = v - last[0]
+		last[0] = v
+		vis.global_position += vis.global_basis.z * 9.0 * dt
+		vis.rotate_y(-0.18 * dt), 0.0, 7.0, 7.0)
 	tw.tween_callback(vis.queue_free)
 
 
