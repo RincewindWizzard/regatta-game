@@ -109,10 +109,15 @@ func _physics_process(delta: float) -> bool:
 				print("Polizei greift zu nach %.1f s, hold_time %.1f" % [e, b.hold_time])
 				_phase = 2
 				_t0 = _t
-			if _phase == 2 and b.hold_kind == 0:
-				print("OK: Kontrolle nach %.1f s beendet, Schonfrist %.1f s, Fahrt %.2f" % [_t - _t0, b.immune_time, b.speed()])
-				return _finish(b.immune_time > 20.0)
-			if e > 30.0:
+			if _phase == 2 and b.hold_kind == 3 and _phase != 3:
+				_phase = 3
+				print("Kontrolle nach %.1f s, Abschleppen beginnt" % (_t - _t0))
+			if _phase >= 2 and b.hold_kind == 0 and _t - _t0 > 1.0:
+				var zone: RestrictedArea = _main.level.get_node("Sperrgebiet")
+				var dist := b.pos2d().distance_to(zone.pos2d()) if zone else 0.0
+				print("OK: nach %.1f s frei, %.0f m von der Mitte (Radius %.0f), Schonfrist %.1f s" % [_t - _t0, dist, zone.radius if zone else 0.0, b.immune_time])
+				return _finish(_phase == 3 and zone != null and dist > zone.radius and b.immune_time > 20.0)
+			if e > 90.0:
 				return _finish(false)
 		"sirene":
 			if b.hold_kind == 2 and _phase == 1:

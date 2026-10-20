@@ -46,7 +46,8 @@ const REFUEL_RATE := 2.2      ## Liter pro Sekunde an der Tankstelle
 
 enum Motor { AUS, ANLASSER, LAEUFT }
 ## Boot wird festgehalten: 1 = Polizeikontrolle, 2 = Sirenengesang (Dauer in Sekunden)
-const HOLD_TIMES := {1: 8.0, 2: 7.0}
+const HOLD_TIMES := {1: 12.0, 2: 7.0, 3: 30.0}
+const ESCORT_SPEED := 3.2     ## so schnell zieht die Polizei das Boot aus dem Sperrgebiet (m/s)
 const IMMUNE_TIME := 25.0     ## nach einem Halt so lange keine neue Kontrolle / kein neuer Gesang
 ## Segel-Overlay (Taste T): zeigt am Segel selbst, ob die Stellung stimmt
 static var trim_overlay := true
@@ -79,9 +80,9 @@ var kvr_time := 0.0
 var boost := 0.0              ## Wendeschub (1 = frisch, klingt auf 0 ab)
 var penalty := 0.0            ## Sekunden verhedderte Segel nach einer Kollision
 var out := false              ## ausgeschieden (Seemine)
-var hold_kind := 0            ## 0 frei, 1 Polizeikontrolle, 2 Sirenengesang
+var hold_kind := 0            ## 0 frei, 1 Polizeikontrolle, 2 Sirenengesang, 3 Polizei geleitet das Boot hinaus
 var hold_time := 0.0
-var hold_focus := Vector2.INF ## Sirenen: Boot dreht sich zur Insel
+var hold_focus := Vector2.INF ## Sirenen: die Insel (Boot dreht sich hin); Polizei: Punkt außerhalb des Sperrgebiets
 var immune_time := 0.0
 
 # --- Motor ---
@@ -151,6 +152,9 @@ var _ring: MeshInstance3D
 var _out_t := 0.0
 var _hold_vis: Node3D
 var _hold_vis_kind := 0
+var _hold_stage := 0          ## Polizeikontrolle: welche Ansage kam schon
+var _escort_age := 0.0
+var _rope: MeshInstance3D
 var _sail_meshes: Array[MeshInstance3D] = []
 var _jib_meshes: Array[MeshInstance3D] = []
 var _main_trim_mat: StandardMaterial3D
@@ -264,16 +268,49 @@ func start_hold(kind: int, focus := Vector2.INF) -> void:
 	hold_kind = kind
 	hold_time = HOLD_TIMES[kind]
 	hold_focus = focus
+	_hold_stage = 0
 	_set_throttle(0)
 
 
-func _end_hold(announce: bool) -> void:
+func _end_hold(announce: bool, text := "Weiter geht's!") -> void:
 	hold_kind = 0
 	hold_time = 0.0
 	hold_focus = Vector2.INF
 	immune_time = IMMUNE_TIME
 	if announce:
-		show_message("Weiter geht's!", 2.5)
+		show_message(text, 3.0)
+
+
+## Nach der Kontrolle zieht die Polizei das Boot aus dem Sperrgebiet. Geht das nicht (kein freier
+## Weg), ist die Kontrolle einfach vorbei.
+func _begin_escort() -> void:
+	var p := pos2d()
+	if hold_focus == Vector2.INF or not SeaChart.path_clear(p, hold_focus):
+		_end_hold(true)
+		return
+	hold_kind = 3
+	hold_time = minf(p.distance_to(hold_focus) / ESCORT_SPEED + 2.0, HOLD_TIMES[3])
+
+
+## Schleppschritt: Das Boot folgt der Polizei zum Ausgang des Sperrgebiets
+func _escort_step(delta: float) -> void:
+	var p := pos2d()
+	var to := hold_focus - p
+	var d := to.length()
+	if d < 2.5:
+		_end_hold(true, "Weiter geht's – aber nicht wieder ins Sperrgebiet!")
+		return
+	var dir := to / d
+	var want := atan2(dir.x, dir.y)
+	heading = wrapf(heading + clampf(angle_difference(heading, want), -1.0 * delta, 1.0 * delta), -PI, PI)
+	vel = dir * ESCORT_SPEED
+	position.x += vel.x * delta
+	position.z += vel.y * delta
+	rotation.y = heading
+	aground = false
+	stuck = false
+	depth = SeaChart.depth_at(pos2d())
+	_update_sails_for_display(pos2d())
 
 
 ## Seemine: Boot fliegt in die Luft und scheidet aus
@@ -288,7 +325,7 @@ func explode() -> void:
 	refueling = false
 	controls_enabled = false
 	show_message("Seemine! Ausgeschieden", 6.0)
-	Sfx.play("explosion", -2.0)
+	Sfx.play("explosion", 6.0)
 	_explode_fx()
 
 
@@ -444,8 +481,26 @@ func _physics_process(delta: float) -> void:
 		return
 	if hold_kind != 0:
 		hold_time -= delta
+		if hold_kind == 1:
+			# Ansagen der Polizei während der Kontrolle
+			var el: float = HOLD_TIMES[1] - hold_time
+			if _hold_stage == 0 and el >= 2.6:
+				_hold_stage = 1
+				show_message("Führerschein und Fahrzeugpapiere, bitte!", 4.0)
+			elif _hold_stage == 1 and el >= 7.0:
+				_hold_stage = 2
+				show_message("Hmm … Papiere in Ordnung. Aber das hier ist Sperrgebiet!", 3.6)
+			elif _hold_stage == 2 and el >= 10.6:
+				_hold_stage = 3
+				show_message("Sie werden aus dem Sperrgebiet geleitet.", 3.0)
 		if hold_time <= 0.0:
-			_end_hold(true)
+			if hold_kind == 1:
+				_begin_escort()
+			else:
+				_end_hold(true, "Weiter geht's – aber nicht wieder ins Sperrgebiet!" if hold_kind == 3 else "Weiter geht's!")
+	if hold_kind == 3:
+		_escort_step(delta)
+		return
 	var held := hold_kind != 0
 
 	var tw := wind.get_wind(p, self)
@@ -754,29 +809,77 @@ func _process(delta: float) -> void:
 	_snd_engine.pitch_scale = 0.8 + 0.12 * throttle
 
 
-## Polizeiboot bzw. kreisende Noten um ein festgehaltenes Boot
+## Polizeiboot (Kontrolle, dann Abschleppen) bzw. kreisende Noten um ein festgehaltenes Boot
 func _update_hold_visual() -> void:
 	if hold_kind == 0 or out:
 		if _hold_vis:
-			_hold_vis.queue_free()
-			_hold_vis = null
-			_hold_vis_kind = 0
+			_release_hold_visual()
 		return
-	if _hold_vis == null or _hold_vis_kind != hold_kind:
+	var vis_kind := 1 if hold_kind == 3 else hold_kind
+	if _hold_vis == null or _hold_vis_kind != vis_kind:
 		if _hold_vis:
 			_hold_vis.queue_free()
-		_hold_vis = HazardVisuals.police_boat() if hold_kind == 1 else HazardVisuals.siren_notes()
-		_hold_vis_kind = hold_kind
+		_hold_vis = HazardVisuals.police_boat() if vis_kind == 1 else HazardVisuals.siren_notes()
+		_hold_vis_kind = vis_kind
 		add_child(_hold_vis)
-	var total: float = HOLD_TIMES[hold_kind]
-	var elapsed := total - hold_time
-	if hold_kind == 1:
-		var k := smoothstep(0.0, 2.2, elapsed) * (1.0 - smoothstep(total - 1.6, total, elapsed))
-		_hold_vis.position = Vector3(lerpf(46.0, 8.0, k), sin(_t * 1.6) * 0.1, lerpf(-30.0, 0.5, k))
-		_hold_vis.rotation.y = lerpf(0.5, 0.0, k)
+	if vis_kind == 1:
+		if hold_kind == 1:
+			var elapsed: float = HOLD_TIMES[1] - hold_time
+			var k := smoothstep(0.0, 2.2, elapsed)
+			_hold_vis.position = Vector3(lerpf(46.0, 8.0, k), sin(_t * 1.6) * 0.1, lerpf(-30.0, 0.5, k))
+			_hold_vis.rotation.y = lerpf(0.5, 0.0, k)
+			_set_rope(false)
+		else:
+			# Abschleppen: Polizeiboot gleitet vor den Bug, Leine gespannt
+			var k := smoothstep(0.0, 2.0, _escort_age)
+			_hold_vis.position = Vector3(lerpf(8.0, 0.0, k), sin(_t * 1.6) * 0.1, lerpf(0.5, 19.0, k))
+			_hold_vis.rotation.y = 0.0
+			_set_rope(k > 0.5)
 		HazardVisuals.flash_lamps(_hold_vis, _t)
 	else:
 		HazardVisuals.orbit_notes(_hold_vis, _t)
+
+
+## Leine zwischen Bug des Seglers und Heck des Polizeiboots
+func _set_rope(on: bool) -> void:
+	if not on:
+		if _rope:
+			_rope.queue_free()
+			_rope = null
+		return
+	if _rope == null:
+		var cyl := CylinderMesh.new()
+		cyl.top_radius = 0.04
+		cyl.bottom_radius = 0.04
+		cyl.height = 1.0
+		cyl.radial_segments = 4
+		_rope = MeshInstance3D.new()
+		_rope.mesh = cyl
+		_rope.material_override = _mat(Color(0.85, 0.8, 0.65), true)
+		_rope.rotation.x = PI * 0.5
+		add_child(_rope)
+	var a := Vector3(0.0, 0.6, 2.4)
+	var b := Vector3(_hold_vis.position.x, 0.9, _hold_vis.position.z - 7.0)
+	var len := a.distance_to(b)
+	_rope.scale = Vector3(1.0, len, 1.0)
+	_rope.position = (a + b) * 0.5
+
+
+## Kontrolle vorbei: Das Polizeiboot löst sich vom Segler und fährt davon
+func _release_hold_visual() -> void:
+	_set_rope(false)
+	var vis := _hold_vis
+	var kind := _hold_vis_kind
+	_hold_vis = null
+	_hold_vis_kind = 0
+	if kind != 1 or not is_inside_tree() or out:
+		vis.queue_free()
+		return
+	vis.reparent(get_parent(), true)
+	var away := vis.global_position + (vis.global_basis * Vector3(40.0, 0.0, 30.0))
+	var tw := vis.create_tween()
+	tw.tween_property(vis, "global_position", away, 6.0)
+	tw.tween_callback(vis.queue_free)
 
 
 ## Sail-Overlay: Segel färben sich grün (optimal) bis rot (killt), dazu zeigt eine grüne

@@ -25,6 +25,8 @@ var _shots := [
 	[L1, Vector2(0, -20), 35.0, 60.0, "trimm_schlecht.png", "trim_bad", 90],
 	[L1, Vector2(0, -20), 55.0, 55.0, "explosion.png", "boom", 70],
 	[L1, Vector2(0, 0), 90.0, 62.0, "kvr.png", "kvr", 45],
+	[L1, Vector2(0, -40), 55.0, 48.0, "polizeiboot_modell.png", "police_model", 40],
+	[L1, Vector2(0, -40), 24.0, 30.0, "polizeiboot_nah.png", "police_model", 40],
 	[L5, Vector2(0, -95), 170.0, 62.0, "schifffahrt.png", "ships", 40],
 	[L5, Vector2(0, -95), 75.0, 55.0, "schiff_nah.png", "ships", 40],
 ]
@@ -85,6 +87,19 @@ func _process(_d: float) -> bool:
 				w._critters[0]["off"] = 0.0
 				w._t = 24.0 * 0.28
 				w._critters[0]["prev"] = 0.27
+			"police_model":
+				# Polizeiboot zwischen Segelboot und Schlepper zum Größen- und Stilvergleich
+				var pb := PoliceBoat.build()
+				pb.position = Vector3(0, 0, -40)
+				pb.rotation.y = 0.6
+				_main.add_child(pb)
+				b.position = Vector3(-18, 0, -40)
+				b.heading = 0.6
+				var tug := Tug.new()
+				tug.boat = b
+				tug.position = Vector3(20, 0, -40)
+				tug.heading = 0.6
+				_main.add_child(tug)
 			"kvr":
 				b.position = Vector3(-40, 0, 0)
 				b.heading = PI / 2

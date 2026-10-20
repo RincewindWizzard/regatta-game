@@ -244,6 +244,9 @@ func _draw_panel(b: Boat, o: Vector2) -> void:
 	elif b.hold_kind == 1:
 		warn = "Polizeikontrolle … noch %d s" % ceili(b.hold_time)
 		warn_col = Color(0.1, 0.25, 0.65)
+	elif b.hold_kind == 3:
+		warn = "Wird aus dem Sperrgebiet geleitet …"
+		warn_col = Color(0.1, 0.25, 0.65)
 	elif b.hold_kind == 2:
 		warn = "Sirenengesang … noch %d s" % ceili(b.hold_time)
 		warn_col = MAGENTA

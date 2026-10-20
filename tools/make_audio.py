@@ -548,10 +548,11 @@ def explosion():
     t = t_axis(dur)
     thump = np.sin(2 * np.pi * (95 * np.exp(-t * 3.5) + 28) * t) * np.exp(-t * 2.2)
     boom = lp(noise(dur, "brown"), 380) * np.exp(-t * 2.6)
-    crack = hp(noise(dur), 900) * np.exp(-t * 14) * 0.5
+    crack = hp(noise(dur), 900) * np.exp(-t * 14) * 0.9
+    body = bp(noise(dur), 150, 1400) * np.exp(-t * 4.5) * 1.3  # Mitten, damit es auch auf kleinen Lautsprechern knallt
     debris = bp(noise(dur), 1200, 5000) * np.exp(-t * 3.0) * 0.12 * (smooth_random(dur, 55) > 0.55)
     splash = lp(noise(dur), 2500) * np.clip((t - 0.9) * 2.0, 0, 1) * np.exp(-(t - 0.9) * 2.0) * 0.18 * smooth_random(dur, 30)
-    x = thump * 1.0 + boom * 1.1 + crack + debris + np.where(t > 0.9, splash, 0)
+    x = thump * 1.0 + boom * 1.1 + crack + body + debris + np.where(t > 0.9, splash, 0)
     x *= np.minimum(1, t * 1500)
     return reverb(x, 0.22, 1.2)
 
@@ -606,7 +607,7 @@ if __name__ == "__main__":
         save("engine_stop", engine_stop(), -6)
         sys.exit()
     if len(sys.argv) > 1 and sys.argv[1] == "hazards":
-        save("explosion", explosion(), -3)
+        save("explosion", explosion(), -1)
         save("police_siren", police_siren(), -6)
         save("siren_song", siren_song(), -5)
         save("ship_horn", ship_horn(), -4)

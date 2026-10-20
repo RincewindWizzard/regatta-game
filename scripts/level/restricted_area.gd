@@ -214,6 +214,19 @@ func update_boat(b: Boat, delta: float) -> void:
 	st["dwell"] += delta
 	if st["dwell"] >= GRACE:
 		st["dwell"] = 0.0
-		b.start_hold(1)
+		b.start_hold(1, _exit_point(p))
 		b.show_message("Wasserschutzpolizei: Stopp – Kontrolle!", 3.0)
 		Sfx.play("police_siren", -2.0)
+
+
+## Punkt knapp außerhalb des Gebiets, zu dem die Polizei das Boot schleppt: bevorzugt
+## in Richtung des Bootes, sonst der nächste Winkel mit freiem Wasser
+func _exit_point(p: Vector2) -> Vector2:
+	var out_dir := (p - pos2d())
+	var base := out_dir.angle() if out_dir.length() > 1.0 else 0.0
+	for k in 12:
+		var a := base + (k + 1) / 2 * 0.5 * (1.0 if k % 2 == 0 else -1.0)
+		var q := pos2d() + Vector2(cos(a), sin(a)) * (radius + 14.0)
+		if SeaChart.depth_at(q) > SeaChart.DRAFT + 1.0 and SeaChart.path_clear(p, q):
+			return q
+	return Vector2.INF

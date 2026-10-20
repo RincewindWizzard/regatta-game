@@ -25,33 +25,9 @@ static func _box(parent: Node3D, size: Vector3, pos: Vector3, c: Color, emissive
 	return mi
 
 
-## Boot der Wasserschutzpolizei (zeigt mit dem Bug nach lokal +Z)
+## Boot der Wasserschutzpolizei (Modell: police_boat.gd, Bug nach lokal +Z)
 static func police_boat() -> Node3D:
-	var root := Node3D.new()
-	var white := Color(0.96, 0.96, 0.95)
-	var blue := Color(0.1, 0.25, 0.65)
-	_box(root, Vector3(2.8, 1.0, 8.4), Vector3(0, 0.5, 0), white)
-	_box(root, Vector3(2.86, 0.35, 8.46), Vector3(0, 0.55, 0), blue)
-	var bow := MeshInstance3D.new()
-	var pm := PrismMesh.new()
-	pm.size = Vector3(2.8, 2.0, 1.0)
-	bow.mesh = pm
-	bow.material_override = mat(white)
-	bow.position = Vector3(0, 0.5, 4.7)
-	bow.rotation = Vector3(PI / 2, 0, 0)
-	root.add_child(bow)
-	_box(root, Vector3(2.0, 1.2, 2.8), Vector3(0, 1.55, -0.9), white)
-	_box(root, Vector3(2.05, 0.45, 2.1), Vector3(0, 1.75, -0.7), Color(0.15, 0.2, 0.3))
-	var lamp_a := _box(root, Vector3(0.7, 0.35, 0.5), Vector3(-0.55, 2.35, -0.9), Color(0.1, 0.3, 1.0), true)
-	var lamp_b := _box(root, Vector3(0.7, 0.35, 0.5), Vector3(0.55, 2.35, -0.9), Color(1.0, 0.1, 0.1), true)
-	root.set_meta("lamps", [lamp_a, lamp_b])
-	ModelStyle.outline(root)
-	ModelStyle.no_shadows(root)
-	var lab := SeaChart.flat_label("POLIZEI", 34, blue, false, true)
-	lab.position = Vector3(0, 1.04, 2.6)
-	lab.rotation = Vector3(-PI / 2, PI, 0)
-	root.add_child(lab)
-	return root
+	return PoliceBoat.build()
 
 
 ## Blaulicht blinkt abwechselnd
@@ -62,6 +38,10 @@ static func flash_lamps(police: Node3D, t: float) -> void:
 		var on := sin(t * 11.0 + i * PI) > 0.0
 		var m := mi.material_override as StandardMaterial3D
 		m.emission_energy_multiplier = 3.5 if on else 0.15
+		m.albedo_color = Color(0.0, 0.25, 1.0) if on else Color(0.03, 0.08, 0.3)
+	var radar: Node3D = police.get_meta("radar", null)
+	if radar:
+		radar.rotation.y = t * 4.0
 
 
 ## Seemine: schwarze Kugel mit Stacheln und rot blinkendem Licht. Gibt den Wurzelknoten zurück.
