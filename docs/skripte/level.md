@@ -47,10 +47,19 @@ erweiterbar: Ein neuer Baustein mit `update_boat` wird automatisch aufgerufen, o
 @export_range(0.0, 20.0, 0.5, "suffix:m") var depth_variation := 9.0
 @export var seabed_seed := 4711
 @export var inland := false          # Binnenrevier: alles Land, Flüsse/Seen graben Wasser
+@export_file("*.png") var depth_image := ""   # Seegrund aus einem Bild (z. B. echte Seekarte)
 @export var coast_east := true
 @export var coast_west := true
 @export_storage var depth_paint_png := PackedByteArray()   # gemalter Seegrund
 ```
+
+**`depth_image`** ersetzt den zufälligen Grund durch ein 8-Bit-PNG, das genau das Kartengebiet
+(1280 × 1280 m) abdeckt; ein Pixelwert `v` bedeutet die Tiefe `−8 + 0,1·v` Meter. Das Bild wird
+als Rohdatei gelesen (`FileAccess.get_file_as_bytes` + `Image.load_png_from_buffer`), damit es auch
+im exportierten Spiel funktioniert (der Export-Filter nimmt `levels/data/*.png` mit). Erzeugt wird
+es mit `tools/chart_to_depth.py` aus einer Seekarte (Land/Wasser nach Farbe, Abstand zur Küste →
+Tiefe, Wasserwege verbreitert); die Kieler Förde nutzt das. Untiefen, Inseln, Molen, Landzungen
+(kleine lange `ShoalArea`-Inseln) und Leuchttürme liegen darüber.
 
 `@export_storage` speichert den Wert in der Szene, zeigt ihn aber nicht im Inspector (ein
 PNG-Bild als Bytes wäre dort unlesbar).

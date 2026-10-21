@@ -36,6 +36,7 @@ den normalen Godot-Gizmos (`W`/`E`/`R`).
 | **ShoalArea „See“** | gräbt einen See ins Land (für Binnenreviere). |
 | **FuelDock** (Tankstelle) | Steg mit Zapfsäule. Wurzel an Land setzen, Pfeil (lokal −Z) zeigt ins Wasser; der Liegeplatz liegt am Stegkopf. |
 | **SeaLife** | Tümmler, Wal, Möwen, Seehunde, Wrack. `count` Tiere im Umkreis `range_m`. Wrack ist fest (`solid`). |
+| **Level.depth_image** | Seegrund aus einem 8-Bit-Bild (Wert v = Tiefe −8 + 0,1·v, deckt das ganze Kartengebiet 1280 × 1280 m ab) statt zufälligem Grund, z. B. aus einer echten Seekarte (`tools/chart_to_depth.py`). Inseln, Molen usw. kommen darüber. |
 | **RestrictedArea** | Minenfeld (Boot explodiert, ausgeschieden) oder Polizei-Sperrgebiet (Kontrolle). Radius und Minenzahl im Inspector. |
 | **ShippingLane** | Schifffahrtsweg mit Berufsschiffen: `length`, `speed_kn`, `interval` (Abstand der Schiffe je Richtung), `phase_out`/`phase_back` (wann das erste Schiff startet), `lane_offset` (Abstand der Fahrspur von der Mittellinie), Schiffslänge und -breite. Fährt in Pfeilrichtung (lokal −Z) und zurück. |
 | **SirenIsland** | Insel, deren Gesang Boote bis `song_range` vom Ufer festhält. |

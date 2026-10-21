@@ -119,6 +119,7 @@ Siehe [Klang](klang.md#tools-make-audio-py).
 |---|---|
 | `tools/export_dehler.py` | zerlegt das Blender-Modell „Dehler 31“ in vier `.glb`: Rumpf, Großsegel mit Baum, Fock, Pinne mit Ruder. Der Drehpunkt (`ORIGIN`) ist der Root-Knochen des Rigs. |
 | `tools/build_tug.py` | baut den stilisierten Schlepper aus Primitiven und exportiert `models/tug.glb` |
+| `tools/chart_to_depth.py` | wandelt eine Seekarte (Bild) in den Seegrund eines Levels um (Land/Wasser nach Farbe, Küstenabstand → Tiefe); Parameter in `tools/kiel_chart.json`, Ergebnis `levels/data/kiel_foerde_tiefe.png` |
 | `tools/build_ships.py` | baut die drei Berufsschiffe (Loft-Rumpf, Aufbauten, Ladung, Schaumstreifen) und schreibt `models/ship_*.glb` sowie die Rumpfkontur `models/ship_hulls.json` |
 
 Die Skripte laufen **in Blender** (`blender --background --python tools/build_tug.py -- models/tug.glb`, `blender --background --python tools/build_ships.py -- models`). Ohne Blender-Installation geht es auch mit dem Python-Modul: `pip install bpy` und dann `python tools/build_ships.py models`.

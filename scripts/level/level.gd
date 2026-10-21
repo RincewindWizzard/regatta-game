@@ -74,6 +74,14 @@ const PREVIEW_RES := 256        ## Auflösung der Editor-Vorschau
 		inland = v
 		_base_cache.clear()
 		queue_preview()
+## Seegrund aus einem Bild (z. B. aus einer echten Seekarte, siehe tools/chart_to_depth.py): 8-Bit-PNG,
+## das genau das Kartengebiet (1280 x 1280 m) abdeckt, Wert v = Tiefe -8 + 0,1 * v. Ersetzt den
+## zufälligen Grund; Untiefen, Inseln, Molen und gemalter Grund kommen darüber.
+@export_file("*.png") var depth_image := "":
+	set(v):
+		depth_image = v
+		_base_cache.clear()
+		queue_preview()
 @export var coast_east := true:
 	set(v):
 		coast_east = v
@@ -94,6 +102,8 @@ var _stroke_start: Image
 var _delta_img: Image
 var _delta_tex: ImageTexture
 var _base_cache := {}
+var _depth_img_cache: Image
+var _depth_img_path := ""
 var _preview: SeaChart
 var _wind_arrow: Node3D
 var _dirty := false
@@ -376,9 +386,46 @@ func compute_depth(res: int) -> PackedFloat32Array:
 	return grid
 
 
+## Tiefenbild einlesen (als Rohdatei, damit es auch im exportierten Spiel funktioniert)
+func _load_depth_image() -> Image:
+	if _depth_img_cache != null and _depth_img_path == depth_image:
+		return _depth_img_cache
+	var bytes := FileAccess.get_file_as_bytes(depth_image)
+	var img := Image.new()
+	if bytes.is_empty() or img.load_png_from_buffer(bytes) != OK:
+		push_warning("Tiefenbild nicht lesbar: " + depth_image)
+		return null
+	_depth_img_cache = img
+	_depth_img_path = depth_image
+	return img
+
+
 func _base_grid(res: int) -> PackedFloat32Array:
 	if _base_cache.has(res):
 		return _base_cache[res]
+	if depth_image != "":
+		var img := _load_depth_image()
+		if img:
+			var ig := PackedFloat32Array()
+			ig.resize(res * res)
+			var iw := img.get_width()
+			var ih := img.get_height()
+			for j in res:
+				for i in res:
+					# bilinear aus dem Bild lesen
+					var fx := (i + 0.5) / res * iw - 0.5
+					var fy := (j + 0.5) / res * ih - 0.5
+					var x0 := clampi(int(floorf(fx)), 0, iw - 1)
+					var y0 := clampi(int(floorf(fy)), 0, ih - 1)
+					var x1 := mini(x0 + 1, iw - 1)
+					var y1 := mini(y0 + 1, ih - 1)
+					var tx := clampf(fx - x0, 0.0, 1.0)
+					var ty := clampf(fy - y0, 0.0, 1.0)
+					var top := lerpf(img.get_pixel(x0, y0).r, img.get_pixel(x1, y0).r, tx)
+					var bot := lerpf(img.get_pixel(x0, y1).r, img.get_pixel(x1, y1).r, tx)
+					ig[j * res + i] = -8.0 + lerpf(top, bot, ty) * 255.0 * 0.1
+			_base_cache[res] = ig
+			return ig
 	var n := FastNoiseLite.new()
 	n.seed = seabed_seed
 	n.frequency = 0.004

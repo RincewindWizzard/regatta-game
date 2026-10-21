@@ -57,13 +57,17 @@ Sechs bewaldete Inseln. Die **Tankstelle** steht auf der Nordseite von Granholm 
 
 ![Karte Kieler Förde](../bilder/karte_08_kieler_foerde.png)
 
-Norden ist oben, die Förde ist nicht maßstabsgetreu, folgt aber dem Verlauf: schmale Südspitze Hörn, leicht nach Nordnordost geneigt, Enge bei Friedrichsort, offen zur Ostsee. **Unten rechts** liegt die
-Schwentinemündung (Start), **ganz unten** die Südspitze Hörn mit dem Kreuzfahrtterminal
-Ostseekai. Am Westufer (links) folgen von unten nach oben Düsternbrooker Hafen, Tirpitzmole,
-die NOK-Schleuse Holtenau (zwei Molen) und die Friedrichsorter Enge. In der Enge steht links der
-**Leuchtturm Friedrichsort**, gegenüber das **U-Boot-Ehrenmal Möltenort**; am oberen rechten Rand
-steht das **Marine-Ehrenmal Laboe**. Oben links liegt der Olympiahafen Schilksee mit der
-grünen **Ziellinie**. Die magenta Pfeile zeigen den Schifffahrtsweg: Er beginnt an der NOK-Schleuse Holtenau, quert die Förde zur Enge und läuft dann nach Norden zur Ostsee.
+Küste und Wassertiefe stammen aus der echten Seekarte „Kieler Förde“ (Nautic Publications S2,
+1 : 40 000), etwa 1 : 11 gestaucht und mit 28 m verbreiterten Wasserwegen, damit sie spielbar
+sind. Norden ist oben. **Unten links** liegt die Südspitze Hörn mit dem Kreuzfahrtterminal
+Ostseekai, daneben im Osten die **Schwentinemündung** mit dem Marine-Arsenal (Start). Am Westufer
+folgen von unten nach oben Düsternbrooker Hafen, Tirpitzmole und die **NOK-Schleuse Holtenau**
+mit dem Kanal, der nach links aus der Karte läuft. Dann kommt die **Friedrichsorter Enge**: von
+Westen ragt die Landzunge mit dem **Leuchtturm Friedrichsort** weit ins Wasser, von Osten die mit
+dem **U-Boot-Ehrenmal Möltenort**. Weiter nördlich liegt am Ostufer das **Marine-Ehrenmal
+Laboe**, oben links der Olympiahafen Schilksee mit der grünen **Ziellinie**. Die magenta Pfeile
+zeigen den Schifffahrtsweg: Er beginnt an der NOK-Schleuse, quert die Förde zur Enge und läuft
+dann nach Norden zur Ostsee.
 
 ## Flussregatta
 
