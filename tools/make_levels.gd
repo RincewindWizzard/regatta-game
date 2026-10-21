@@ -676,12 +676,10 @@ func _kiel() -> Level:
 	var fd := _kshore(_chart(2055, 3880))
 	_dock(l, "Anleger_Falkenstein", fd - _kout(fd) * 6.0, _kout(fd), 44.0, "Falkenstein Anleger")
 	# Bahnmarken
-	_mark(l, "Ostseekai_Tonne", "Ostseekai", _kwater(_chart(1180, 6300)), "Fl.Y.2s")
 	_mark(l, "Duesternbrook_Tonne", "Düsternbrook", _kwater(_chart(1342, 5860), 9.0), "Fl(2)Y.6s")
 	_mark(l, "Tirpitz_Tonne", "Tirpitzmole", _kwater(_chart(1440, 5380), 9.0), "Fl(3)Y.10s")
 	_mark(l, "NOK_Tonne", "NOK Holtenau", _kwater(_chart(1570, 5080), 9.0), "Fl.Y.2s")
 	_mark(l, "Enge_Tonne", "Friedrichsorter Enge", Vector2(-58, -480), "Fl(2)Y.6s")        # Fahrwasser östlich der Landzunge Friedrichsort
-	_mark(l, "Falkenstein_Tonne", "Falkenstein", _kwater(_chart(2150, 3880), 9.0), "Fl(3)Y.10s")
 	_mark(l, "Laboe_Tonne", "Laboe", _kwater(_chart(2690, 3560), 9.0), "Fl(3)Y.10s")
 	# Berufsschifffahrt zwischen Nord-Ostsee-Kanal (Schleuse Holtenau) und Ostsee: aus dem Kanal quer
 	# über die Förde zur Enge, dann nach Norden. Die Schiffe sind kleiner als in der Lotsenrinne.
