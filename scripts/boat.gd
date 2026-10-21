@@ -34,7 +34,6 @@ const TACK_BOOST_TIME := 2.2  ## so lange klingt der Schub aus
 const TACK_BOOST_MIN := 1.3   ## Mindestfahrt (m/s), damit die Wende Schub gibt
 const TACK_COOLDOWN := 5.0
 const BOAT_RADIUS := 3.6
-const WORLD_LIMIT := 650.0
 const MODEL_DIR := "res://models/"
 
 const THROTTLE_MAX := 4
@@ -623,7 +622,7 @@ func _physics_process(delta: float) -> void:
 
 	vel = fwd * spd_fwd + port * spd_lat
 	var ground := vel + (current if not (stuck or held) else Vector2.ZERO)
-	var new_p := (p + ground * delta).clamp(Vector2(-WORLD_LIMIT, -WORLD_LIMIT), Vector2(WORLD_LIMIT, WORLD_LIMIT))
+	var new_p := (p + ground * delta).clamp(SeaChart.AREA_MIN + Vector2(5, 5), SeaChart.AREA_MIN + Vector2.ONE * (SeaChart.AREA_SIZE - 5.0))      # Rand der Seekarte
 	# Regattagebiet: draußen sanft zurückdrängen, 30 m dahinter ist Schluss
 	if course:
 		var was_outside := outside
