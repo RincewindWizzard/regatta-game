@@ -7,9 +7,16 @@ const L3 := "res://levels/03_rund_um_moewenhoern.tscn"
 const L4 := "res://levels/04_hafenausfahrt.tscn"
 const L5 := "res://levels/05_lotsenrinne.tscn"
 const L6 := "res://levels/06_schaerengarten.tscn"
+const L8 := "res://levels/08_kieler_foerde.tscn"
 
 ## [Level, Blickpunkt, Abstand, Neigung (Grad), Datei, Vorbereitung, Frame der Aufnahme]
 var _shots := [
+	[L8, Vector2(0, -480), 330.0, 60.0, "kiel_enge.png", "", 40],
+	[L8, Vector2(340, -770), 160.0, 55.0, "kiel_laboe.png", "", 40],
+	[L8, Vector2(-250, 250), 220.0, 60.0, "kiel_hoern.png", "", 40],
+	[L8, Vector2(-250, -260), 220.0, 60.0, "kiel_tirpitz.png", "", 40],
+	[L8, Vector2(-250, -770), 200.0, 58.0, "kiel_schilksee.png", "", 40],
+	[L8, Vector2(430, 250), 150.0, 58.0, "kiel_start.png", "", 40],
 	[L1, Vector2(100, -470), 80.0, 62.0, "tuemmler.png", "dolphins", 30],
 	[L1, Vector2(-280, -440), 120.0, 55.0, "wal.png", "whale", 30],
 	[L1, Vector2(255, -270), 130.0, 60.0, "moewen.png", "", 30],

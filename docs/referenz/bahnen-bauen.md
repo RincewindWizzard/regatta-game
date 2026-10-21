@@ -24,12 +24,12 @@ den normalen Godot-Gizmos (`W`/`E`/`R`).
 
 | Baustein | Bedeutung |
 |---|---|
-| **StartLine** | Start- und Ziellinie. Der Magenta-Pfeil zeigt die Startrichtung, das Ziel ist dieselbe Linie zurück. Breite im Inspector. Drehen erlaubt. → [Details](../skripte/level.md#start-line-gd) |
+| **StartLine** | Start- und Ziellinie. Der Magenta-Pfeil zeigt die Startrichtung, das Ziel ist dieselbe Linie zurück – oder eine zweite StartLine mit `finish_only` als eigene Ziellinie (Strecke von A nach B). Breite im Inspector. Drehen erlaubt. → [Details](../skripte/level.md#start-line-gd) |
 | **CourseMark** | Tonne. Die **Reihenfolge im Szenenbaum** ist die Rundungsreihenfolge (im Editor als „1.“, „2.“ … beschriftet). Zum Umsortieren einfach im Baum ziehen. |
 | **ShoalArea** | Untiefe oder Insel (Art im Inspector). Radius im Inspector; mit Skalieren in X/Z und Drehen werden Ellipsen daraus. Inseln können einen Leuchtturm haben. |
 | **SeaMark** | Seezeichen: Kardinaltonne Nord/Ost/Süd/West, Einzelgefahr, Fahrwasser rot/grün, Ansteuerung. Boote prallen ab. |
-| **Mole** | Felsmole (Länge, Breite) mit Molenfeuer rot/grün/weiß am Kopf. Für Boote Land. |
-| **Lighthouse** | Leuchtturm auf Felsklippe mit drehendem Lichtkegel, verschiedene Farbschemata. |
+| **Mole** | Felsmole (Länge, Breite) mit Molenfeuer rot/grün/weiß am Kopf und optionaler Beschriftung (`mole_name`). Für Boote Land. |
+| **Lighthouse** | Leuchtturm auf Felsklippe mit drehendem Lichtkegel, verschiedene Farbschemata; die Stile `EHRENMAL` (rotbrauner Backsteinturm) und `DENKMAL` (grauer Stein) ohne Licht (`rotating_beam` aus, `characteristic` leer) für Denkmäler wie das Marine-Ehrenmal Laboe. |
 | **ChartRose** | Kompassrose als Dekoration. |
 | **CurrentArea** (Strömung) | Strömungsfeld: Stärke in kn, Länge/Breite, optional Gezeitenperiode (Strom kentert). Fließt in Pfeilrichtung (lokal −Z), mit Drehen ausrichten. |
 | **RiverChannel** (Flusslauf) | Ein Godot-`Path3D`: Punkte mit dem Pfad-Werkzeug setzen/ziehen. Gräbt einen Fluss ins Land, Breite (+ `width_curve`), Tiefe, Fließgeschwindigkeit vom ersten zum letzten Punkt, Uferbäume, Name. Schmal = schneller. |

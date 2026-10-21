@@ -62,7 +62,12 @@ Das Level sucht seine Kinder nach **Typ** (`is`):
 ```gdscript
 func start_line() -> StartLine:
     for c in get_children():
-        if c is StartLine: return c
+        if c is StartLine and not c.finish_only: return c
+    return null
+
+func finish_line() -> StartLine:        # eigene Ziellinie (Strecke von A nach B) oder null
+    for c in get_children():
+        if c is StartLine and c.finish_only: return c
     return null
 
 func marks() -> Array[CourseMark]       # Reihenfolge im Szenenbaum = Rundungsreihenfolge!
@@ -141,7 +146,11 @@ func start_position(i) -> Vector2   # Startplatz i: 30 m hinter der Linie, seitl
 
 `signed_dist` ist ein **Skalarprodukt**: `(p - center).dot(normal)`. Ein Boot hat die Linie
 überquert, wenn das Vorzeichen von `a = signed_dist(alt)` zu `b = signed_dist(neu)` wechselt
-und `within(neu)` stimmt (siehe `course.gd`). Das Ziel ist **dieselbe Linie** in Gegenrichtung.
+und `within(neu)` stimmt (siehe `course.gd`). Das Ziel ist normalerweise **dieselbe Linie** in
+Gegenrichtung. Für eine **Strecke von A nach B** (z. B. die Kieler Förde) gibt es eine zweite
+`StartLine` mit `finish_only = true`: Sie ist nur das Ziel und wird **in Pfeilrichtung**
+überquert; `Level.finish_line()` liefert sie, `Course` trägt sie als `"line"` im letzten Ziel ein
+(jedes Linienziel hat seine eigene Linie), und die Beschriftung lautet dann „START“ bzw. „ZIEL“.
 
 Gezeichnet wird eine gestrichelte Linie mit zwei Tonnen an den Enden, ein magenta Pfeil und
 die Beschriftung „START / ZIEL“, alles mit `SeaChart.add_line` & Co.

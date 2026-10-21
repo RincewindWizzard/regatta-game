@@ -164,6 +164,7 @@ mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schulte
 | 5 | Lotsenrinne | Kreuzen im betonnten Fahrwasser zwischen zwei Sandbänken, Ebbstrom, **Berufsschifffahrt**: Frachter und Tanker, denen man ausweichen muss |
 | 6 | Schärengarten | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind, Tankstelle auf Granholm, Sirenen-Insel im Süden |
 | 7 | Flussregatta | Binnenrevier: den Mühlenfluss gegen den Strom hinauf in den Großen See und zurück |
+| 8 | Kieler Förde | Strecke von A nach B: von der Schwentinemündung durch die Friedrichsorter Enge (Leuchtturm, U-Boot-Ehrenmal) bis zum Olympiahafen Schilksee, mit Ostseekai, Düsternbrook, Tirpitzmole, NOK Holtenau, Marine-Ehrenmal Laboe und Berufsschifffahrt |
 
 ---
 

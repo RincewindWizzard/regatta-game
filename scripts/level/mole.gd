@@ -20,6 +20,11 @@ enum HeadLight { KEINES, ROT, GRUEN, WEISS }
 	set(v):
 		head_light = v
 		_rebuild()
+## Beschriftung auf der Karte (z. B. "Tirpitzmole")
+@export var mole_name := "":
+	set(v):
+		mole_name = v
+		_rebuild()
 @export var light_characteristic := "":
 	set(v):
 		light_characteristic = v
@@ -113,6 +118,10 @@ func _rebuild() -> void:
 	crown.position.y = 1.9
 	crown.material_overlay = ModelStyle.outline_material()
 	_vis.add_child(crown)
+	if mole_name != "":
+		var ml := SeaChart.flat_label(mole_name, 52, SeaChart.INK, true)
+		ml.position = Vector3(0, 0.09, width * 0.5 + 9.0)
+		_vis.add_child(ml)
 
 	if head_light != HeadLight.KEINES:
 		var col := Color(0.85, 0.15, 0.12)

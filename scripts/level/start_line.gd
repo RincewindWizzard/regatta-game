@@ -11,6 +11,13 @@ extends Node3D
 		half_width = v
 		_rebuild()
 
+## Streckenführung von A nach B: Diese Linie ist nur das Ziel (Pfeil = Überfahrtsrichtung),
+## der Start liegt an der anderen StartLine.
+@export var finish_only := false:
+	set(v):
+		finish_only = v
+		_rebuild()
+
 var _vis: Node3D
 
 
@@ -56,6 +63,16 @@ const START_OFFSETS := [-15.0, 15.0, -38.0, 38.0]
 func start_position(i: int) -> Vector2:
 	var off: float = START_OFFSETS[i % START_OFFSETS.size()] * minf(1.0, half_width / 45.0)
 	return center2d() - normal2d() * (30.0 + 12.0 * (i / 4)) + tangent2d() * off
+
+
+## Beschriftung: „START / ZIEL“, bei Strecke von A nach B getrennt „START“ und „ZIEL“
+func _label_text() -> String:
+	if finish_only:
+		return "ZIEL"
+	var lvl := get_parent() as Level
+	if lvl and lvl.finish_line() != null:
+		return "START"
+	return "START / ZIEL"
 
 
 func _rebuild() -> void:
@@ -114,6 +131,6 @@ func _rebuild() -> void:
 		pole.position.y = 1.9
 		bob.add_child(pole)
 		ModelStyle.outline(bob)
-	var label := SeaChart.flat_label("START / ZIEL", 64, SeaChart.INK, false, true)
+	var label := SeaChart.flat_label(_label_text(), 64, SeaChart.INK, false, true)
 	label.position = Vector3(-22, 0.09, 7.0)
 	_vis.add_child(label)

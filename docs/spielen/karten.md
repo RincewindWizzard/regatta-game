@@ -53,6 +53,18 @@ Die Rinne zwischen den beiden Sandbänken ist durch rote und grüne Tonnen marki
 
 Sechs bewaldete Inseln. Die **Tankstelle** steht auf der Nordseite von Granholm (Mitte oben), die **Sirenen-Insel** mit dem gestrichelten Fangkreis liegt unten in der Mitte. Am linken Rand ein Leuchtturm und ein Wrack.
 
+## Kieler Förde
+
+![Karte Kieler Förde](../bilder/karte_08_kieler_foerde.png)
+
+Norden ist oben, die Förde ist nicht maßstabsgetreu gestaucht. **Unten rechts** liegt die
+Schwentinemündung (Start), **ganz unten** die Südspitze Hörn mit dem Kreuzfahrtterminal
+Ostseekai. Am Westufer (links) folgen von unten nach oben Düsternbrooker Hafen, Tirpitzmole,
+die NOK-Schleuse Holtenau (zwei Molen) und die Friedrichsorter Enge. In der Enge steht links der
+**Leuchtturm Friedrichsort**, gegenüber das **U-Boot-Ehrenmal Möltenort**; am oberen rechten Rand
+steht das **Marine-Ehrenmal Laboe**. Oben links liegt der Olympiahafen Schilksee mit der
+grünen **Ziellinie**. Die senkrechten magenta Pfeile in der Mitte sind der Schifffahrtsweg.
+
 ## Flussregatta
 
 ![Karte Flussregatta](../bilder/karte_07_flussregatta.png)

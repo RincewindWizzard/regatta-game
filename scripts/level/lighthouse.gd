@@ -5,7 +5,8 @@ extends Node3D
 ## Leuchtturm auf einer kleinen Felsklippe, mit drehendem Lichtkegel.
 ## Die Klippe ist Land – nicht dagegen segeln.
 
-enum Style { ROT_WEISS, SCHWARZ_WEISS, WEISS, GRUEN_WEISS }
+## EHRENMAL = rotbrauner Backsteinturm (Laboe), DENKMAL = grauer Stein (U-Boot-Ehrenmal)
+enum Style { ROT_WEISS, SCHWARZ_WEISS, WEISS, GRUEN_WEISS, EHRENMAL, DENKMAL }
 
 @export var style := Style.ROT_WEISS:
 	set(v):
@@ -101,6 +102,10 @@ func _rebuild() -> void:
 			bands = [Color(0.97, 0.97, 0.95)]
 		Style.GRUEN_WEISS:
 			bands = [Color(0.12, 0.5, 0.25), Color(0.97, 0.97, 0.95), Color(0.12, 0.5, 0.25)]
+		Style.EHRENMAL:
+			bands = [Color(0.55, 0.22, 0.16), Color(0.6, 0.26, 0.19), Color(0.55, 0.22, 0.16)]
+		Style.DENKMAL:
+			bands = [Color(0.62, 0.62, 0.6), Color(0.72, 0.72, 0.7)]
 	var tower := Node3D.new()
 	tower.position.y = 2.0
 	_vis.add_child(tower)
@@ -117,6 +122,7 @@ func _rebuild() -> void:
 	var name_label := SeaChart.flat_label(tower_name, 56, SeaChart.INK, true)
 	name_label.position = Vector3(0, 0.09, rock_radius + 9.0)
 	_vis.add_child(name_label)
-	var ch := SeaChart.flat_label(characteristic, 38, SeaChart.MAGENTA)
-	ch.position = Vector3(rock_radius + 16.0, 0.09, -8.0)
-	_vis.add_child(ch)
+	if characteristic != "":
+		var ch := SeaChart.flat_label(characteristic, 38, SeaChart.MAGENTA)
+		ch.position = Vector3(rock_radius + 16.0, 0.09, -8.0)
+		_vis.add_child(ch)

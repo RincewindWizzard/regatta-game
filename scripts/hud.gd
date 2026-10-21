@@ -201,6 +201,10 @@ func _draw_minimap(r: Rect2) -> void:
 	var ln := course.line
 	var half := ln.tangent2d() * ln.half_width
 	draw_line(to_map.call(ln.center2d() - half), to_map.call(ln.center2d() + half), INK, 1.5)
+	if course.finish_line != ln:
+		var fh := course.finish_line.tangent2d() * course.finish_line.half_width
+		var fc := course.finish_line.center2d()
+		draw_line(to_map.call(fc - fh), to_map.call(fc + fh), Color(0.1, 0.55, 0.25), 2.5)
 	for t in course.targets:
 		if t["type"] == "mark":
 			var mp: Vector2 = to_map.call(t["pos"])

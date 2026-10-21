@@ -146,7 +146,15 @@ func prepare_for_game() -> void:
 
 func start_line() -> StartLine:
 	for c in get_children():
-		if c is StartLine:
+		if c is StartLine and not c.finish_only:
+			return c
+	return null
+
+
+## Eigene Ziellinie (Strecke von A nach B) oder null: dann ist das Ziel die Startlinie
+func finish_line() -> StartLine:
+	for c in get_children():
+		if c is StartLine and c.finish_only:
 			return c
 	return null
 
@@ -288,6 +296,9 @@ func course_bounds(margin := 80.0) -> Rect2:
 		pts.append(sl.center2d())
 		pts.append(sl.start_position(0))
 		pts.append(sl.start_position(1))
+	var fl := finish_line()
+	if fl:
+		pts.append(fl.center2d())
 	for m in marks():
 		pts.append(m.pos2d())
 	if pts.is_empty():

@@ -16,6 +16,7 @@ func _initialize() -> void:
 	_augment("res://levels/06_schaerengarten.tscn", _extras_schaeren)
 	_save(_fluss(), "res://levels/07_flussregatta.tscn")
 	_augment("res://levels/07_flussregatta.tscn", _extras_fluss)
+	_save(_kiel(), "res://levels/08_kieler_foerde.tscn")
 	quit()
 
 
@@ -52,9 +53,10 @@ func _level(name: String, desc: String) -> Level:
 	return l
 
 
-func _line(l: Level, p: Vector2, rot_deg := 0.0, hw := 45.0) -> void:
+func _line(l: Level, p: Vector2, rot_deg := 0.0, hw := 45.0, finish := false) -> void:
 	var s := StartLine.new()
-	s.name = "StartZiel"
+	s.name = "Ziellinie" if finish else "StartZiel"
+	s.finish_only = finish
 	s.half_width = hw
 	s.position = Vector3(p.x, 0, p.y)
 	s.rotation.y = deg_to_rad(rot_deg)
@@ -111,11 +113,12 @@ func _sea(l: Level, node_name: String, kind: SeaMark.Kind, p: Vector2, label := 
 	l.add_child(m)
 
 
-func _mole(l: Level, node_name: String, center: Vector2, length: float, rot_deg: float, light: Mole.HeadLight, width := 9.0) -> void:
+func _mole(l: Level, node_name: String, center: Vector2, length: float, rot_deg: float, light: Mole.HeadLight, width := 9.0, label := "") -> void:
 	if _has(l, node_name):
 		return
 	var m := Mole.new()
 	m.name = node_name
+	m.mole_name = label
 	m.length = length
 	m.width = width
 	m.head_light = light
@@ -124,10 +127,11 @@ func _mole(l: Level, node_name: String, center: Vector2, length: float, rot_deg:
 	l.add_child(m)
 
 
-func _tower(l: Level, node_name: String, p: Vector2, tower_name: String, style: Lighthouse.Style, ch: String, h := 20.0) -> void:
+func _tower(l: Level, node_name: String, p: Vector2, tower_name: String, style: Lighthouse.Style, ch: String, h := 20.0, beam := true) -> void:
 	if _has(l, node_name):
 		return
 	var t := Lighthouse.new()
+	t.rotating_beam = beam
 	t.name = node_name
 	t.tower_name = tower_name
 	t.style = style
@@ -512,4 +516,67 @@ func _fluss() -> Level:
 	_mark(l, "Seetonne1", "Seetonne Nord", Vector2(30, -400), "Fl.Y.2s")
 	_mark(l, "Seetonne2", "Seetonne West", Vector2(-160, -290), "Fl(2)Y.6s")
 	_rose(l, Vector2(200, -180), 30)
+	return l
+
+
+## Kieler Förde (nicht maßstabsgetreu): von der Schwentinemündung im Südosten nach Norden bis zum
+## Olympiahafen Schilksee. Norden ist oben, Land liegt als große Ellipsen an beiden Ufern.
+func _kiel() -> Level:
+	var l := _level("Kieler Förde",
+		"Von der Schwentinemündung die Förde hinauf: Ostseekai, Düsternbrook, Tirpitzmole, NOK-Schleuse Holtenau, durch die Friedrichsorter Enge mit Leuchtturm (gegenüber das U-Boot-Ehrenmal) bis zum Olympiahafen Schilksee – mit Berufsschifffahrt in der Fahrrinne.")
+	l.wind_from_deg = 250.0
+	l.wind_speed = 6.5
+	l.wind_shift_deg = 14.0
+	l.gusts = 0.9
+	l.base_depth = 12.0
+	l.depth_variation = 4.0
+	l.seabed_seed = 2412
+	l.fuel_liters = 8.0
+	l.area_margin = 120.0
+	l.coast_east = false
+	l.coast_west = false
+	# Start in der Schwentinemündung (Pfeil nach Westen, hoch am Wind), Ziel vor dem Olympiahafen
+	_line(l, Vector2(450, 260), 90.0, 40.0)
+	_line(l, Vector2(-240, -770), 90.0, 22.0, true)
+	# Ostufer: Heikendorf/Laboe, Möltenort (Enge), Dietrichsdorf, Schwentine-Lücke, Wellingdorf
+	_island(l, "Heikendorf – Laboe", Vector2(600, -770), 250.0, "", 1.0, 1.0, 20, 6)
+	_island(l, "Möltenort", Vector2(340, -480), 100.0, "", 2.0, 1.0, 10, 4)
+	_island(l, "Dietrichsdorf", Vector2(590, -300), 250.0, "", 1.0, 1.0, 14, 10)
+	_island(l, "Neumühlen", Vector2(590, -40), 250.0, "", 1.0, 1.0, 8, 10)
+	_island(l, "Wellingdorf", Vector2(590, 560), 250.0, "", 1.0, 1.0, 8, 8)
+	# Westufer: Hörn (Südspitze), Düsternbrook, Wik mit Marine-Arsenal, Friedrichsort, Falkenstein/Schilksee
+	_island(l, "Hörn", Vector2(0, 560), 250.0, "", 2.6, 1.0, 6, 24)
+	_island(l, "Düsternbrook", Vector2(-550, 130), 250.0, "", 1.0, 1.0, 22, 14)
+	_island(l, "Westufer", Vector2(-560, -120), 250.0, "", 1.0, 1.0, 22, 8)
+	_island(l, "Marine-Arsenal Wik", Vector2(-560, -280), 250.0, "", 1.0, 1.0, 6, 12)
+	_island(l, "Friedrichsort", Vector2(-340, -480), 100.0, "", 2.0, 1.0, 8, 4)
+	_island(l, "Falkenstein – Schilksee", Vector2(-560, -780), 250.0, "", 1.0, 1.0, 22, 6)
+	# Wahrzeichen
+	_tower(l, "Leuchtturm_Friedrichsort", Vector2(-165, -480), "Leuchtturm Friedrichsort", Lighthouse.Style.ROT_WEISS, "Fl(2)WR.12s 20m 14M", 22.0)
+	_tower(l, "UBoot_Ehrenmal", Vector2(165, -480), "U-Boot-Ehrenmal Möltenort", Lighthouse.Style.DENKMAL, "", 14.0, false)
+	_tower(l, "Laboe_Ehrenmal", Vector2(340, -770), "Marine-Ehrenmal Laboe", Lighthouse.Style.EHRENMAL, "", 40.0, false)
+	_mole(l, "Ostseekai", Vector2(-230, 285), 70.0, 90.0, Mole.HeadLight.KEINES, 12.0, "Kreuzfahrtterminal Ostseekai")
+	_mole(l, "Duesternbrook_N", Vector2(-290, -85), 60.0, 0.0, Mole.HeadLight.ROT, 8.0, "Düsternbrooker Hafen")
+	_mole(l, "Duesternbrook_S", Vector2(-290, -25), 60.0, 0.0, Mole.HeadLight.GRUEN, 8.0)
+	_mole(l, "Tirpitzmole", Vector2(-285, -190), 100.0, 0.0, Mole.HeadLight.WEISS, 10.0, "Tirpitzmole")
+	_mole(l, "NOK_Nord", Vector2(-290, -350), 70.0, 0.0, Mole.HeadLight.ROT, 9.0, "NOK – Schleuse Holtenau")
+	_mole(l, "NOK_Sued", Vector2(-290, -300), 70.0, 0.0, Mole.HeadLight.GRUEN, 9.0)
+	_mole(l, "Olympiahafen_N", Vector2(-262, -800), 80.0, 0.0, Mole.HeadLight.ROT, 9.0, "Olympiahafen Schilksee")
+	_mole(l, "Olympiahafen_S", Vector2(-262, -740), 80.0, 0.0, Mole.HeadLight.GRUEN, 9.0)
+	_dock(l, "Anleger_Duesternbrook", Vector2(-336, 20), Vector2(1, 0), 36.0, "Hafen Düsternbrook")
+	_dock(l, "Anleger_Falkenstein", Vector2(-200, -545), Vector2(0, -1), 40.0, "Falkenstein Anleger")
+	# Bahnmarken
+	_mark(l, "Ostseekai_Tonne", "Ostseekai", Vector2(-150, 235), "Fl.Y.2s")
+	_mark(l, "Duesternbrook_Tonne", "Düsternbrook", Vector2(-190, -40), "Fl(2)Y.6s")
+	_mark(l, "Tirpitz_Tonne", "Tirpitzmole", Vector2(-190, -190), "Fl(3)Y.10s")
+	_mark(l, "NOK_Tonne", "NOK Holtenau", Vector2(-190, -325), "Fl.Y.2s")
+	_mark(l, "Enge_Tonne", "Friedrichsorter Enge", Vector2(-65, -480), "Fl(2)Y.6s")
+	_mark(l, "Falkenstein_Tonne", "Falkenstein", Vector2(-150, -660), "Fl(3)Y.10s")
+	# Berufsschifffahrt, Sperrgebiet, Tiere
+	_shipping(l, "Berufsschifffahrt", Vector2(0, 330), Vector2(0, -1), 1100.0, 150.0, 70.0, -30.0)
+	_restricted(l, "Marine_Sperrgebiet", RestrictedArea.Kind.POLIZEI, Vector2(-110, -250), 40.0, "Marine-Sperrgebiet")
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(-120, 300), 8, 50.0)
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(120, -640), 3, 40.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(290, 120), 4, 15.0)
+	_rose(l, Vector2(180, 60), 34)
 	return l

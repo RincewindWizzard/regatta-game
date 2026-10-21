@@ -10,6 +10,7 @@ const MARK_RADIUS := CourseMark.MARK_RADIUS
 
 var level: Level
 var line: StartLine
+var finish_line: StartLine     ## eigene Ziellinie oder die Startlinie
 ## Regattagebiet: draußen wird man zurückgedrängt
 var area := Rect2(-640, -840, 1280, 1280)
 ## Reihenfolge: Startlinie, Tonnen ..., Ziel
@@ -21,10 +22,13 @@ func setup(p_level: Level) -> void:
 	line = level.start_line()
 	area = level.race_area()
 	targets.clear()
-	targets.append({"type": "line", "name": "Startlinie", "pos": line.center2d(), "dir": 1})
+	var own_finish := level.finish_line()
+	finish_line = own_finish if own_finish else line
+	targets.append({"type": "line", "name": "Startlinie", "pos": line.center2d(), "dir": 1, "line": line})
 	for m in level.marks():
 		targets.append({"type": "mark", "name": m.mark_name, "pos": m.pos2d()})
-	targets.append({"type": "line", "name": "Ziel", "pos": line.center2d(), "dir": -1})
+	# eigene Ziellinie: in Pfeilrichtung überqueren; sonst die Startlinie rückwärts
+	targets.append({"type": "line", "name": "Ziel", "pos": finish_line.center2d(), "dir": 1 if own_finish else -1, "line": finish_line})
 
 
 func target_pos(i: int) -> Vector2:
@@ -55,7 +59,8 @@ static func course_length(lvl: Level) -> float:
 	var pts: Array[Vector2] = [sl.center2d()]
 	for m in lvl.marks():
 		pts.append(m.pos2d())
-	pts.append(sl.center2d())
+	var fl := lvl.finish_line()
+	pts.append(fl.center2d() if fl else sl.center2d())
 	var total := 0.0
 	for i in pts.size() - 1:
 		total += pts[i].distance_to(pts[i + 1])
@@ -71,10 +76,11 @@ func update_progress(boat: Boat, prev: Vector2, cur: Vector2) -> void:
 	if t["type"] == "mark":
 		reached = cur.distance_to(t["pos"]) < MARK_RADIUS
 	else:
-		var a := line.signed_dist(prev)
-		var b := line.signed_dist(cur)
+		var tl: StartLine = t.get("line", line)
+		var a := tl.signed_dist(prev)
+		var b := tl.signed_dist(cur)
 		var crossed := (a < 0.0 and b >= 0.0) if int(t["dir"]) > 0 else (a > 0.0 and b <= 0.0)
-		reached = crossed and line.within(cur)
+		reached = crossed and tl.within(cur)
 	if not reached:
 		return
 	boat.next_target += 1

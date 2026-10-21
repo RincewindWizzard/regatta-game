@@ -334,7 +334,7 @@ func _target_point(p: Vector2) -> Vector2:
 	var t: Dictionary = course.targets[idx]
 	if t["type"] == "mark":
 		return t["pos"]
-	var line := course.line
+	var line: StartLine = t.get("line", course.line)
 	var n := line.normal2d()
 	var tan := line.tangent2d()
 	var lat := clampf((p - line.center2d()).dot(tan), -line.half_width * 0.55, line.half_width * 0.55)
