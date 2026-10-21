@@ -34,6 +34,17 @@ static var running := false
 	set(v):
 		lane_offset = v
 		_rebuild()
+## Knick im Weg: nach bend_at Metern dreht der Weg um bend_deg (positiv = nach rechts, negativ =
+## nach links). So kann ein Schifffahrtsweg z. B. aus einer Kanalmündung seitlich ausfahren und
+## dann der Förde folgen. 0 = geradeaus.
+@export_range(0.0, 1500.0, 10.0, "suffix:m") var bend_at := 0.0:
+	set(v):
+		bend_at = v
+		_rebuild()
+@export_range(-120.0, 120.0, 1.0, "degrees") var bend_deg := 0.0:
+	set(v):
+		bend_deg = v
+		_rebuild()
 @export_range(30.0, 160.0, 5.0, "suffix:m") var ship_length := 80.0
 @export_range(6.0, 30.0, 1.0, "suffix:m") var beam := 16.0
 @export var lane_name := "Berufsschifffahrt":
@@ -61,8 +72,35 @@ func lane_start() -> Vector2:
 
 
 func lane_end() -> Vector2:
-	var g := global_transform * Vector3(0, 0, -length)
-	return Vector2(g.x, g.z)
+	return _pose(length, 0.0)[0]
+
+
+## Stützpunkte der Mittellinie in Weltkoordinaten: Start, ggf. Knick, Ende
+func polyline() -> Array:
+	var pts: Array = [lane_start()]
+	if bend_at > 0.0 and bend_at < length and absf(bend_deg) > 0.5:
+		pts.append(_pose(bend_at, 0.0)[0])
+	pts.append(lane_end())
+	return pts
+
+
+## Lage auf dem Weg: [Weltposition, Fahrtrichtung] bei Wegstrecke along und Seitenversatz side.
+## Um den Knick herum dreht sich die Richtung weich (über 120 m), damit die Schiffe nicht springen.
+func _pose(along: float, side: float) -> Array:
+	var center := Vector2(0.0, -along)
+	var h := 0.0
+	if bend_at > 0.0 and absf(bend_deg) > 0.5:
+		var a := deg_to_rad(bend_deg)
+		if along > bend_at:
+			var seg := Vector2(sin(a), -cos(a))
+			center = Vector2(0.0, -bend_at) + seg * (along - bend_at)
+		h = a * smoothstep(bend_at - 60.0, bend_at + 60.0, along)
+	var dir_l := Vector2(sin(h), -cos(h))
+	var side_l := Vector2(cos(h), sin(h))
+	var local := center + side_l * side
+	var g := global_transform * Vector3(local.x, 0, local.y)
+	var f := global_basis * Vector3(dir_l.x, 0, dir_l.y)
+	return [Vector2(g.x, g.z), Vector2(f.x, f.z).normalized()]
 
 
 ## Alle Schiffe zum Zeitpunkt t: [{id, pos, dir, vel, length, beam, name, type}]
@@ -80,11 +118,10 @@ func ships_at(t: float) -> Array:
 			var c := speed * (t - (phase + k * interval)) - ship_length * 0.5   # Schiffsmitte entlang der Bahn
 			var along := c if dir_i == 0 else length - c
 			var side := lane_offset if dir_i == 0 else -lane_offset          # rechts fahren
-			var g := global_transform * Vector3(side, 0, -along)
-			var f := -global_basis.z
-			var dir := Vector2(f.x, f.z).normalized() * (1.0 if dir_i == 0 else -1.0)
+			var pose := _pose(along, side)
+			var dir: Vector2 = pose[1] * (1.0 if dir_i == 0 else -1.0)
 			var id := k * 2 + dir_i
-			out.append({"id": id, "pos": Vector2(g.x, g.z), "dir": dir, "vel": dir * speed,
+			out.append({"id": id, "pos": pose[0], "dir": dir, "vel": dir * speed,
 				"length": ship_length, "beam": beam,
 				"name": NAMES[posmod(id, NAMES.size())], "type": posmod(id, 3)})
 	if _ships_cache.size() > 24:
@@ -168,11 +205,11 @@ func _rebuild() -> void:
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for dir_i in 2:
 		var side := lane_offset if dir_i == 0 else -lane_offset
-		var dz := -1.0 if dir_i == 0 else 1.0                      # Fahrtrichtung entlang lokal z
+		var sgn := 1.0 if dir_i == 0 else -1.0                    # Fahrtrichtung entlang der Wegstrecke
 		var z := 60.0
 		while z < length - 40.0:
-			var a := _to_world(Vector2(side, -z + 14.0 * dz))          # Pfeilspitze
-			var tail := _to_world(Vector2(side, -z - 14.0 * dz))
+			var a: Vector2 = _pose(z + 14.0 * sgn, side)[0]          # Pfeilspitze
+			var tail: Vector2 = _pose(z - 14.0 * sgn, side)[0]
 			SeaChart.add_line(st, tail, a, 1.1, 0.1)
 			var f := (a - tail).normalized()
 			var n := Vector2(-f.y, f.x)
@@ -180,7 +217,7 @@ func _rebuild() -> void:
 			z += 130.0
 	_vis.add_child(SeaChart.mesh_from(st, Color(SeaChart.MAGENTA, 0.7)))
 	var lab := SeaChart.flat_label(lane_name, 50, SeaChart.MAGENTA, true, true)
-	var lp := _to_world(Vector2(lane_offset + 38.0, -length * 0.5))
+	var lp: Vector2 = _pose(length * 0.5, lane_offset + 38.0)[0]
 	lab.position = Vector3(lp.x, 0.1, lp.y)
 	lab.rotation = Vector3(-PI / 2, -global_rotation.y + PI * 0.5, 0)
 	_vis.add_child(lab)

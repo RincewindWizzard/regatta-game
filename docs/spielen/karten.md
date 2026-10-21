@@ -57,13 +57,13 @@ Sechs bewaldete Inseln. Die **Tankstelle** steht auf der Nordseite von Granholm 
 
 ![Karte Kieler Förde](../bilder/karte_08_kieler_foerde.png)
 
-Norden ist oben, die Förde ist nicht maßstabsgetreu gestaucht. **Unten rechts** liegt die
+Norden ist oben, die Förde ist nicht maßstabsgetreu, folgt aber dem Verlauf: schmale Südspitze Hörn, leicht nach Nordnordost geneigt, Enge bei Friedrichsort, offen zur Ostsee. **Unten rechts** liegt die
 Schwentinemündung (Start), **ganz unten** die Südspitze Hörn mit dem Kreuzfahrtterminal
 Ostseekai. Am Westufer (links) folgen von unten nach oben Düsternbrooker Hafen, Tirpitzmole,
 die NOK-Schleuse Holtenau (zwei Molen) und die Friedrichsorter Enge. In der Enge steht links der
 **Leuchtturm Friedrichsort**, gegenüber das **U-Boot-Ehrenmal Möltenort**; am oberen rechten Rand
 steht das **Marine-Ehrenmal Laboe**. Oben links liegt der Olympiahafen Schilksee mit der
-grünen **Ziellinie**. Die senkrechten magenta Pfeile in der Mitte sind der Schifffahrtsweg.
+grünen **Ziellinie**. Die magenta Pfeile zeigen den Schifffahrtsweg: Er beginnt an der NOK-Schleuse Holtenau, quert die Förde zur Enge und läuft dann nach Norden zur Ostsee.
 
 ## Flussregatta
 

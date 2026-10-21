@@ -226,7 +226,9 @@ func map_bounds(margin := 80.0) -> Rect2:
 func lane_lines() -> Array:
 	var out: Array = []
 	for l in shipping_lanes():
-		out.append({"a": l.lane_start(), "b": l.lane_end(), "name": l.lane_name})
+		var pts: Array = l.polyline()
+		for i in pts.size() - 1:
+			out.append({"a": pts[i], "b": pts[i + 1], "name": l.lane_name})
 	return out
 
 

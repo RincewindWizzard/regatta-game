@@ -15,18 +15,19 @@ nach [Eigene Bahnen bauen](../referenz/bahnen-bauen.md).
 | 5 | Lotsenrinne | `05_lotsenrinne.tscn` | Kreuzen im betonnten Fahrwasser zwischen zwei Sandbänken, Ebbstrom, **Berufsschifffahrt** (Frachter, Tanker, Containerschiffe), ein Wrack auf der Westerbank |
 | 6 | Schärengarten | `06_schaerengarten.tscn` | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind, **Tankstelle auf Granholm** im Norden, **Sirenen-Insel** im Süden |
 | 7 | Flussregatta | `07_flussregatta.tscn` | Binnenrevier: den Mühlenfluss gegen den Strom hinauf in den Großen See und zurück, **Vogelschutzgebiet** mit Polizeikontrolle |
-| 8 | Kieler Förde | `08_kieler_foerde.tscn` | **Strecke von A nach B** (nicht maßstabsgetreu): Start in der Schwentinemündung, Ziel vor dem Olympiahafen Schilksee. Ostseekai, Düsternbrook, Tirpitzmole, NOK-Schleuse Holtenau, **Friedrichsorter Enge** mit Leuchtturm, U-Boot-Ehrenmal und Marine-Ehrenmal Laboe; **Berufsschifffahrt** in der Fahrrinne, Marine-Sperrgebiet, zwei Tankstellen |
+| 8 | Kieler Förde | `08_kieler_foerde.tscn` | **Strecke von A nach B** (nicht maßstabsgetreu): Start in der Schwentinemündung, Ziel vor dem Olympiahafen Schilksee. Ostseekai, Düsternbrook, Tirpitzmole, NOK-Schleuse Holtenau, **Friedrichsorter Enge** mit Leuchtturm, U-Boot-Ehrenmal und Marine-Ehrenmal Laboe; **Berufsschifffahrt** zwischen NOK und Ostsee, Marine-Sperrgebiet, zwei Tankstellen |
 
 ## Tipps pro Bahn
 
-**Kieler Förde.** Der Start liegt im schmalen Fluss Schwentine ganz im Südosten, der Wind kommt
-aus Westsüdwest: Die ersten Meter geht es also hoch am Wind aus dem Fluss. Dann führt die
+**Kieler Förde.** Der Start liegt im schmalen Fluss Schwentine ganz im Südosten, es herrscht
+**knackiger Westwind** (rund 10 m/s, 20 kn, böig): Die ersten Meter geht es also hoch am Wind aus dem Fluss. Dann führt die
 Strecke die Förde nach Norden: **Ostseekai** (Kreuzfahrtterminal am Hörn, unten links) →
 **Düsternbrook** (Hafen mit zwei Molen) → **Tirpitzmole** → **NOK Holtenau** (Schleusenmolen) →
 **Friedrichsorter Enge** (links der Leuchtturm, rechts das U-Boot-Ehrenmal) → **Falkenstein**
-und zum Schluss durch die Molen des **Olympiahafens Schilksee**, wo die Ziellinie liegt. Mitten
-in der Förde fahren Frachter, Tanker und Containerschiffe hin und her: In der Enge ist es am
-engsten, ein Zusammenstoß mit einem Schiff scheidet aus. Das Marine-Sperrgebiet vor dem
+und zum Schluss durch die Molen des **Olympiahafens Schilksee**, wo die Ziellinie liegt. Frachter,
+Tanker und Containerschiffe fahren zwischen dem **Nord-Ostsee-Kanal** (sie kommen aus der
+Schleuse Holtenau, queren die Förde und folgen ihr durch die Enge hinaus auf die Ostsee) und
+zurück: In der Enge ist es am engsten, ein Zusammenstoß mit einem Schiff scheidet aus. Das Marine-Sperrgebiet vor dem
 Arsenal ist tabu (Polizeikontrolle). Getankt werden kann am Hafen Düsternbrook und am
 Falkenstein Anleger.
 

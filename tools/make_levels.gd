@@ -210,10 +210,12 @@ func _restricted(l: Level, node_name: String, kind: RestrictedArea.Kind, p: Vect
 
 
 ## Schifffahrtsweg: Berufsschiffe fahren ab p in Richtung dir (Weltachse), length Meter lang
-func _shipping(l: Level, node_name: String, p: Vector2, dir: Vector2, length: float, interval := 140.0, phase_out := 60.0, phase_back := -40.0, offset := 22.0) -> void:
+func _shipping(l: Level, node_name: String, p: Vector2, dir: Vector2, length: float, interval := 140.0, phase_out := 60.0, phase_back := -40.0, offset := 22.0, bend_at := 0.0, bend_deg := 0.0) -> void:
 	if _has(l, node_name):
 		return
 	var s := ShippingLane.new()
+	s.bend_at = bend_at
+	s.bend_deg = bend_deg
 	s.name = node_name
 	s.length = length
 	s.interval = interval
@@ -519,64 +521,128 @@ func _fluss() -> Level:
 	return l
 
 
-## Kieler Förde (nicht maßstabsgetreu): von der Schwentinemündung im Südosten nach Norden bis zum
-## Olympiahafen Schilksee. Norden ist oben, Land liegt als große Ellipsen an beiden Ufern.
+## Kieler Förde (nicht maßstabsgetreu): Die Fördeachse läuft von der Südspitze Hörn nach Nordnordost
+## (um etwa 20° nach rechts geneigt), schmal am Hörn, breit bei Düsternbrook/Wik, eng an der
+## Friedrichsorter Enge, weit offen zur Kieler Bucht. Land entsteht aus Ketten großer Kreise.
+const KIEL_C0 := Vector2(-200, 340)      ## Achse bei s = 0 (Hörn)
+const KIEL_C1 := Vector2(200, -780)      ## Achse bei s = 1 (Mündung)
+const KIEL_W := [[0.0, 170.0], [0.08, 330.0], [0.2, 560.0], [0.38, 620.0], [0.5, 540.0], [0.57, 330.0],
+	[0.62, 250.0], [0.68, 330.0], [0.8, 600.0], [1.0, 760.0]]
+
+
+func _kc(s: float) -> Vector2:
+	return KIEL_C0.lerp(KIEL_C1, s)
+
+
+func _kd() -> Vector2:
+	return (KIEL_C1 - KIEL_C0).normalized()
+
+
+func _kn() -> Vector2:
+	var d := _kd()
+	return Vector2(-d.y, d.x)                ## zeigt nach Osten
+
+
+func _kw(s: float) -> float:
+	for i in KIEL_W.size() - 1:
+		var a: Array = KIEL_W[i]
+		var b: Array = KIEL_W[i + 1]
+		if s <= float(b[0]):
+			return lerpf(float(a[1]), float(b[1]), (s - float(a[0])) / (float(b[0]) - float(a[0])))
+	return float(KIEL_W[KIEL_W.size() - 1][1])
+
+
+## Punkt bei Achsenanteil s und Querabstand o (Meter, Osten positiv)
+func _kp(s: float, o: float) -> Vector2:
+	return _kc(s) + _kn() * o
+
+
+## Drehwinkel (Grad), damit der lokale -Z-Pfeil in Richtung v zeigt
+func _arrow_deg(v: Vector2) -> float:
+	return rad_to_deg(atan2(-v.x, -v.y))
+
+
 func _kiel() -> Level:
 	var l := _level("Kieler Förde",
-		"Von der Schwentinemündung die Förde hinauf: Ostseekai, Düsternbrook, Tirpitzmole, NOK-Schleuse Holtenau, durch die Friedrichsorter Enge mit Leuchtturm (gegenüber das U-Boot-Ehrenmal) bis zum Olympiahafen Schilksee – mit Berufsschifffahrt in der Fahrrinne.")
-	l.wind_from_deg = 250.0
-	l.wind_speed = 6.5
-	l.wind_shift_deg = 14.0
-	l.gusts = 0.9
+		"Von der Schwentinemündung die Förde hinauf, bei knackigem Westwind: Ostseekai am Hörn, Düsternbrook, Tirpitzmole, NOK-Schleuse Holtenau, durch die Friedrichsorter Enge mit Leuchtturm (gegenüber das U-Boot-Ehrenmal) bis zum Olympiahafen Schilksee – mit Berufsschifffahrt in der Fahrrinne.")
+	l.wind_from_deg = 270.0
+	l.wind_speed = 10.5
+	l.wind_shift_deg = 12.0
+	l.gusts = 1.3
 	l.base_depth = 12.0
 	l.depth_variation = 4.0
 	l.seabed_seed = 2412
 	l.fuel_liters = 8.0
-	l.area_margin = 120.0
+	l.area_margin = 110.0
 	l.coast_east = false
 	l.coast_west = false
-	# Start in der Schwentinemündung (Pfeil nach Westen, hoch am Wind), Ziel vor dem Olympiahafen
-	_line(l, Vector2(450, 260), 90.0, 40.0)
-	_line(l, Vector2(-190, -770), 90.0, 22.0, true)
-	# Ostufer: Heikendorf/Laboe, Möltenort (Enge), Dietrichsdorf, Schwentine-Lücke, Wellingdorf
-	_island(l, "Heikendorf – Laboe", Vector2(600, -770), 250.0, "", 1.0, 1.0, 20, 6)
-	_island(l, "Möltenort", Vector2(340, -480), 100.0, "", 2.0, 1.0, 10, 4)
-	_island(l, "Dietrichsdorf", Vector2(590, -300), 250.0, "", 1.0, 1.0, 14, 10)
-	_island(l, "Neumühlen", Vector2(590, -40), 250.0, "", 1.0, 1.0, 8, 10)
-	_island(l, "Wellingdorf", Vector2(590, 560), 250.0, "", 1.0, 1.0, 8, 8)
-	# Westufer: Hörn (Südspitze), Düsternbrook, Wik mit Marine-Arsenal, Friedrichsort, Falkenstein/Schilksee
-	_island(l, "Hörn", Vector2(0, 560), 250.0, "", 2.6, 1.0, 6, 24)
-	_island(l, "Düsternbrook", Vector2(-550, 130), 250.0, "", 1.0, 1.0, 22, 14)
-	_island(l, "Westufer", Vector2(-560, -120), 250.0, "", 1.0, 1.0, 22, 8)
-	_island(l, "Marine-Arsenal Wik", Vector2(-560, -280), 250.0, "", 1.0, 1.0, 6, 12)
-	_island(l, "Friedrichsort", Vector2(-340, -480), 100.0, "", 2.0, 1.0, 8, 4)
-	_island(l, "Falkenstein – Schilksee", Vector2(-560, -780), 250.0, "", 1.0, 1.0, 22, 6)
+	var d := _kd()
+	var n := _kn()
+	# Südspitze Hörn schließt die Förde
+	_island(l, "Hörn", _kc(0.0) - d * 215.0, 250.0, "", 1.0, 1.0, 6, 24)
+	# Westufer (Kette von Kreisen); Namen von Süd nach Nord
+	var west := ["Kiel Hbf – Hörn West", "Düsternbrook", "Düsternbrook Nord", "Wik", "Marine-Arsenal Wik", "Holtenau", "Friedrichsort", "Falkenstein", "Schilksee", "Bülk"]
+	var wi := 0
+	var s := 0.05
+	while s <= 1.02:
+		var o := -(_kw(s) * 0.5 + 170.0)
+		_island(l, west[mini(wi, west.size() - 1)], _kp(s, o), 190.0, "", 1.0, 1.0, 14, 8)
+		wi += 1
+		s += 0.125
+	# Ostufer: Lücke für die Schwentine zwischen Wellingdorf (Süd) und Neumühlen (Nord)
+	_island(l, "Wellingdorf", _kp(0.04, _kw(0.04) * 0.5 + 95.0), 105.0, "", 1.0, 1.0, 6, 8)
+	_island(l, "Neumühlen", _kp(0.30, _kw(0.30) * 0.5 + 95.0), 105.0, "", 1.0, 1.0, 6, 8)
+	_island(l, "Schwentine-Hinterland", _kp(0.17, _kw(0.17) * 0.5 + 480.0), 300.0, "", 1.0, 1.0, 10, 6)
+	var east := ["Dietrichsdorf", "Dietrichsdorf Nord", "Möltenort", "Heikendorf", "Heikendorf Nord", "Laboe", "Laboe Nord"]
+	var ei := 0
+	s = 0.40
+	while s <= 1.02:
+		var o2 := _kw(s) * 0.5 + 170.0
+		_island(l, east[mini(ei, east.size() - 1)], _kp(s, o2), 190.0, "", 1.0, 1.0, 14, 6)
+		ei += 1
+		s += 0.1
+	# Start in der Schwentine (Pfeil nach Westen, hoch am Wind), Ziel vor dem Olympiahafen Schilksee
+	var sg := _kp(0.17, _kw(0.17) * 0.5 - 25.0)
+	_line(l, sg, _arrow_deg(-n), 40.0)
+	var fin := _kp(0.93, -_kw(0.93) * 0.5 + 150.0)
+	_line(l, fin, _arrow_deg(-n), 22.0, true)
 	# Wahrzeichen
-	_tower(l, "Leuchtturm_Friedrichsort", Vector2(-165, -480), "Leuchtturm Friedrichsort", Lighthouse.Style.ROT_WEISS, "Fl(2)WR.12s 20m 14M", 22.0)
-	_tower(l, "UBoot_Ehrenmal", Vector2(165, -480), "U-Boot-Ehrenmal Möltenort", Lighthouse.Style.DENKMAL, "", 14.0, false)
-	_tower(l, "Laboe_Ehrenmal", Vector2(340, -770), "Marine-Ehrenmal Laboe", Lighthouse.Style.EHRENMAL, "", 40.0, false)
-	_mole(l, "Ostseekai", Vector2(-230, 285), 70.0, 90.0, Mole.HeadLight.KEINES, 12.0, "Kreuzfahrtterminal Ostseekai")
-	_mole(l, "Duesternbrook_N", Vector2(-290, -85), 60.0, 0.0, Mole.HeadLight.ROT, 8.0, "Düsternbrooker Hafen")
-	_mole(l, "Duesternbrook_S", Vector2(-290, -25), 60.0, 0.0, Mole.HeadLight.GRUEN, 8.0)
-	_mole(l, "Tirpitzmole", Vector2(-285, -190), 100.0, 0.0, Mole.HeadLight.WEISS, 10.0, "Tirpitzmole")
-	_mole(l, "NOK_Nord", Vector2(-290, -350), 70.0, 0.0, Mole.HeadLight.ROT, 9.0, "NOK – Schleuse Holtenau")
-	_mole(l, "NOK_Sued", Vector2(-290, -300), 70.0, 0.0, Mole.HeadLight.GRUEN, 9.0)
-	_mole(l, "Olympiahafen_N", Vector2(-215, -800), 80.0, 0.0, Mole.HeadLight.ROT, 9.0, "Olympiahafen Schilksee")
-	_mole(l, "Olympiahafen_S", Vector2(-215, -740), 80.0, 0.0, Mole.HeadLight.GRUEN, 9.0)
-	_dock(l, "Anleger_Duesternbrook", Vector2(-336, 20), Vector2(1, 0), 36.0, "Hafen Düsternbrook")
-	_dock(l, "Anleger_Falkenstein", Vector2(-200, -545), Vector2(0, -1), 40.0, "Falkenstein Anleger")
+	_tower(l, "Leuchtturm_Friedrichsort", _kp(0.62, -_kw(0.62) * 0.5 - 20.0), "Leuchtturm Friedrichsort", Lighthouse.Style.ROT_WEISS, "Fl(2)WR.12s 20m 14M", 22.0)
+	_tower(l, "UBoot_Ehrenmal", _kp(0.62, _kw(0.62) * 0.5 + 35.0), "U-Boot-Ehrenmal Möltenort", Lighthouse.Style.DENKMAL, "", 14.0, false)
+	_tower(l, "Laboe_Ehrenmal", _kp(0.90, _kw(0.90) * 0.5 + 15.0), "Marine-Ehrenmal Laboe", Lighthouse.Style.EHRENMAL, "", 40.0, false)
+	var mrot := rad_to_deg(atan2(-n.y, n.x))        # lokale X-Achse zeigt nach Osten (Molen ragen ins Wasser)
+	_mole(l, "Ostseekai", _kp(0.04, -_kw(0.04) * 0.5 + 20.0), 70.0, mrot, Mole.HeadLight.KEINES, 12.0, "Kreuzfahrtterminal Ostseekai")
+	var dn := _kp(0.30, -_kw(0.30) * 0.5 + 25.0)
+	_mole(l, "Duesternbrook_N", dn - d * 30.0, 60.0, mrot, Mole.HeadLight.ROT, 8.0, "Düsternbrooker Hafen")
+	_mole(l, "Duesternbrook_S", dn + d * 30.0, 60.0, mrot, Mole.HeadLight.GRUEN, 8.0)
+	_mole(l, "Tirpitzmole", _kp(0.44, -_kw(0.44) * 0.5 + 40.0), 100.0, mrot, Mole.HeadLight.WEISS, 10.0, "Tirpitzmole")
+	var nk := _kp(0.54, -_kw(0.54) * 0.5 + 30.0)
+	_mole(l, "NOK_Nord", nk - d * 28.0, 70.0, mrot, Mole.HeadLight.ROT, 9.0, "NOK – Schleuse Holtenau")
+	_mole(l, "NOK_Sued", nk + d * 28.0, 70.0, mrot, Mole.HeadLight.GRUEN, 9.0)
+	var oh := _kp(0.93, -_kw(0.93) * 0.5 + 60.0)
+	_mole(l, "Olympiahafen_N", oh - d * 35.0, 80.0, mrot, Mole.HeadLight.ROT, 9.0, "Olympiahafen Schilksee")
+	_mole(l, "Olympiahafen_S", oh + d * 35.0, 80.0, mrot, Mole.HeadLight.GRUEN, 9.0)
+	_dock(l, "Anleger_Duesternbrook", _kp(0.22, -_kw(0.22) * 0.5 + 5.0), n, 80.0, "Hafen Düsternbrook")
+	_dock(l, "Anleger_Falkenstein", _kp(0.80, -_kw(0.80) * 0.5 + 5.0), n, 105.0, "Falkenstein Anleger")
 	# Bahnmarken
-	_mark(l, "Ostseekai_Tonne", "Ostseekai", Vector2(-150, 235), "Fl.Y.2s")
-	_mark(l, "Duesternbrook_Tonne", "Düsternbrook", Vector2(-190, -40), "Fl(2)Y.6s")
-	_mark(l, "Tirpitz_Tonne", "Tirpitzmole", Vector2(-190, -190), "Fl(3)Y.10s")
-	_mark(l, "NOK_Tonne", "NOK Holtenau", Vector2(-190, -325), "Fl.Y.2s")
-	_mark(l, "Enge_Tonne", "Friedrichsorter Enge", Vector2(-65, -480), "Fl(2)Y.6s")
-	_mark(l, "Falkenstein_Tonne", "Falkenstein", Vector2(-150, -660), "Fl(3)Y.10s")
+	_mark(l, "Ostseekai_Tonne", "Ostseekai", _kp(0.07, -20.0), "Fl.Y.2s")
+	_mark(l, "Duesternbrook_Tonne", "Düsternbrook", _kp(0.28, -_kw(0.28) * 0.5 + 130.0), "Fl(2)Y.6s")
+	_mark(l, "Tirpitz_Tonne", "Tirpitzmole", _kp(0.44, -_kw(0.44) * 0.5 + 150.0), "Fl(3)Y.10s")
+	_mark(l, "NOK_Tonne", "NOK Holtenau", _kp(0.54, -_kw(0.54) * 0.5 + 130.0), "Fl.Y.2s")
+	_mark(l, "Enge_Tonne", "Friedrichsorter Enge", _kp(0.62, -60.0), "Fl(2)Y.6s")
+	_mark(l, "Falkenstein_Tonne", "Falkenstein", _kp(0.78, -_kw(0.78) * 0.5 + 150.0), "Fl(3)Y.10s")
 	# Berufsschifffahrt, Sperrgebiet, Tiere
-	_shipping(l, "Berufsschifffahrt", Vector2(0, 330), Vector2(0, -1), 1100.0, 150.0, 70.0, -30.0)
-	_restricted(l, "Marine_Sperrgebiet", RestrictedArea.Kind.POLIZEI, Vector2(-110, -250), 40.0, "Marine-Sperrgebiet")
-	_life(l, "Moewen", SeaLife.Kind.MOEWEN, Vector2(-120, 300), 8, 50.0)
-	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, Vector2(120, -640), 3, 40.0)
-	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, Vector2(290, 120), 4, 15.0)
-	_rose(l, Vector2(180, 60), 34)
+	# Berufsschifffahrt zwischen Nord-Ostsee-Kanal (Schleuse Holtenau) und Ostsee: aus der Kanalmündung
+	# am Westufer quer über die Förde in die Enge, dann geradeaus nach Norden
+	var s0 := _kp(0.545, -_kw(0.545) * 0.5 + 40.0) - n * 60.0
+	var s1 := _kp(0.62, 0.0)
+	var f := (s1 - s0).normalized()
+	var turn := rad_to_deg(acos(clampf(f.dot(d), -1.0, 1.0))) * signf(d.dot(Vector2(-f.y, f.x)))
+	var leg := s0.distance_to(s1)
+	_shipping(l, "Berufsschifffahrt", s0, f, leg + 620.0, 150.0, 70.0, -30.0, 22.0, leg, turn)
+	_restricted(l, "Marine_Sperrgebiet", RestrictedArea.Kind.POLIZEI, _kp(0.47, -_kw(0.47) * 0.5 + 90.0), 40.0, "Marine-Sperrgebiet")
+	_life(l, "Moewen", SeaLife.Kind.MOEWEN, _kp(0.04, 0.0), 8, 50.0)
+	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, _kp(0.9, 60.0), 3, 40.0)
+	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, _kp(0.3, _kw(0.3) * 0.5 - 40.0), 4, 15.0)
+	_rose(l, _kp(0.35, 130.0), 34)
 	return l

@@ -160,6 +160,12 @@ sucht den Punkt knapp außerhalb des Radius, bevorzugt in Richtung des Bootes.
 Bei Unfällen unterscheidet `hold_case` die Ansagen (0 Sperrgebiet, 1 Verursacher, 2 Beteiligter),
 `hold_total` speichert die Dauer.
 
+**Knick im Weg.** Mit `bend_at` (Meter ab Start) und `bend_deg` (positiv = nach rechts) bekommt ein
+Schifffahrtsweg einen Knick. `_pose(along, side)` rechnet die Lage auf dem Weg aus (Mittellinie mit
+Seitenversatz, die Richtung dreht sich über 120 m weich), `ships_at`, die Pfeile auf der Karte und
+`polyline()` für die Minikarte nutzen sie. In der Kieler Förde fahren die Schiffe so aus der
+NOK-Mündung quer über die Förde und dann nach Norden.
+
 ## `ship_model.gd` { #ship-model-gd }
 
 `class_name ShipModel`, `@tool`. Die Berufsschiffe entstehen **zuerst in Blender** und werden erst
