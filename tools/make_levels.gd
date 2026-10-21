@@ -537,7 +537,7 @@ func _kiel() -> Level:
 	l.coast_west = false
 	# Start in der Schwentinemündung (Pfeil nach Westen, hoch am Wind), Ziel vor dem Olympiahafen
 	_line(l, Vector2(450, 260), 90.0, 40.0)
-	_line(l, Vector2(-240, -770), 90.0, 22.0, true)
+	_line(l, Vector2(-190, -770), 90.0, 22.0, true)
 	# Ostufer: Heikendorf/Laboe, Möltenort (Enge), Dietrichsdorf, Schwentine-Lücke, Wellingdorf
 	_island(l, "Heikendorf – Laboe", Vector2(600, -770), 250.0, "", 1.0, 1.0, 20, 6)
 	_island(l, "Möltenort", Vector2(340, -480), 100.0, "", 2.0, 1.0, 10, 4)
@@ -561,8 +561,8 @@ func _kiel() -> Level:
 	_mole(l, "Tirpitzmole", Vector2(-285, -190), 100.0, 0.0, Mole.HeadLight.WEISS, 10.0, "Tirpitzmole")
 	_mole(l, "NOK_Nord", Vector2(-290, -350), 70.0, 0.0, Mole.HeadLight.ROT, 9.0, "NOK – Schleuse Holtenau")
 	_mole(l, "NOK_Sued", Vector2(-290, -300), 70.0, 0.0, Mole.HeadLight.GRUEN, 9.0)
-	_mole(l, "Olympiahafen_N", Vector2(-262, -800), 80.0, 0.0, Mole.HeadLight.ROT, 9.0, "Olympiahafen Schilksee")
-	_mole(l, "Olympiahafen_S", Vector2(-262, -740), 80.0, 0.0, Mole.HeadLight.GRUEN, 9.0)
+	_mole(l, "Olympiahafen_N", Vector2(-215, -800), 80.0, 0.0, Mole.HeadLight.ROT, 9.0, "Olympiahafen Schilksee")
+	_mole(l, "Olympiahafen_S", Vector2(-215, -740), 80.0, 0.0, Mole.HeadLight.GRUEN, 9.0)
 	_dock(l, "Anleger_Duesternbrook", Vector2(-336, 20), Vector2(1, 0), 36.0, "Hafen Düsternbrook")
 	_dock(l, "Anleger_Falkenstein", Vector2(-200, -545), Vector2(0, -1), 40.0, "Falkenstein Anleger")
 	# Bahnmarken

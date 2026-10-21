@@ -27,6 +27,10 @@ func _process(_d: float) -> bool:
 		var pts := {"Linienmitte": line.center2d()}
 		for i in 4:
 			pts["Startplatz %d" % (i + 1)] = line.start_position(i)
+		var fin := l.finish_line()
+		if fin:
+			pts["Ziellinie"] = fin.center2d()
+			pts["Ziel-Anlaufpunkt"] = fin.center2d() + fin.normal2d() * 30.0
 		for m in l.marks():
 			pts[m.mark_name] = m.pos2d()
 		for k in pts:
