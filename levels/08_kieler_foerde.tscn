@@ -11,7 +11,7 @@
 [ext_resource type="Script" path="res://scripts/level/sea_life.gd" id="9_0a4b1"]
 [ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="10_7gns2"]
 
-[node name="Level" type="Node3D" unique_id=1623033609]
+[node name="Level" type="Node3D" unique_id=448638693]
 script = ExtResource("1_8bwn8")
 level_name = "Kieler Förde"
 description = "Nach der Seekarte: Von der Schwentinemündung die Förde hinauf, bei knackigem Westwind – Ostseekai am Hörn, Düsternbrook, Tirpitzmole, NOK-Schleuse Holtenau, durch die Friedrichsorter Enge mit Leuchtturm und U-Boot-Ehrenmal, am Marine-Ehrenmal Laboe vorbei bis zum Olympiahafen Schilksee. Berufsschiffe fahren zwischen Kanal und Ostsee."
@@ -27,39 +27,39 @@ coast_east = false
 coast_west = false
 depth_paint_png = PackedByteArray()
 
-[node name="StartZiel" type="Node3D" parent="." unique_id=1662072499]
+[node name="StartZiel" type="Node3D" parent="." unique_id=995948638]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -277.4, 0, 125.1)
 script = ExtResource("2_dfisw")
 half_width = 22.0
 
-[node name="Ziellinie" type="Node3D" parent="." unique_id=1461089904]
+[node name="Ziellinie" type="Node3D" parent="." unique_id=1893051256]
 transform = Transform3D(-0.51449573, 0, 0.8574929, 0, 1, 0, -0.8574929, 0, -0.51449573, -143.03789, 0, -740.29724)
 script = ExtResource("2_dfisw")
 half_width = 24.0
 finish_only = true
 
-[node name="Olympiahafen_N" type="Node3D" parent="." unique_id=699610877]
+[node name="Olympiahafen_N" type="Node3D" parent="." unique_id=146770152]
 transform = Transform3D(0.8574929, 0, 0.5144958, 0, 1, 0, -0.5144958, 0, 0.8574929, -141.6659, 0, -699.13763)
 script = ExtResource("3_m2evc")
 length = 80.0
 width = 8.0
 mole_name = "Olympiahafen Schilksee"
 
-[node name="Olympiahafen_S" type="Node3D" parent="." unique_id=402916081]
+[node name="Olympiahafen_S" type="Node3D" parent="." unique_id=570512687]
 transform = Transform3D(0.8574929, 0, 0.5144958, 0, 1, 0, -0.5144958, 0, 0.8574929, -178.7096, 0, -760.87714)
 script = ExtResource("3_m2evc")
 length = 80.0
 width = 8.0
 head_light = 2
 
-[node name="Leuchtturm_Friedrichsort" type="Node3D" parent="." unique_id=1060259516]
+[node name="Leuchtturm_Friedrichsort" type="Node3D" parent="." unique_id=1387549193]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -139.9, 0, -469.8)
 script = ExtResource("4_1c2h2")
 tower_height = 22.0
 tower_name = "Leuchtturm Friedrichsort"
 characteristic = "Dir.Iso.WRG.4s 32m 7M"
 
-[node name="UBoot_Ehrenmal" type="Node3D" parent="." unique_id=1463318419]
+[node name="UBoot_Ehrenmal" type="Node3D" parent="." unique_id=1562901183]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -132.1, 0, -351.9)
 script = ExtResource("4_1c2h2")
 style = 5
@@ -68,7 +68,7 @@ tower_name = "U-Boot-Ehrenmal Möltenort"
 characteristic = ""
 rotating_beam = false
 
-[node name="Laboe_Ehrenmal" type="Node3D" parent="." unique_id=1460098600]
+[node name="Laboe_Ehrenmal" type="Node3D" parent="." unique_id=296240976]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.1, 0, -686.1)
 script = ExtResource("4_1c2h2")
 style = 4
@@ -77,7 +77,7 @@ tower_name = "Marine-Ehrenmal Laboe (72 m)"
 characteristic = ""
 rotating_beam = false
 
-[node name="Ostseekai" type="Node3D" parent="." unique_id=364641329]
+[node name="Ostseekai" type="Node3D" parent="." unique_id=1422262181]
 transform = Transform3D(0.9363292, 0, -0.35112345, 0, 1, 0, 0.35112345, 0, 0.9363292, -436.59177, 0, 205.8781)
 script = ExtResource("3_m2evc")
 length = 60.0
@@ -85,133 +85,133 @@ width = 12.0
 head_light = 0
 mole_name = "Kreuzfahrtterminal Ostseekai"
 
-[node name="Duesternbrook_N" type="Node3D" parent="." unique_id=1274025438]
+[node name="Duesternbrook_N" type="Node3D" parent="." unique_id=860226881]
 transform = Transform3D(0.47409984, 0, -0.8804711, 0, 1, 0, 0.8804711, 0, 0.47409984, -399.625, 0, 73.2372)
 script = ExtResource("3_m2evc")
 length = 55.0
 width = 7.0
 mole_name = "Düsternbrooker Hafen"
 
-[node name="Duesternbrook_S" type="Node3D" parent="." unique_id=1559099967]
+[node name="Duesternbrook_S" type="Node3D" parent="." unique_id=1567078928]
 transform = Transform3D(0.47409984, 0, -0.8804711, 0, 1, 0, 0.8804711, 0, 0.47409984, -353.8405, 0, 48.584003)
 script = ExtResource("3_m2evc")
 length = 55.0
 width = 7.0
 head_light = 2
 
-[node name="Tirpitzmole" type="Node3D" parent="." unique_id=292656255]
+[node name="Tirpitzmole" type="Node3D" parent="." unique_id=950631841]
 transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -398.78677, 0, -86.113205)
 script = ExtResource("3_m2evc")
 length = 70.0
 head_light = 3
 mole_name = "Tirpitzmole"
 
-[node name="NOK_Nord" type="Node3D" parent="." unique_id=1971277744]
+[node name="NOK_Nord" type="Node3D" parent="." unique_id=1008488961]
 transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -370.35178, 0, -176.10709)
 script = ExtResource("3_m2evc")
 length = 60.0
 width = 8.0
 mole_name = "NOK – Schleuse Holtenau"
 
-[node name="NOK_Sued" type="Node3D" parent="." unique_id=641665251]
+[node name="NOK_Sued" type="Node3D" parent="." unique_id=1633041720]
 transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -404.29288, 0, -210.04822)
 script = ExtResource("3_m2evc")
 length = 60.0
 width = 8.0
 head_light = 2
 
-[node name="Anleger_Duesternbrook" type="Node3D" parent="." unique_id=1760349857]
+[node name="Anleger_Duesternbrook" type="Node3D" parent="." unique_id=1283115345]
 transform = Transform3D(0.5734623, 0, -0.8192319, 0, 1, 0, 0.8192319, 0, 0.5734623, -392.3154, 0, 8.540774)
 script = ExtResource("5_6mbi3")
 length = 64.0
 dock_name = "Hafen Düsternbrook"
 
-[node name="Anleger_Falkenstein" type="Node3D" parent="." unique_id=1237714176]
+[node name="Anleger_Falkenstein" type="Node3D" parent="." unique_id=963368502]
 transform = Transform3D(-0.3713906, 0, -0.9284767, 0, 1, 0, 0.9284767, 0, -0.3713906, -179.07086, 0, -555.12836)
 script = ExtResource("5_6mbi3")
 length = 44.0
 dock_name = "Falkenstein Anleger"
 
-[node name="Ostseekai_Tonne" type="Node3D" parent="." unique_id=503656012]
+[node name="Ostseekai_Tonne" type="Node3D" parent="." unique_id=855506226]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -408, 0, 173.1)
 script = ExtResource("6_lcxbo")
 mark_name = "Ostseekai"
 light = "Fl.Y.2s"
 
-[node name="Duesternbrook_Tonne" type="Node3D" parent="." unique_id=697814814]
+[node name="Duesternbrook_Tonne" type="Node3D" parent="." unique_id=1758153065]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -347.4, 0, 97.1)
 script = ExtResource("6_lcxbo")
 mark_name = "Düsternbrook"
 light = "Fl(2)Y.6s"
 
-[node name="Tirpitz_Tonne" type="Node3D" parent="." unique_id=176344150]
+[node name="Tirpitz_Tonne" type="Node3D" parent="." unique_id=143819082]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -358, 0, -102.9)
 script = ExtResource("6_lcxbo")
 mark_name = "Tirpitzmole"
 light = "Fl(3)Y.10s"
 
-[node name="NOK_Tonne" type="Node3D" parent="." unique_id=1851325131]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -370, 0, -197.4)
+[node name="NOK_Tonne" type="Node3D" parent="." unique_id=1439171056]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -319, 0, -192.9)
 script = ExtResource("6_lcxbo")
 mark_name = "NOK Holtenau"
 light = "Fl.Y.2s"
 
-[node name="Enge_Tonne" type="Node3D" parent="." unique_id=1571220916]
+[node name="Enge_Tonne" type="Node3D" parent="." unique_id=1149006129]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58, 0, -480)
 script = ExtResource("6_lcxbo")
 mark_name = "Friedrichsorter Enge"
 light = "Fl(2)Y.6s"
 
-[node name="Falkenstein_Tonne" type="Node3D" parent="." unique_id=1686796518]
+[node name="Falkenstein_Tonne" type="Node3D" parent="." unique_id=2118526019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -121, 0, -544.9)
 script = ExtResource("6_lcxbo")
 mark_name = "Falkenstein"
 light = "Fl(3)Y.10s"
 
-[node name="Laboe_Tonne" type="Node3D" parent="." unique_id=2101126043]
+[node name="Laboe_Tonne" type="Node3D" parent="." unique_id=1943134210]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -668.9)
 script = ExtResource("6_lcxbo")
 mark_name = "Laboe"
 light = "Fl(3)Y.10s"
 
-[node name="Berufsschifffahrt" type="Node3D" parent="." unique_id=1710080149]
+[node name="Berufsschifffahrt" type="Node3D" parent="." unique_id=1359147832]
 transform = Transform3D(0.6573918, 0, -0.753549, 0, 1, 0, 0.753549, 0, 0.6573918, -468.63962, 0, -111.76038)
 script = ExtResource("7_lhxdr")
 length = 892.0483093261719
-interval = 150.0
+interval = 210.0
 phase_out = 70.0
-phase_back = -30.0
+phase_back = -60.0
 lane_offset = 14.0
 bend_at = 544.9408
 bend_deg = -46.917544777594216
 ship_length = 55.0
 beam = 11.0
 
-[node name="Marine_Sperrgebiet" type="Node3D" parent="." unique_id=337295668]
+[node name="Marine_Sperrgebiet" type="Node3D" parent="." unique_id=1692328664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -360, 0, 173.1)
 script = ExtResource("8_3a704")
 kind = 1
 area_name = "Marine-Sperrgebiet"
 radius = 28.0
 
-[node name="Moewen" type="Node3D" parent="." unique_id=1091166766]
+[node name="Moewen" type="Node3D" parent="." unique_id=146827846]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -415, 0, 218.1)
 script = ExtResource("9_0a4b1")
 kind = 2
 count = 8
 
-[node name="Tuemmler" type="Node3D" parent="." unique_id=1116055407]
+[node name="Tuemmler" type="Node3D" parent="." unique_id=2069129803]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -100, 0, -771.9)
 script = ExtResource("9_0a4b1")
 
-[node name="Seehunde" type="Node3D" parent="." unique_id=1100041656]
+[node name="Seehunde" type="Node3D" parent="." unique_id=1047710207]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -711.9)
 script = ExtResource("9_0a4b1")
 kind = 3
 count = 4
 range_m = 15.0
 
-[node name="Kompassrose" type="Node3D" parent="." unique_id=1306095905]
+[node name="Kompassrose" type="Node3D" parent="." unique_id=2068084390]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 0, -666.9)
 script = ExtResource("10_7gns2")
 radius = 34.0

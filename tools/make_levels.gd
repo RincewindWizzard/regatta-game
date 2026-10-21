@@ -679,7 +679,7 @@ func _kiel() -> Level:
 	_mark(l, "Ostseekai_Tonne", "Ostseekai", _kwater(_chart(1180, 6300)), "Fl.Y.2s")
 	_mark(l, "Duesternbrook_Tonne", "Düsternbrook", _kwater(_chart(1342, 5860), 9.0), "Fl(2)Y.6s")
 	_mark(l, "Tirpitz_Tonne", "Tirpitzmole", _kwater(_chart(1440, 5380), 9.0), "Fl(3)Y.10s")
-	_mark(l, "NOK_Tonne", "NOK Holtenau", _kwater(_chart(1400, 5065), 9.0), "Fl.Y.2s")
+	_mark(l, "NOK_Tonne", "NOK Holtenau", _kwater(_chart(1570, 5080), 9.0), "Fl.Y.2s")
 	_mark(l, "Enge_Tonne", "Friedrichsorter Enge", Vector2(-58, -480), "Fl(2)Y.6s")        # Fahrwasser östlich der Landzunge Friedrichsort
 	_mark(l, "Falkenstein_Tonne", "Falkenstein", _kwater(_chart(2150, 3880), 9.0), "Fl(3)Y.10s")
 	_mark(l, "Laboe_Tonne", "Laboe", _kwater(_chart(2690, 3560), 9.0), "Fl(3)Y.10s")
@@ -692,7 +692,7 @@ func _kiel() -> Level:
 	var f2 := (s2 - s1).normalized()
 	var turn := rad_to_deg(acos(clampf(f.dot(f2), -1.0, 1.0))) * signf(f2.dot(Vector2(-f.y, f.x)))
 	var leg := s0.distance_to(s1)
-	_shipping(l, "Berufsschifffahrt", s0, f, leg + s1.distance_to(s2), 150.0, 70.0, -30.0, 14.0, leg, turn)
+	_shipping(l, "Berufsschifffahrt", s0, f, leg + s1.distance_to(s2), 210.0, 70.0, -60.0, 14.0, leg, turn)
 	var lane := l.get_node("Berufsschifffahrt") as ShippingLane
 	lane.ship_length = 55.0
 	lane.beam = 11.0
