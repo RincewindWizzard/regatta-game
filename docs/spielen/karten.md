@@ -58,8 +58,8 @@ Sechs bewaldete Inseln. Die **Tankstelle** steht auf der Nordseite von Granholm 
 ![Karte Kieler Förde](../bilder/karte_08_kieler_foerde.png)
 
 Küste und Wassertiefe stammen aus der echten Seekarte „Kieler Förde“ (Nautic Publications S2,
-1 : 40 000), etwa 1 : 11 gestaucht und mit 28 m verbreiterten Wasserwegen, damit sie spielbar
-sind. Norden ist oben. **Unten links** liegt die Südspitze Hörn mit dem Kreuzfahrtterminal
+1 : 40 000), etwa 1 : 11 gestaucht. Die Küste der Karte bleibt erhalten, nur zu schmale Stellen (die
+Enge, Kanäle, die Südspitze) sind um bis zu 26 m verbreitert, damit sie spielbar sind. Norden ist oben. **Unten links** liegt die Südspitze Hörn mit dem Kreuzfahrtterminal
 Ostseekai, daneben im Osten die **Schwentinemündung** mit dem Marine-Arsenal (Start). Am Westufer
 folgen von unten nach oben Düsternbrooker Hafen, Tirpitzmole und die **NOK-Schleuse Holtenau**
 mit dem Kanal, der nach links aus der Karte läuft. Dann kommt die **Friedrichsorter Enge**: von

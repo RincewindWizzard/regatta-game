@@ -63,12 +63,27 @@ w = water[yy, xx]
 outside = (ys[:, None] >= H) | (xs[None, :] >= W) | (ys[:, None] < 0) | (xs[None, :] < 0)
 w = np.where(outside, False, w)
 
-# Wasserwege verbreitern: Land um "erode" Meter zurückziehen
+# Nur zu schmale Wasserwege verbreitern (Enge, Kanäle), breite Buchten behalten die Küste der Karte:
+# Was beim Öffnen mit einer Scheibe von min_width Durchmesser verschwindet, ist zu schmal.
+e = cfg.get("erode", 0.0)
+min_w = cfg.get("min_width", 70.0)
+def disk(r_cells):
+    r = int(round(r_cells))
+    yy, xx = np.mgrid[-r:r + 1, -r:r + 1]
+    return (xx * xx + yy * yy) <= r * r
+if e > 0.0:
+    wide = ndi.binary_opening(w, structure=disk(min_w * 0.5 / cell))
+    narrow = w & ~wide
+    nl, nn = ndi.label(narrow)
+    if nn:
+        sizes = ndi.sum(np.ones_like(nl), nl, index=np.arange(1, nn + 1))
+        keep = np.isin(nl, [i + 1 for i, sz in enumerate(sizes) if sz > 350])
+    else:
+        keep = narrow
+    w = w | (ndi.binary_dilation(keep, structure=disk(e / cell)) & ~w & ndi.binary_dilation(w, structure=disk(e / cell)))
 dist_land = ndi.distance_transform_edt(w) * cell        # Abstand zum Land (Wasserzellen)
 dist_water = ndi.distance_transform_edt(~w) * cell      # Abstand zum Wasser (Landzellen)
-e = cfg.get("erode", 0.0)
-sd = np.where(w, dist_land + e, -(dist_water - e))      # vorzeichenbehaftet: + Wasser, - Land
-sd = np.where(~w & (dist_water <= e), np.abs(dist_water - e) * 0 + (e - dist_water), sd)
+sd = np.where(w, dist_land, -dist_water)                # vorzeichenbehaftet: + Wasser, - Land
 slope = cfg.get("slope", 0.1)                           # Meter Tiefe je Meter Abstand
 depth = -0.8 + sd * slope
 depth = np.clip(depth, -8.0, cfg.get("max_depth", 14.0))

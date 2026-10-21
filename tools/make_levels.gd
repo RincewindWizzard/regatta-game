@@ -543,22 +543,25 @@ func _kdepth(p: Vector2) -> float:
 	return -8.0 + _kd_img.get_pixel(i, j).r * 255.0 * 0.1
 
 
-## nächster Wasserpunkt mit mindestens min_d Meter Tiefe
+## nächster Wasserpunkt mit möglichst min_d Meter Tiefe (sonst mit weniger, bis 2,6 m)
 func _kwater(p: Vector2, min_d := 7.0, rad := 140.0) -> Vector2:
-	var best := p
-	var bd := INF
-	var r := -rad
-	while r <= rad:
-		var c := -rad
-		while c <= rad:
-			var q := p + Vector2(c, r)
-			var dd := q.distance_to(p)
-			if dd < bd and _kdepth(q) >= min_d:
-				bd = dd
-				best = q
-			c += 4.0
-		r += 4.0
-	return best
+	for want in [min_d, minf(min_d, 6.0), 4.0, 2.6]:
+		var best := p
+		var bd := INF
+		var r := -rad
+		while r <= rad:
+			var c := -rad
+			while c <= rad:
+				var q := p + Vector2(c, r)
+				var dd := q.distance_to(p)
+				if dd < bd and _kdepth(q) >= want:
+					bd = dd
+					best = q
+				c += 4.0
+			r += 4.0
+		if bd < INF:
+			return best
+	return p
 
 
 ## nächster Küstenpunkt (Land, Tiefe unter -0,8) zu p
@@ -579,12 +582,14 @@ func _kshore(p: Vector2, rad := 150.0) -> Vector2:
 	return best
 
 
-## Richtung vom Ufer ins Wasser (Gradient der Tiefe)
+## Richtung vom Ufer ins Wasser: zum nächsten tiefen Wasser (Tiefe >= 6 m)
 func _kout(shore: Vector2) -> Vector2:
-	var g0 := Vector2(_kdepth(shore + Vector2(6, 0)) - _kdepth(shore - Vector2(6, 0)), _kdepth(shore + Vector2(0, 6)) - _kdepth(shore - Vector2(0, 6))).normalized()
-	var q := shore + g0 * 16.0
-	var g := Vector2(_kdepth(q + Vector2(8, 0)) - _kdepth(q - Vector2(8, 0)), _kdepth(q + Vector2(0, 8)) - _kdepth(q - Vector2(0, 8)))
-	return g.normalized() if g.length() > 0.01 else g0
+	var deep := _kwater(shore, 6.0, 120.0)
+	var v := deep - shore
+	if v.length() > 1.0:
+		return v.normalized()
+	var g := Vector2(_kdepth(shore + Vector2(8, 0)) - _kdepth(shore - Vector2(8, 0)), _kdepth(shore + Vector2(0, 8)) - _kdepth(shore - Vector2(0, 8)))
+	return g.normalized() if g.length() > 0.01 else Vector2(1, 0)
 
 
 ## Drehwinkel (Grad), damit der lokale -Z-Pfeil in Richtung v zeigt
@@ -666,14 +671,14 @@ func _kiel() -> Level:
 	var nok_t := Vector2(-nok_out.y, nok_out.x)
 	_mole(l, "NOK_Nord", nok - nok_out * 5.0 + nok_t * 24.0 + nok_out * 30.0, 60.0, _x_deg(nok_out), Mole.HeadLight.ROT, 8.0, "NOK – Schleuse Holtenau")
 	_mole(l, "NOK_Sued", nok - nok_out * 5.0 - nok_t * 24.0 + nok_out * 30.0, 60.0, _x_deg(nok_out), Mole.HeadLight.GRUEN, 8.0)
-	var dd := _kshore(_chart(1342, 5800))
-	_dock(l, "Anleger_Duesternbrook", dd - _kout(dd) * 6.0, _kout(dd), 44.0, "Hafen Düsternbrook")
+	var dd := _kshore(_chart(1342, 5740))
+	_dock(l, "Anleger_Duesternbrook", dd - _kout(dd) * 6.0, _kout(dd), 64.0, "Hafen Düsternbrook")
 	var fd := _kshore(_chart(2055, 3880))
 	_dock(l, "Anleger_Falkenstein", fd - _kout(fd) * 6.0, _kout(fd), 44.0, "Falkenstein Anleger")
 	# Bahnmarken
 	_mark(l, "Ostseekai_Tonne", "Ostseekai", _kwater(_chart(1180, 6300)), "Fl.Y.2s")
 	_mark(l, "Duesternbrook_Tonne", "Düsternbrook", _kwater(_chart(1342, 5860), 9.0), "Fl(2)Y.6s")
-	_mark(l, "Tirpitz_Tonne", "Tirpitzmole", _kwater(_chart(1330, 5388), 9.0), "Fl(3)Y.10s")
+	_mark(l, "Tirpitz_Tonne", "Tirpitzmole", _kwater(_chart(1440, 5380), 9.0), "Fl(3)Y.10s")
 	_mark(l, "NOK_Tonne", "NOK Holtenau", _kwater(_chart(1400, 5065), 9.0), "Fl.Y.2s")
 	_mark(l, "Enge_Tonne", "Friedrichsorter Enge", Vector2(-58, -480), "Fl(2)Y.6s")        # Fahrwasser östlich der Landzunge Friedrichsort
 	_mark(l, "Falkenstein_Tonne", "Falkenstein", _kwater(_chart(2150, 3880), 9.0), "Fl(3)Y.10s")
