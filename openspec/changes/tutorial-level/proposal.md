@@ -18,10 +18,11 @@ bringt die Grundlagen sofort und mit Rückmeldung bei.
   3. Raumschots
   4. Vorwind
   5. Vollkreis
-  6. Achten
+  6. Achten (um zwei Regattatonnen)
   7. Aufschießer an der Tonne
   8. Mann-über-Bord-Manöver (Person im Wasser retten)
 - Konstanter Wind ohne Böen und Dreher, kein Motor, damit die Übungen reproduzierbar sind.
+- Für die Achten stehen zwei Regattatonnen im Übungsgebiet; die Acht wird eng um sie gesegelt.
 - Nach der letzten Aufgabe erscheint eine Abschlussmeldung mit der benötigten Zeit; Neustart und
   Abbruch (Menü) bleiben möglich, auch mit dem Controller.
 - Doku und README beschreiben das Tutorial.

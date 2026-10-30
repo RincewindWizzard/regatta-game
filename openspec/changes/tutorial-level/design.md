@@ -38,9 +38,12 @@ ihn überschreiben (`wind_choice`, `gust_choice`, `fuel_choice`). Das Boot liefe
    Vorwind 165°–180°.
 4. **Kreise über aufsummierte Kursänderung.** Pro Schritt wird `angle_difference` des Kurses
    aufsummiert (nur bei Fahrt > 0,8 m/s); ein Richtungswechsel um mehr als ca. 0,6 rad gegen die
-   bisherige Drehrichtung setzt die Summe zurück. Vollkreis bei ≥ 340°; die Acht verlangt danach
-   einen zweiten Kreis in Gegenrichtung innerhalb von 120 s (Summe nach dem ersten Kreis bleibt
-   erhalten, die Gegenrichtung zählt neu).
+   bisherige Drehrichtung setzt die Summe zurück. Der Vollkreis ist frei (≥ 340°, ohne Tonne).
+   Die Acht zählt die Kursänderung nur, solange das Boot höchstens 45 m von der aktuellen
+   Zieltonne entfernt ist (sonst Summe zurück und Hinweis mit der Entfernung); nach dem ersten
+   Kreis (≥ 340°) wechselt das Ziel auf die zweite Tonne und die Drehrichtung muss sich umkehren;
+   dafür bleiben 120 s. Die zwei Regattatonnen sind einfache gelbe Tonnen ohne Kollision, damit man
+   sie eng umkreisen kann.
 5. **Aufschießer an einer `CourseMark`-ähnlichen Übungstonne** (gelbe Tonne ohne Rundungslogik,
    keine Kollision, damit man „an“ der Tonne stehen kann). Erst wenn das Boot mit ≥ 1,5 m/s aus
    > 25 m Entfernung kam („angelaufen“), zählt das Stehenbleiben (< 0,5 m/s, ≤ 8 m, Bug ≤ 45° neben
@@ -60,7 +63,9 @@ ihn überschreiben (`wind_choice`, `gust_choice`, `fuel_choice`). Das Boot liefe
    vorhanden). Keine neuen Tasten.
 10. **Level-Erzeugung** in `tools/make_levels.gd` (`_segelschule`): offenes Wasser 14 m tief, Wind
     aus 0° mit 5 m/s, `wind_shift_deg = 0`, `gusts = 0`, `fuel_liters = 0`, große Übungsfläche mit
-    magenta Grenze, Startplatz in der Mitte, Übungstonne etwa 150 m vor dem Start, dazu ein paar
+    magenta Grenze, Startplatz in der Mitte, zwei Regattatonnen für die Acht bei (−35, −90) und (35, −90) relativ zum
+    Start (70 m auseinander, quer zum Wind), Übungstonne für den Aufschießer etwa 150 m vor dem
+    Start getrennt davon, dazu ein paar
     Kardinaltonnen als Kulisse. Eine Windfahne/Pfeil zeigt die Windrichtung (vorhanden).
 
 Annahmen (kein Rückfragebedarf): Windrichtung Nord, 5 m/s; Toleranzen und Haltedauer wie oben; die

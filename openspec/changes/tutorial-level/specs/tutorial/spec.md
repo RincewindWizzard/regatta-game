@@ -60,15 +60,19 @@ Das Spiel SHALL die Aufgabe Vollkreis als gelöst werten, wenn der Spieler mit F
 - **THEN** gilt der Vollkreis als gelöst
 
 ### Requirement: Achten
-Das Spiel SHALL die Aufgabe Achten als gelöst werten, wenn der Spieler nach einem Kreis von mindestens 340° in eine Richtung unmittelbar (innerhalb von 120 Sekunden) einen Kreis von mindestens 340° in die Gegenrichtung fährt. Die Anleitung SHALL die zuerst verlangte Drehrichtung nennen.
+Das Tutorial SHALL für die Aufgabe Achten zwei Regattatonnen (etwa 70 m auseinander, quer zum Wind) im Übungsgebiet zeigen. Das Spiel SHALL die Aufgabe als gelöst werten, wenn der Spieler zuerst die eine Tonne mit mindestens 340° zusammenhängender Drehung in einer Richtung umrundet, dabei innerhalb von 45 m um diese Tonne bleibt, und danach innerhalb von 120 Sekunden die andere Tonne ebenso in die Gegenrichtung umrundet. Die Anleitung SHALL nennen, mit welcher Tonne und in welcher Drehrichtung begonnen wird.
 
-#### Scenario: Acht gesegelt
-- **WHEN** der Spieler erst einen Vollkreis und innerhalb von 120 Sekunden einen Vollkreis in die andere Richtung fährt
+#### Scenario: Acht um zwei Tonnen gesegelt
+- **WHEN** der Spieler erst die eine Tonne in einer Richtung und innerhalb von 120 Sekunden die andere Tonne in der Gegenrichtung jeweils vollständig umrundet
 - **THEN** gilt die Acht als gelöst
 
+#### Scenario: Kreis fern der Tonnen
+- **WHEN** der Spieler einen Vollkreis weiter als 45 m von der aktuellen Zieltonne fährt
+- **THEN** zählt die Drehung nicht und der Hinweis nennt die Entfernung zur Tonne
+
 #### Scenario: Zu lange Pause
-- **WHEN** nach dem ersten Kreis mehr als 120 Sekunden vergehen
-- **THEN** beginnt die Aufgabe Achten von vorn
+- **WHEN** nach der ersten Tonne mehr als 120 Sekunden vergehen
+- **THEN** beginnt die Aufgabe Achten von vorn mit der ersten Tonne
 
 ### Requirement: Aufschießer an der Tonne
 Das Spiel SHALL eine Übungstonne anzeigen und die Aufgabe Aufschießer als gelöst werten, wenn der Spieler die Tonne mit Fahrt (mindestens 1,5 m/s aus mehr als 25 m Entfernung) anläuft und dann höchstens 8 m von ihr entfernt mit weniger als 0,5 m/s Fahrt zum Stehen kommt, mit dem Bug höchstens 45° neben dem Wind.
