@@ -9,22 +9,25 @@ rechenbar sein.
 
 ## Goals / Non-Goals
 
-**Goals:** exakte Küstenform per Polygon; Boot/KI/Wind/Karte nutzen sie; Editor-Bearbeitung ohne
+**Goals:** exakte Küstenform per Bézier-Umriss; klare Vorrangregel „Raster = Grundlage, Spezifischeres gewinnt“; Boot/KI/Wind/Karte nutzen sie; Editor-Bearbeitung ohne
 neues Fremdwerkzeug; grobere Tiefenzellen einstellbar; bestehende Level unverändert.
 
-**Non-Goals:** keine Bézier-Kurven (Polygone mit vielen Punkten genügen), keine echte 3D-Küstengeometrie,
+**Non-Goals:** keine echte 3D-Küstengeometrie,
 keine Höhen (Land bleibt flach), kein Import von GIS-Formaten außer SVG.
 
 ## Decisions
 
-1. **Eckpunkte als `Marker3D`-Kinder.** `LandShape` (Node3D, `@tool`) liest die Position seiner
-   `Marker3D`-Kinder (x, z, in Reihenfolge der Kinder) als Polygon. Verschieben, Duplizieren und
-   Löschen geht mit den Bordmitteln des Godot-Editors, ohne eigenes Gizmo. Der Umriss wird im Editor
-   als Linie gezeichnet. Mindestens 3 Punkte, selbstüberschneidende Polygone werden mit `even-odd`
-   ausgewertet und im Editor mit einer Warnung (`_get_configuration_warnings`) markiert.
-2. **Felder:** `kind` (LAND | WASSER), `shore_slope` (Meter Grundanstieg pro Meter, Standard wie bei
-   Inseln, 0,22 → 1 m Tiefe auf ≈ 4,5 m), `shore_rocks`/`trees`/`houses` entfallen im ersten Schritt
-   (Deko kann man über vorhandene Bausteine setzen).
+1. **`LandShape extends Path3D`.** Der Umriss ist die `Curve3D` des Pfades (x/z; y ignoriert):
+   Punkte mit `in`/`out`-Griffen ergeben Bézier-Kurven, Punkte ohne Griffe Ecken. Der Pfad-Editor
+   von Godot (Punkte setzen, Griffe ziehen, „Kurve schließen“) wird ohne eigenes Gizmo genutzt.
+   Die Kurve wird mit `tessellate_even_length` in eine Linie aus Strecken von höchstens 0,5 m zerlegt
+   (Abweichung von der echten Kurve < 0,05 m); der Umriss gilt als geschlossen (letzter Punkt →
+   erster Punkt, bei Kurve schließen ohne Lücke). Für `depth_at` wird die zerlegte Linie einmal
+   zwischengespeichert und neu gebildet, wenn sich die Kurve ändert (`Curve3D.changed`).
+   Selbstüberschneidung wird mit `even-odd` ausgewertet und als Editor-Warnung angezeigt.
+2. **Felder:** `kind` (LAND | WASSER), `shore_slope` (m Grundanstieg pro m Abstand, Standard 0,22),
+   `zone` (Breite des Gebiets um den Umriss, in dem die Form maßgeblich ist, Standard 60 m).
+   Deko (Bäume, Häuser, Felsen) entfällt im ersten Schritt.
 3. **Tiefenfunktion exakt.** `LandShape.depth_profile(p)` liefert: im Polygon (Art Land)
    `LAND − Abstand_zur_Kante · 0,5`; außerhalb `LAND + Abstand · shore_slope · 1,0`, gedeckelt auf
    die Reichweite. Die Kante selbst ist exakt `LAND`. Art Wasser gräbt: im Polygon Tiefe der
@@ -49,8 +52,28 @@ keine Höhen (Land bleibt flach), kein Import von GIS-Formaten außer SVG.
    bleiben unverändert grob.
 7. **Küsten mischen.** Zufallsküsten (`coast_east/west`) und Tiefenbild bleiben; bei `LandShape`
    auf einer Küstenlinie gewinnt das Polygon (Land per `minf`, Wasser hebt Land nur im Polygon auf).
-8. **SVG-Werkzeug.** `tools/svg_to_land.py` liest `<polygon>`/`<path>` (M/L/Z, Kurven werden in
-   Linien zerlegt), skaliert auf `map_size`, schreibt eine `.tscn` mit `LandShape` + `Marker3D`-Kindern.
+8. **SVG-Werkzeug.** `tools/svg_to_land.py` liest `<polygon>`/`<path>` (M/L/C/S/Q/Z, Bogen wird in Kurven
+   genähert), übernimmt Kurven als Bézier-Griffe, skaliert auf `map_size` und schreibt eine `.tscn` mit
+   `LandShape`-Knoten und `Curve3D`.
+
+## Vorrang: Raster ist Grundlage
+
+Die Tiefe an einem Punkt wird in Schichten bestimmt, spätere Schichten gewinnen:
+
+1. **Grundlage** (nur wo nichts Genaueres bekannt ist): Zufallsgrund oder Tiefenbild, Pinsel,
+   Zufallsküste (`coast_east/west`).
+2. **Spezifische Formen** in Szenenreihenfolge: `RiverChannel`/See, `ShoalArea` (Untiefe, Insel, See),
+   Mole, Leuchtturmklippe, `LandShape`. Jede Form hat ein **Gebiet** (Fläche der Form plus Randband:
+   Radius × Reichweite bzw. `zone` bei `LandShape`). **Im Gebiet ersetzt das Profil der Form die
+   Grundlage** (`d = profil`), in den letzten ≈ 15 m des Gebiets wird per `smoothstep` zur Grundlage
+   übergeblendet, damit keine Naht entsteht.
+
+Folgen: Eine Landgrenze aus einem Polygon wird nicht durch Rasterland daneben verdoppelt (Rasterland
+im Gebiet entfällt); eine Untiefenmarkierung mit „0,3 m“ gilt auch dort, wo der Zufallsgrund
+0,1 m ergäbe. Für die vorhandenen Formen, die bisher mit `minf` zusammengeführt wurden, ändert sich
+das Ergebnis nur dort, wo die Grundlage flacher als die Form war; das wird mit `level_check`, den
+Hazard-Tests und einem Vorher/Nachher-Vergleich der Tiefenkarten aller Level geprüft. Weicht ein Level
+sichtbar ab, bleibt für die betroffene Form `minf`.
 
 ## Risks / Trade-offs
 
@@ -58,7 +81,8 @@ keine Höhen (Land bleibt flach), kein Import von GIS-Formaten außer SVG.
   innerhalb der Reichweite; Messung in den Tests.
 - Zwei Quellen für die Tiefe (Raster + Formen) können sich am Rand um die Rasterweite unterscheiden →
   Raster wird mit denselben Formen gefüllt, nur die Kante selbst ist exakt.
-- Kind-Knoten als Eckpunkte sind für 100+ Punkte unhandlich → SVG-Import deckt das ab.
+- Der Pfad-Editor kennt kein „Fläche füllen“ – Selbstüberschneidungen sind möglich → Editor-Warnung.
+- Der Vorrang „Form ersetzt Grundlage“ ändert vorhandene Level geringfügig → Regressionsvergleich (s. o.).
 
 ## Migration
 

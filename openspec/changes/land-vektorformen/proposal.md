@@ -8,10 +8,15 @@ keine hohe Auflösung.
 
 ## What Changes
 
-- Neuer Level-Baustein **`LandShape`**: ein Polygon aus Eckpunkten, im Editor als Kind-Knoten
-  (`Marker3D`) frei verschiebbar, einfügbar und löschbar. Art **Land** (festes Land) oder **Wasser**
+- Neuer Level-Baustein **`LandShape`** (ein `Path3D`): eine geschlossene Umrisslinie aus Punkten mit
+  **Bézier-Griffen** (Kurven oder Ecken), mit dem eingebauten Pfad-Editor von Godot zeichen- und
+  verschiebbar. Art **Land** (festes Land) oder **Wasser**
   (gräbt Wasser aus, z. B. Hafenbecken, See im Binnenrevier). Mehrere Formen pro Level, auch mit Löchern
   (Wasser-Form über Land-Form).
+- **Schichtenmodell:** Das Tiefenraster (Zufallsgrund, Tiefenbild, Pinsel, Zufallsküste) ist nur die
+  **Grundlage** für Gebiete ohne genauere Angaben. Spezifischere Angaben haben Vorrang, in Szenenreihenfolge:
+  Landpolygone bestimmen die Landgrenze, Untiefen/Inseln/Molen/Flüsse bestimmen die Tiefe in ihrem
+  Gebiet; das Raster gilt nur außerhalb davon (weich überblendet, ohne Nähte).
 - Der Umriss ist **exakt**: Boote, KI, Wind-Abschattung und Zeichnung der Seekarte prüfen die
   Kante gegen das Polygon, nicht gegen das Raster. Landkante = Uferlinie (Tiefe −0,8 m), von dort
   fällt der Grund mit festem Gefälle ab wie bei Inseln.
@@ -19,9 +24,9 @@ keine hohe Auflösung.
   (nur im Bereich der Formen), die Tiefenfarben bleiben auf dem groben Raster.
 - Neue Level-Option **`depth_cell`** (Zellgröße des Tiefenrasters, 2–10 m, Standard wie bisher ≈ 2,9 m):
   die Unterwasser-Tiefen dürfen gröber gerechnet werden, das spart bei großen Karten Zeit.
-- Editor-Plugin: Knopf „Landform“ legt ein Polygon mit vier Eckpunkten an, Umriss im Editor sichtbar.
-- Werkzeug `tools/svg_to_land.py`: wandelt Pfade/Polygone aus einer SVG-Datei in `LandShape`-Knoten
-  (optional, für das Nachzeichnen von Karten).
+- Editor-Plugin: Knopf „Landform“ legt eine geschlossene Kurve mit vier Punkten an (Pfad-Editor von Godot).
+- Werkzeug `tools/svg_to_land.py`: wandelt Pfade (auch Kurven) aus einer SVG-Datei in `LandShape`-Knoten
+  mit Bézier-Griffen um (optional, für das Nachzeichnen von Karten).
 - Doku und Tests.
 
 Keine Änderung für vorhandene Level: ohne `LandShape` bleibt alles wie bisher.
