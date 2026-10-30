@@ -17,7 +17,7 @@
 
 ## 3. Anzeige und Menü
 
-- [ ] 3.1 HUD: `_draw_tutorial` mit Aufgabe n/8, Anleitung, Fortschrittsbalken, Hinweiszeile, Entfernung/Peilung zur Person, Abschlussanzeige
+- [ ] 3.1 HUD: `_draw_tutorial` als Overlay mittig über dem Boot (große Schrift mit Kontur, Umbruch, Einblenden beim Aufgabenwechsel), Aufgabe n/8 klein darüber, Fortschrittsbalken darunter, Hinweiszeile, Entfernung/Peilung zur Person, Abschlussanzeige
 - [ ] 3.2 Menü: Segelschule als Tutorial listen (ohne Bahnlänge), Besetzung/Wind/Treibstoff-Auswahl für Tutorial deaktivieren oder ignorieren, Beschreibung
 
 ## 4. Tests und Doku

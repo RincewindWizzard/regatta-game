@@ -56,9 +56,13 @@ ihn überschreiben (`wind_choice`, `gust_choice`, `fuel_choice`). Das Boot liefe
    sofort, `race_time` zählt als Tutorial-Zeit), `Course`-Fortschritt, Gegner, Rangliste und Ziel;
    die Startlinie dient nur als Startplatz (kein Ziel). Die Besetzung wird erzwungen: ein Mensch,
    keine KI, Treibstoff 0, Wind/Böen wie im Level (Menü-Überschreibungen werden ignoriert).
-8. **HUD-Panel** (`_draw_tutorial`): Aufgabe n/8, Titel, Anleitungstext, Fortschrittsbalken,
-   Hinweiszeile; bei Mann über Bord zusätzlich Entfernung und Peilung zur Person. Abschluss:
-   große Meldung mit Zeit. Die bestehende Meldungszeile (`show_message`) meldet Erfolge.
+8. **Overlay statt Panel** (`_draw_tutorial`): Die Anleitung steht als große Schrift (etwa 34 px,
+   weiße Kontur wie die bestehenden Meldungen, Umbruch auf höchstens 60 % der Bildbreite) mittig über
+   dem Boot. Die Kamera hält das Boot in der Bildmitte; der Text sitzt etwa 140 px darüber und
+   verdeckt das Boot nicht. Aufgabe n/8 und Titel klein darüber, Fortschrittsbalken darunter,
+   Fehlhinweis als kleinere zweite Zeile; bei Mann über Bord zusätzlich Entfernung und Peilung zur
+   Person. Beim Aufgabenwechsel blendet der Text kurz ein. Abschluss: große Meldung mit Zeit in der
+   Mitte. Die bestehende Meldungszeile (`show_message`) meldet Erfolge.
 9. **Steuerung:** Neustart über Start-Taste/`F5`, Abbruch über Esc bzw. Zurück-Taste (bereits
    vorhanden). Keine neuen Tasten.
 10. **Level-Erzeugung** in `tools/make_levels.gd` (`_segelschule`): offenes Wasser 14 m tief, Wind

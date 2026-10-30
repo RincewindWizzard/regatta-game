@@ -35,7 +35,15 @@ Das Tutorial SHALL die Aufgaben Am Wind, Halber Wind, Raumschots, Vorwind, Vollk
 - **THEN** bleibt die Aufgabe offen und die Anleitung bleibt sichtbar
 
 ### Requirement: Anleitung und Fortschritt
-Das HUD SHALL während des Tutorials die laufende Aufgabe (Nummer von acht, Name), eine kurze Anleitung und – wo die Aufgabe eine Haltedauer oder Drehung verlangt – einen Fortschrittsbalken zeigen. Das Spiel SHALL bei einem Fehlversuch (z. B. Kurs verlassen) einen kurzen Hinweis geben.
+Das Spiel SHALL die Anleitung der laufenden Aufgabe als große Overlay-Schrift mit Kontur mittig über dem Boot zeigen, sodass das Boot nicht verdeckt wird. Aufgabennummer (von acht) und Name SHALL klein darüber stehen, ein Fortschrittsbalken – wo die Aufgabe eine Haltedauer oder Drehung verlangt – direkt unter der Anleitung. Bei einem Fehlversuch (z. B. Kurs verlassen) SHALL das Spiel in einer kleineren zweiten Zeile einen Hinweis geben.
+
+#### Scenario: Anleitung sichtbar
+- **WHEN** das Tutorial läuft
+- **THEN** steht die Anleitung der aktuellen Aufgabe groß und gut lesbar mittig über dem Boot
+
+#### Scenario: Aufgabe wechselt
+- **WHEN** eine Aufgabe gelöst ist
+- **THEN** wird der Text der nächsten Aufgabe sichtbar eingeblendet
 
 #### Scenario: Haltedauer läuft
 - **WHEN** der Spieler einen verlangten Kurs hält
