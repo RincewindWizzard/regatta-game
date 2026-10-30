@@ -13,5 +13,6 @@ im LAN oder übers Internet. Dokumentation: `docs/` (MkDocs). Tests laufen headl
 ## Hinweis zur Historie
 
 Die ersten 24 Changes wurden nachträglich aus der Entwicklungsgeschichte formuliert und von Hand
-archiviert (der OpenSpec-CLI war in der Entwicklungsumgebung nicht installierbar). Neue Changes
-bitte mit dem CLI (`openspec archive <name>`) archivieren.
+archiviert (gleiche Schritte wie `openspec archive`). Die Struktur ist mit dem OpenSpec-CLI geprüft
+(`openspec validate --all`: 16 Specs bestanden). Neue Changes laufen mit `/opsx:propose`,
+Umsetzung, dann `/opsx:archive` bzw. `openspec archive <name>`.
