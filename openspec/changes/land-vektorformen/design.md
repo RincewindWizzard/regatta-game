@@ -34,12 +34,11 @@ keine Höhen (Land bleibt flach), kein Import von GIS-Formaten außer SVG.
    Umgebung bzw. mindestens `see_depth`, am Rand Übergang wie `ShoalArea.carve_grid`. Alle Formen
    werden in Kindreihenfolge angewendet, dadurch sind Löcher (Wasser über Land) möglich.
 4. **Zwei Wege in `depth_at`:**
-   a) *Raster*: `Level.compute_depth` bezieht die Formen wie Inseln ein (`minf` für Land,
-      Ausgrabung für Wasser). Das ergibt das grobe Tiefenfeld.
+   a) *Raster*: `Level.compute_depth` füllt das grobe Tiefenfeld nach dem Schichtenmodell (s. u.).
    b) *Exakt*: `SeaChart` hält die Liste der Formen (statisch, gesetzt von `Level`, mit
       Begrenzungsrechteck + Spatial-Check). `depth_at(p)` = Raster; liegt `p` im Begrenzungsrechteck
       einer Form, wird zusätzlich `shape.depth_profile(p)` ausgewertet und das Ergebnis dort
-      verwendet (Land: `minf`, Wasser: Land wird nur innerhalb des Polygons aufgehoben).
+      verwendet (im Gebiet der Form ersetzt das Profil das Raster, Wasser hebt Land nur innerhalb des Umrisses auf).
    So bleibt die Kante unabhängig von der Rasterweite. Aufwand pro Aufruf: ein Rechtecktest je Form,
    nur nahe Formen kosten Polygonabstand (O(Eckpunkte)).
 5. **Scharfe Karte.** Zusätzlich zur Tiefentextur bekommt der Shader eine **Land-Distanztextur**
@@ -51,7 +50,7 @@ keine Höhen (Land bleibt flach), kein Import von GIS-Formaten außer SVG.
    ersetzt `game_res()`-Ableitung nur wenn gesetzt. Die Menü-Vorschau (160) und der Editor (256)
    bleiben unverändert grob.
 7. **Küsten mischen.** Zufallsküsten (`coast_east/west`) und Tiefenbild bleiben; bei `LandShape`
-   auf einer Küstenlinie gewinnt das Polygon (Land per `minf`, Wasser hebt Land nur im Polygon auf).
+   auf einer Küstenlinie gewinnt das Polygon im Gebiet der Form (Schichtenmodell, s. u.).
 8. **SVG-Werkzeug.** `tools/svg_to_land.py` liest `<polygon>`/`<path>` (M/L/C/S/Q/Z, Bogen wird in Kurven
    genähert), übernimmt Kurven als Bézier-Griffe, skaliert auf `map_size` und schreibt eine `.tscn` mit
    `LandShape`-Knoten und `Curve3D`.
