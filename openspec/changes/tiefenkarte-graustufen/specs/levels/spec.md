@@ -7,7 +7,7 @@ Ein Level SHALL seinen Seegrund aus einem PNG-Bild beziehen können, das die Was
 
 #### Scenario: Bild anderer Auflösung
 - **WHEN** ein Level ein Tiefenbild mit beliebiger Auflösung verwendet
-- **THEN** wird der Seegrund daraus ohne Vorverarbeitung berechnet und weich (bilinear) abgetastet
+- **THEN** wird der Seegrund daraus ohne Vorverarbeitung berechnet
 
 #### Scenario: Farbbild
 - **WHEN** das Bild Farben enthält
@@ -26,18 +26,41 @@ Der Level SHALL einstellen können, welche Wassertiefe Schwarz (0) und welche We
 
 #### Scenario: Bestehende Level
 - **WHEN** ein vorhandener Level (z. B. Kieler Förde) keine Zuordnung angibt
-- **THEN** ändert sich sein Seegrund nicht
+- **THEN** behält er seine Zuordnung von Grau zu Tiefe
 
-### Requirement: Lage des Tiefenbildes
-Der Level SHALL die Lage des Bildes als Rechteck in Weltmetern (Position und Größe) einstellen können; ohne Angabe SHALL das Bild das ganze Kartengebiet abdecken. Außerhalb des Bildes SHALL eine einstellbare Tiefe gelten (Standard: Land).
+### Requirement: Einstellbare Kartengröße
+Ein Level SHALL Breite und Länge seiner Karte in Metern einstellen können (jeweils 300 bis 3000 m, nicht nur quadratisch; ohne Angabe 1280 × 1280 m). Das Tiefenbild SHALL auf diese Größe skaliert werden, unabhängig von seinem Seitenverhältnis. Seekarte, Kartenrand, Regattagebiet, Minimap und Vorschauen SHALL der Kartengröße folgen.
 
-#### Scenario: Bild deckt nur einen Teil ab
-- **WHEN** das Bild auf ein Teilrechteck der Karte gelegt wird
-- **THEN** stammt der Seegrund dort aus dem Bild, ringsum gilt die eingestellte Außentiefe
+#### Scenario: Breite Karte
+- **WHEN** ein Level eine Karte von 2000 × 800 m einstellt
+- **THEN** zeigt die Seekarte genau diese Fläche, Boote werden an ihrem Rand begrenzt, und die Minimap bildet sie ab
+
+#### Scenario: Bild anderer Größe
+- **WHEN** das Tiefenbild ein anderes Seitenverhältnis als die Karte hat
+- **THEN** wird es auf die ganze Karte gestreckt
+
+#### Scenario: Standardkarte
+- **WHEN** ein Level keine Größe angibt
+- **THEN** ist die Karte 1280 × 1280 m groß wie bisher
+
+### Requirement: Weiche Abtastung ohne Kachelmuster
+Das Spiel SHALL das Tiefenbild glatt (nicht linear) abtasten und mit leichtem Rauschen versehen, sodass Tiefenlinien und Küste keine Pixel- oder Kachelmuster zeigen. Das Rauschen SHALL deterministisch sein (aus dem Seegrund-Seed des Levels), damit alle Mitspieler und die KI denselben Seegrund sehen. Stärke des Rauschens SHALL einstellbar sein.
+
+#### Scenario: Grobes Bild
+- **WHEN** ein Tiefenbild mit grober Auflösung auf eine große Karte skaliert wird
+- **THEN** verlaufen die Tiefenlinien gerundet und unregelmäßig statt entlang der Pixelgrenzen
+
+#### Scenario: Gleicher Grund bei allen
+- **WHEN** zwei Spieler denselben Level spielen
+- **THEN** ist die Tiefe an jedem Punkt auf beiden Rechnern identisch
+
+#### Scenario: Rauschen aus
+- **WHEN** die Rauschstärke auf 0 gestellt wird
+- **THEN** entsteht der Grund allein aus der glatten Abtastung ohne Zufallsanteil
 
 ### Requirement: Sichtbare Einstellungen
-Die Einstellungen des Tiefenbildes SHALL im Inspector des Levels sichtbar sein, und Editor-Vorschau sowie Menü-Vorschau SHALL sie berücksichtigen.
+Die Einstellungen des Tiefenbildes (Zuordnung, Kartengröße, Rauschen) SHALL im Inspector des Levels sichtbar sein, und Editor-Vorschau sowie Menü-Vorschau SHALL sie berücksichtigen.
 
-#### Scenario: Zuordnung geändert
-- **WHEN** der Entwickler Schwarz- oder Weißwert im Inspector ändert
+#### Scenario: Wert geändert
+- **WHEN** der Entwickler Schwarz-, Weißwert, Größe oder Rauschen im Inspector ändert
 - **THEN** aktualisiert sich die Vorschau des Seegrunds
