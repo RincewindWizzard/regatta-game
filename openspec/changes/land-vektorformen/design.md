@@ -20,8 +20,8 @@ keine Höhen (Land bleibt flach), kein Import von GIS-Formaten außer SVG.
 1. **`LandShape extends Path3D`.** Der Umriss ist die `Curve3D` des Pfades (x/z; y ignoriert):
    Punkte mit `in`/`out`-Griffen ergeben Bézier-Kurven, Punkte ohne Griffe Ecken. Der Pfad-Editor
    von Godot (Punkte setzen, Griffe ziehen, „Kurve schließen“) wird ohne eigenes Gizmo genutzt.
-   Die Kurve wird mit `tessellate_even_length` in eine Linie aus Strecken von höchstens 0,5 m zerlegt
-   (Abweichung von der echten Kurve < 0,05 m); der Umriss gilt als geschlossen (letzter Punkt →
+   Die Kurve wird mit einer eigenen adaptiven Zerlegung (`LandPoly.flatten`) in Strecken zerlegt
+   (Abweichung von der echten Kurve < 0,04 m); der Umriss gilt als geschlossen (letzter Punkt →
    erster Punkt, bei Kurve schließen ohne Lücke). Für `depth_at` wird die zerlegte Linie einmal
    zwischengespeichert und neu gebildet, wenn sich die Kurve ändert (`Curve3D.changed`).
    Selbstüberschneidung wird mit `even-odd` ausgewertet und als Editor-Warnung angezeigt.
@@ -41,10 +41,10 @@ keine Höhen (Land bleibt flach), kein Import von GIS-Formaten außer SVG.
       verwendet (im Gebiet der Form ersetzt das Profil das Raster, Wasser hebt Land nur innerhalb des Umrisses auf).
    So bleibt die Kante unabhängig von der Rasterweite. Aufwand pro Aufruf: ein Rechtecktest je Form,
    nur nahe Formen kosten Polygonabstand (O(Eckpunkte)).
-5. **Scharfe Karte.** Zusätzlich zur Tiefentextur bekommt der Shader eine **Land-Distanztextur**
-   (RF, Meter mit Vorzeichen, Zellgröße 1 m, nur über der Vereinigung der Begrenzungsrechtecke,
-   höchstens 2048 × 2048). Der Shader nimmt dort die Uferlinie aus dieser Textur (Nulldurchgang,
-   Smoothstep über ein Pixel), außerhalb weiter die Rastertiefe. Rote 1-m-Tiefenlinie bleibt am Raster.
+5. **Scharfe Karte.** Zusätzlich zur Tiefentextur bekommt der Shader eine **Kantentextur**
+   (RGF: Tiefe·Gewicht und Gewicht, Zellgröße 1 m, nur über der Vereinigung der Begrenzungsrechtecke,
+   höchstens 2048 × 2048; nur Texel im Streifen `band` an der Kante). Der Shader mischt dort die exakte
+   Profiltiefe über die Rastertiefe, außerhalb gilt die Rastertiefe. Rote 1-m-Tiefenlinie bleibt am Raster.
    Die Textur wird im Tiefenaufbau gerechnet (Abstand Punkt–Polygon), im Editor mit gröberer Zelle.
 6. **Zellgröße:** `Level.depth_cell` (m, 2–10, Standard 0 = wie bisher automatisch ≈ 2,9 m)
    ersetzt `game_res()`-Ableitung nur wenn gesetzt. Die Menü-Vorschau (160) und der Editor (256)

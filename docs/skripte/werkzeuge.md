@@ -34,6 +34,7 @@ Programm.
 | `tests/tutorial_test.gd` | Segelschule headless: je Aufgabe Positiv- und Negativfälle |
 | `tests/tutorial_shots.gd` | Bilder der Segelschule (Overlay, Mann über Bord, Ende) |
 | `tests/depth_image_test.gd` | Tiefenbild: Zuordnung schwarz/weiß/invertiert, Karte 2000 × 800 m, Standardkarte unverändert, Determinismus, glatt ohne Rauschen | `godot --headless --path . --script res://tests/depth_image_test.gd` |
+| `tests/land_shape_test.gd` | Vektorformen: exakte Kante (Rechteck, Ecke), Bézier-Kreis, Hafenbecken, Vorrang vor Raster und Tiefenbild, Untiefe über flacherer Grundlage, Gebietsrand ohne Naht, Zellgröße 8 m, Laufzeit von `depth_at` | `godot --headless --path . --script res://tests/land_shape_test.gd` |
 | `tests/depth_png.gd` | schreibt die Tiefenkarte eines Levels als PNG (Marken gelb, Start rot, Ziel grün, Tankstellen orange): schnelle Kontrolle beim Bauen eines Levels |
 | `tests/perf_test.gd` | misst die CPU-Zeit je Bild mit vier Computerbooten (`-- res://levels/05_lotsenrinne.tscn`) |
 | `tests/hazard_test.gd` | Mine, Polizei, Sirenen, Berufsschiff (`schiff`), Kollision, Polizei rammen (`rammen`), Wendeschub, KVR, Debug | `godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- mine` |
@@ -82,6 +83,7 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3
 | `level_shots.gd` | Übersichten von Bahnen aus freier Kamera |
 | `feature_shots.gd` | Tiere, Wrack, Minenfeld, Polizei, Sirenen, Segel-Overlay, Explosion |
 | `menu_shot.gd` | Menü und Rennstart |
+| `land_shape_shots.gd` | Seekarte mit Bézier-Insel und Hafenbecken bei grobem Raster (scharfe Küste im Shader) |
 | `map_shots.gd` | **die ganze Karte jeder Bahn** senkrecht von oben (orthogonale Kamera), auf das Regattagebiet zugeschnitten; speist [Die Karten](../spielen/karten.md) |
 | `showroom.gd`, `closeup.gd`, `ai_shot.gd` | Nahaufnahmen von Modellen, Orten, KI-Rennen |
 
@@ -122,6 +124,7 @@ Siehe [Klang](klang.md#tools-make-audio-py).
 |---|---|
 | `tools/export_dehler.py` | zerlegt das Blender-Modell „Dehler 31“ in vier `.glb`: Rumpf, Großsegel mit Baum, Fock, Pinne mit Ruder. Der Drehpunkt (`ORIGIN`) ist der Root-Knochen des Rigs. |
 | `tools/build_tug.py` | baut den stilisierten Schlepper aus Primitiven und exportiert `models/tug.glb` |
+| `tools/svg_to_land.py` | wandelt Pfade (auch Kurven), Polygone und Rechtecke einer SVG in `LandShape`-Knoten mit Bézier-Griffen um: `python tools/svg_to_land.py karte.svg land.tscn --size 1280 1280 --origin -640 -840 --water Becken`; Beispiel `tools/beispiel_land.svg` |
 | `tools/chart_to_depth.py` | wandelt eine Seekarte (Bild) in den Seegrund eines Levels um (Land/Wasser nach Farbe, nur zu schmale Wasserwege verbreitert, Küstenabstand → Tiefe; `black`/`white` legen die Graustufen-Zuordnung fest und müssen zu `depth_image_black/white` des Levels passen); Parameter in `tools/kiel_chart.json`, Ergebnis `levels/data/kiel_foerde_tiefe.png` |
 | `tools/make_download_page.py` | schreibt die Abschnitte „Stabil“ und „Snapshot“ der Download-Seite aus den Release-Dateien (`VERSION.txt`, `SHA256SUMS.txt`, `TAG.txt`) |
 | `tools/build_ships.py` | baut die drei Berufsschiffe (Loft-Rumpf, Aufbauten, Ladung, Schaumstreifen) und schreibt `models/ship_*.glb` sowie die Rumpfkontur `models/ship_hulls.json` |

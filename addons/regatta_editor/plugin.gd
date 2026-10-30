@@ -61,6 +61,8 @@ func _enter_tree() -> void:
 	pm.add_item("Untiefe", 1)
 	pm.add_item("Insel", 2)
 	pm.add_item("Insel mit Bäumen und Häusern", 5)
+	pm.add_item("Landform (Bézier-Umriss)", 34)
+	pm.add_item("Wasserfläche (Bézier-Umriss, z. B. Hafenbecken)", 35)
 	pm.add_separator("Seezeichen")
 	pm.add_item("Kardinaltonne Nord", 10)
 	pm.add_item("Kardinaltonne Ost", 11)
@@ -123,7 +125,7 @@ func _labelled_spin(text: String, mn: float, mx: float, val: float, suffix: Stri
 
 
 func _handles(object: Object) -> bool:
-	return object is Level or object is ShoalArea or object is SeaMark or object is Mole or object is Lighthouse or object is CourseMark or object is CurrentArea or object is FuelDock or object is SeaLife or object is RestrictedArea or object is ShippingLane
+	return object is Level or object is ShoalArea or object is LandShape or object is SeaMark or object is Mole or object is Lighthouse or object is CourseMark or object is CurrentArea or object is FuelDock or object is SeaLife or object is RestrictedArea or object is ShippingLane
 
 
 func _edit(object: Object) -> void:
@@ -275,6 +277,20 @@ func _add_piece(id: int) -> void:
 			s.radius = 120.0
 			s.rock_symbol = false
 			node = s
+		34, 35:
+			var l := LandShape.new()
+			l.name = "Land" if id == 34 else "Wasserflaeche"
+			l.kind = LandShape.Kind.LAND if id == 34 else LandShape.Kind.WASSER
+			var c := Curve3D.new()
+			# vier Punkte mit Bézier-Griffen (rundliche Form), im Uhrzeigersinn von oben gesehen
+			var r := 80.0
+			var g := r * 0.55
+			c.add_point(Vector3(0, 0, -r), Vector3(-g, 0, 0), Vector3(g, 0, 0))
+			c.add_point(Vector3(r, 0, 0), Vector3(0, 0, -g), Vector3(0, 0, g))
+			c.add_point(Vector3(0, 0, r), Vector3(g, 0, 0), Vector3(-g, 0, 0))
+			c.add_point(Vector3(-r, 0, 0), Vector3(0, 0, g), Vector3(0, 0, -g))
+			l.curve = c
+			node = l
 		33:
 			node = FuelDock.new()
 			node.name = "Tankstelle"

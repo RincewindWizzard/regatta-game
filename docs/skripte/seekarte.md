@@ -60,6 +60,11 @@ static func depth_at(p: Vector2) -> float:
     return lerpf(a, b, fy)
 ```
 
+Am Ende von `depth_at` laufen die **Vektorformen** (`LandShape`, siehe [Level](level.md#land-shape-gd))
+über den Rasterwert: `v = lp.apply(p, v)` für jede Form, deren Gebiet `p` enthält (ein Rechtecktest je
+Form, nur nahe Formen rechnen den Kantenabstand). So liegt die Uferlinie exakt auf dem Umriss, auch wenn
+das Raster nur 8 m Zellen hat. `SeaChart.set_land(polys)` setzt die Formen, `compute_depth` ruft es auf.
+
 **Warum `- Vector2(0.5, 0.5)`?** Eine Zelle repräsentiert ihre *Mitte*. Position `p` liegt
 zwischen den Mittelpunkten von vier Zellen; zieht man 0,5 ab, wird `i` die linke obere dieser vier.
 
@@ -83,6 +88,13 @@ zwischen den Mittelpunkten von vier Zellen; zieht man 0,5 ab, wird `i` die linke
 | `depth_color(d)` | Papierfarbe zur Tiefe |
 
 ## Der Kartenshader
+
+Für die **scharfe Küste** der Vektorformen bekommt der Shader eine zweite Textur `edge_tex`
+(`Image.FORMAT_RGF`, Zellgröße 1 m, nur über den Formen, höchstens 2048²), gebaut von
+`LandPoly.edge_image(polys)`: Je Texel an der Kante (Abstand < `band`) steht (Tiefe · Gewicht, Gewicht).
+Der Shader mischt `d = d * (1 − g) + r`; das Mischen mit Gewicht ist „vormultipliziert“, damit die
+bilineare Filterung stimmt. Damit zeichnet die Karte Ecken und Kurven scharf, die Tiefenfarben bleiben auf
+dem groben Raster.
 
 `CHART_SHADER` (ein langer String am Dateiende) ist ein Godot-Shader (`shader_type spatial;
 render_mode unshaded;`, also unbeleuchtet wie Papier). Das Tiefenraster wird als

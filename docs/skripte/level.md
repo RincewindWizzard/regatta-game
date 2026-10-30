@@ -13,6 +13,7 @@ Das Level kennt seine Kinder nicht dem Typ nach, sondern fragt nach **Fähigkeit
 | Methode | Wer sie hat | Wer fragt |
 |---|---|---|
 | `depth_profile(p)` + `reach()` | `ShoalArea`, `Mole`, `Lighthouse` | `Level.compute_depth` macht den Seegrund flacher |
+| `poly()` (nur `LandShape`) | `LandShape` | `Level.land_polys()`: exakte Umrisse über dem Raster |
 | `carves()` + `carve_grid(grid, res)` | `ShoalArea` (See), `RiverChannel` | `Level.compute_depth` gräbt Wasser aus |
 | `current_at(p)` + `prepare_current()` | `CurrentArea`, `RiverChannel` | `Currents.at(p)` |
 | `collision_points()` | `FuelDock`, `SeaLife` (Wrack) | `Level.collision_points()` |
@@ -62,6 +63,9 @@ erweiterbar: Ein neuer Baustein mit `update_boat` wird automatisch aufgerufen, o
 @export var coast_west := true
 @export_storage var depth_paint_png := PackedByteArray()   # gemalter Seegrund
 ```
+
+**`depth_cell`** stellt die Zellgröße des Tiefenrasters im Spiel ein (2–10 m, 0 = automatisch ≈ 2,9 m).
+Größere Zellen sparen Rechenzeit bei großen Karten; Land aus `LandShape` bleibt dabei exakt.
 
 **`map_size`** legt Länge × Breite der Karte fest (300–3000 m, Standard 1280 × 1280 m,
 `map_origin` ist die Ecke links oben). Das Tiefenraster ist rechteckig, die Zellen bleiben
@@ -136,7 +140,16 @@ Das ist die wichtigste Funktion des Levels. Sie liefert ein `PackedFloat32Array`
  Hindernisse  Inseln, Untiefen, Molen, Leuchtturmklippen: grid = min(grid, Profil)  → flacher
 ```
 
-Der Kern der letzten Schicht (vereinfacht):
+Zusätzlich gilt das **Schichtenmodell**: Das Raster (Basis, Pinsel, Küsten, Tiefenbild) ist nur
+die **Grundlage** für Stellen ohne genauere Angaben. Was spezifischer ist, hat Vorrang:
+
+ * Untiefen, Inseln, Molen: im eigenen **Kern** (Profil flacher als der Tiefgang) gilt die Form
+   selbst, solange die Grundlage dort Wasser ist (`grid = Profil`, z. B. eine Untiefe „0,3 m“ über
+   einem Grund von 0,1 m); Rasterland bleibt, sonst „flacher gewinnt“.
+ * **Landformen** (`LandShape`, nächster Abschnitt) bestimmen die Landgrenze exakt und ersetzen
+   die Grundlage in ihrem Gebiet; sie kommen als letzte Schicht.
+
+Der Kern der Hindernis-Schicht (vereinfacht):
 
 ```gdscript
 for s in obstacles():
@@ -146,6 +159,10 @@ for s in obstacles():
             var p := amin + Vector2(i + 0.5, j + 0.5) * step
             grid[j * res + i] = minf(grid[j * res + i], s.depth_profile(p + warp))
 ```
+
+Danach, als **Schicht 5**, werden die `LandShape`-Umrisse in Szenenreihenfolge angewendet
+(`lp.apply(p, d)` je Zelle im Gebiet der Form) und an `SeaChart.set_land(polys)` übergeben, damit
+`depth_at` die Kante auch zwischen den Rasterpunkten exakt trifft.
 
 **Warum `min`?** Eine Untiefe macht den Grund nur flacher, nie tiefer; zwei überlappende
 Inseln ergeben das Flachere von beiden. Bei Flüssen ist es umgekehrt (`max`).
@@ -165,6 +182,38 @@ Pixelwert 128 heißt „unverändert“, kleiner heißt flacher, größer tiefer
 weichen Rand (`smoothstep`). Das Editor-Plugin ruft `begin_stroke()`, `paint()`, `end_stroke()`
 auf und nutzt die zurückgegebenen Bytes für Undo/Redo.
 → [Level-Editor-Plugin](editor.md).
+
+## `land_shape.gd` und `land_poly.gd` { #land-shape-gd }
+
+`LandShape` ist ein **`Path3D`**: der Umriss einer Landmasse oder Wasserfläche als geschlossene
+Kurve mit Bézier-Griffen (Pfad-Werkzeug des Godot-Editors, Draufsicht Num 7; Punkte ohne Griffe sind
+Ecken; der Umriss schließt sich vom letzten zum ersten Punkt). Die Kurve wird in Strecken zerlegt
+(`LandPoly.flatten`, Abweichung < 0,04 m) und in einem `LandPoly` gehalten (reine Daten und Rechenregeln,
+ohne Szenenbezug, deshalb sicher in `SeaChart` statisch haltbar).
+
+```gdscript
+@export var kind := Kind.LAND                 # LAND oder WASSER
+@export_range(0.05, 1.0) var shore_slope := 0.22   # m Tiefe je m Abstand vom Ufer
+@export_range(10, 300) var zone := 60.0       # Gebietsbreite um das Land, in der die Form die Grundlage ersetzt
+@export_range(1.5, 30.0) var water_depth := 8.0    # größte Tiefe einer Wasserform
+```
+
+`LandPoly.apply(p, d)` liefert die Tiefe nach der Form; `signed_water(p)` ist der Abstand zur Kante
+(positiv auf der Wasserseite):
+
+| Art | innen | außen |
+|---|---|---|
+| Land | Land (−0,8 m − 0,5 m je m, höchstens −6,8 m), ersetzt die Grundlage | −0,8 m + `shore_slope` · Abstand, im Gebiet `zone` ersetzt, am Rand über 15 m zur Grundlage überblendet |
+| Wasser | Wasser (−0,8 m + `shore_slope` · Abstand bis `water_depth`), ersetzt die Grundlage | unverändert |
+
+Die Uferlinie (−0,8 m) liegt damit **exakt** auf dem Umriss, unabhängig von der Rasterzelle.
+Mehrere Formen wirken in **Szenenreihenfolge**; ein Wasser-Polygon über einem Land-Polygon ergibt ein
+Hafenbecken. LandShapes dürfen auch in einem Gruppen-`Node3D` unter dem Level liegen.
+
+!!! note "Grobes Raster neben dem Becken"
+    Das grobe Raster verwischt die Kante eines Wasserbeckens im Land über eine Zelle. Deshalb merkt sich
+    jede Wasserform das Raster **vor** ihrer Anwendung (`prepare`, `base_depth`) und nutzt es für die
+    Landseite direkt neben dem Becken. Die Streifenbreite `band` wächst mit der Zellgröße.
 
 ## `start_line.gd` { #start-line-gd }
 

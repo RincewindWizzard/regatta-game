@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Insel mit Kurven und einer Ecke -->
+  <path id="Insel" d="M 30 20 C 45 10, 70 15, 75 35 S 70 70, 50 75 L 35 60 Q 20 50, 30 20 Z" fill="#e8d9a0"/>
+  <!-- Hafenbecken (Wasserform) -->
+  <rect id="Becken" x="45" y="35" width="15" height="12"/>
+</svg>

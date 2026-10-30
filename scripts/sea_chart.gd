@@ -31,6 +31,8 @@ static var _h := 0
 static var _amin := DEFAULT_AREA_MIN     ## Kartenfläche zum Zeitpunkt von set_depth_grid
 static var _asize := DEFAULT_AREA_SIZE
 static var _fonts := {}
+static var cell_override := 0.0     ## gewünschte Zellgröße des Tiefenrasters (m); 0 = automatisch
+static var _land: Array = []        ## LandPoly: Vektorformen, die das Raster überstimmen
 
 var material: ShaderMaterial
 var soundings := true
@@ -52,9 +54,15 @@ static func grid_dims(res: int) -> Vector2i:
 	return Vector2i(maxi(2, roundi(area_size.x / cell)), maxi(2, roundi(area_size.y / cell)))
 
 
-## Auflösung fürs Spiel: etwa 2,86 m je Zelle, höchstens 1024 Zellen je Achse
+## Auflösung fürs Spiel: etwa 2,86 m je Zelle (oder cell_override), höchstens 1024 Zellen je Achse
 static func game_res() -> int:
-	return clampi(roundi(maxf(area_size.x, area_size.y) / CELL), 64, 1024)
+	var cell := cell_override if cell_override > 0.0 else CELL
+	return clampi(roundi(maxf(area_size.x, area_size.y) / cell), 64, 1024)
+
+
+## Vektorformen (LandPoly) des aktuellen Levels; sie gelten über dem Raster
+static func set_land(polys: Array) -> void:
+	_land = polys
 
 
 ## Setzt das aktuelle Tiefenraster (vom Level berechnet, passend zu res und der aktuellen Kartenfläche)
@@ -81,7 +89,10 @@ static func depth_at(p: Vector2) -> float:
 	var fy := f.y - j
 	var a := lerpf(_depth[j * _w + i], _depth[j * _w + i + 1], fx)
 	var b := lerpf(_depth[(j + 1) * _w + i], _depth[(j + 1) * _w + i + 1], fx)
-	return lerpf(a, b, fy)
+	var v := lerpf(a, b, fy)
+	for lp in _land:
+		v = lp.apply(p, v)
+	return v
 
 
 static func depth_color(d: float) -> Color:
@@ -302,6 +313,12 @@ func refresh() -> void:
 	else:
 		_depth_tex = ImageTexture.create_from_image(img)
 		material.set_shader_parameter("depth_tex", _depth_tex)
+	var edge := LandPoly.edge_image(_land)
+	material.set_shader_parameter("edge_on", not edge.is_empty())
+	if not edge.is_empty():
+		material.set_shader_parameter("edge_min", edge["min"])
+		material.set_shader_parameter("edge_size", edge["size"])
+		material.set_shader_parameter("edge_tex", ImageTexture.create_from_image(edge["image"]))
 	if soundings:
 		_build_soundings()
 
@@ -377,6 +394,10 @@ render_mode unshaded;
 uniform sampler2D depth_tex : filter_linear, repeat_disable;
 uniform vec2 area_min;
 uniform vec2 area_size;
+uniform sampler2D edge_tex : filter_linear, repeat_disable;
+uniform vec2 edge_min;
+uniform vec2 edge_size;
+uniform bool edge_on = false;
 uniform sampler2D gust_tex : filter_linear, repeat_disable, hint_default_black;
 uniform vec2 gust_min;
 uniform float gust_size = 1.0;
@@ -415,6 +436,14 @@ void fragment() {
 	float outside = step(1.0, max(max(-uv.x, uv.x - 1.0), max(-uv.y, uv.y - 1.0)) + 1.0);
 	if (use_paint_delta) {
 		d += (texture(paint_delta, clamp(uv, vec2(0.0), vec2(1.0))).r * 255.0 - 128.0) * paint_step;
+	}
+	if (edge_on) {
+		// scharfe Kante der Vektorformen: (Tiefe * Gewicht, Gewicht)
+		vec2 euv = (p - edge_min) / edge_size;
+		if (euv.x >= 0.0 && euv.x <= 1.0 && euv.y >= 0.0 && euv.y <= 1.0) {
+			vec2 e = texture(edge_tex, euv).rg;
+			d = d * (1.0 - e.g) + e.r;
+		}
 	}
 	d = mix(d, 20.0, outside);
 

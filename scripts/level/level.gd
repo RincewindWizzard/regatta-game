@@ -28,6 +28,7 @@ const MAP_MIN := 300.0          ## kleinste und größte Kartenseite (m)
 const MAP_MAX := 3000.0
 const PAINT_RES := 256
 const PAINT_STEP := 0.15        ## Meter pro Graustufe im Malbild
+static var specific_core := true         ## Formen ersetzen im eigenen Kern die Grundlage (statt nur "flacher gewinnt")
 const PREVIEW_RES := 256        ## Auflösung der Editor-Vorschau
 
 ## Tutorial statt Regatta: ein Spieler, keine Gegner, kein Countdown, keine Start-/Ziellinie-Wertung
@@ -92,6 +93,12 @@ const PREVIEW_RES := 256        ## Auflösung der Editor-Vorschau
 	set(v):
 		map_size = v.clamp(Vector2(MAP_MIN, MAP_MIN), Vector2(MAP_MAX, MAP_MAX))
 		_base_cache.clear()
+		queue_preview()
+## Zellgröße des Tiefenrasters im Spiel (2–10 m); 0 = automatisch (ca. 2,9 m). Land aus LandShape
+## bleibt unabhängig davon exakt.
+@export_range(0.0, 10.0, 0.5, "suffix:m") var depth_cell := 0.0:
+	set(v):
+		depth_cell = v
 		queue_preview()
 ## Nordwestecke der Karte (Weltmeter); Standard wie bei allen bisherigen Leveln
 @export var map_origin := Vector2(-640, -840):
@@ -193,6 +200,7 @@ func queue_preview() -> void:
 func apply_area() -> void:
 	SeaChart.area_min = map_origin
 	SeaChart.area_size = map_size.clamp(Vector2(MAP_MIN, MAP_MIN), Vector2(MAP_MAX, MAP_MAX))
+	SeaChart.cell_override = clampf(depth_cell, 2.0, 10.0) if depth_cell > 0.0 else 0.0
 
 
 func _recompute(res: int) -> void:
@@ -445,8 +453,42 @@ func compute_depth(res: int) -> PackedFloat32Array:
 				if warped:
 					w = Vector2(warp.get_noise_2d(p.x, p.y), warp.get_noise_2d(p.y + 99.0, p.x - 37.0)) * 7.0
 				var k := j * gw + i
-				grid[k] = minf(grid[k], s.depth_profile(p + w))
+				var pr: float = s.depth_profile(p + w)
+				# Im eigenen Kern (flacher als der Tiefgang) gilt die Form selbst, solange die Grundlage dort Wasser ist;
+				# Rasterland bleibt, sonst "flacher gewinnt"
+				if specific_core and pr <= SeaChart.DRAFT and grid[k] > SeaChart.LAND:
+					grid[k] = pr
+				else:
+					grid[k] = minf(grid[k], pr)
+
+	# 5. Vektorformen (Land/Wasser): exakter Umriss, in Szenenreihenfolge, über allem anderen
+	var polys := land_polys()
+	for lp in polys:
+		lp.prepare(grid, gw, gh, amin, step)
+		var z: Rect2 = lp.zone_rect
+		var li0 := clampi(int((z.position.x - amin.x) / step.x), 0, gw - 1)
+		var li1 := clampi(int((z.end.x - amin.x) / step.x) + 1, 0, gw - 1)
+		var lj0 := clampi(int((z.position.y - amin.y) / step.y), 0, gh - 1)
+		var lj1 := clampi(int((z.end.y - amin.y) / step.y) + 1, 0, gh - 1)
+		for j in range(lj0, lj1 + 1):
+			for i in range(li0, li1 + 1):
+				var k := j * gw + i
+				grid[k] = lp.apply(amin + Vector2(i + 0.5, j + 0.5) * step, grid[k])
+	SeaChart.set_land(polys)
 	return grid
+
+
+## Umrisse aller Landformen (LandShape) in Szenenreihenfolge; auch in einem Gruppenknoten
+## (z. B. einer mit tools/svg_to_land.py erzeugten, eingefügten Szene)
+func land_polys(node: Node = null) -> Array:
+	var out: Array = []
+	for c in (node if node else self).get_children():
+		if c is LandShape:
+			if c.poly().valid():
+				out.append(c.poly())
+		elif c.get_class() == "Node3D" and not (c is Level):
+			out.append_array(land_polys(c))
+	return out
 
 
 ## Tiefenbild einlesen (als Rohdatei, damit es auch im exportierten Spiel funktioniert) und in eine
