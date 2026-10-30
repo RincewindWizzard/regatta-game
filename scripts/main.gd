@@ -329,14 +329,25 @@ func _resolve_collisions(delta: float) -> void:
 			var b := boats[j]
 			if a.towed or b.towed or a.out or b.out:
 				continue
-			var d := b.pos2d() - a.pos2d()
-			var dist := d.length()
-			var min_d := Boat.BOAT_RADIUS * 2.0
-			if dist >= min_d or dist < 0.001:
+			if a.pos2d().distance_to(b.pos2d()) > Boat.BOAT_RADIUS * 2.0 + 1.0:
 				_contact.erase("%d:%d" % [i, j])
 				continue
-			var n := d / dist
-			var push := (min_d - dist) * 0.5
+			# Rümpfe: drei Kreise je Boot, maßgeblich ist das Kreispaar mit der größten Überlappung
+			var ca := a.hull_circles()
+			var cb := b.hull_circles()
+			var depth := 0.0
+			var n := Vector2.ZERO
+			for pa in ca:
+				for pb in cb:
+					var dv: Vector2 = pb - pa
+					var ov := Boat.HULL_RADIUS * 2.0 - dv.length()
+					if ov > depth:
+						depth = ov
+						n = dv.normalized() if dv.length() > 0.001 else (b.pos2d() - a.pos2d()).normalized()
+			if depth <= 0.0 or n == Vector2.ZERO:
+				_contact.erase("%d:%d" % [i, j])
+				continue
+			var push := depth * 0.5
 			a.position -= Vector3(n.x, 0, n.y) * push
 			b.position += Vector3(n.x, 0, n.y) * push
 			var rel := (b.vel - a.vel).dot(n)
@@ -369,13 +380,20 @@ func _resolve_collisions(delta: float) -> void:
 			if b == o or b.out or b.towed:
 				continue
 			for c in circles:
-				var dv: Vector2 = b.pos2d() - c[0]
-				var md: float = float(c[1]) + Boat.BOAT_RADIUS
-				var dl := dv.length()
-				if dl >= md or dl < 0.001:
+				var hit := false
+				var nn := Vector2.ZERO
+				var pen := 0.0
+				for hc in b.hull_circles():
+					var dv: Vector2 = hc - c[0]
+					var md: float = float(c[1]) + Boat.HULL_RADIUS
+					var ov := md - dv.length()
+					if ov > pen and dv.length() > 0.001:
+						pen = ov
+						nn = dv.normalized()
+						hit = true
+				if not hit:
 					continue
-				var nn := dv / dl
-				b.position += Vector3(nn.x, 0, nn.y) * (md - dl)
+				b.position += Vector3(nn.x, 0, nn.y) * pen
 				var into := b.vel.dot(-nn)
 				if into > 0.0:
 					b.vel += nn * into * 1.4
@@ -392,13 +410,20 @@ func _resolve_collisions(delta: float) -> void:
 			continue
 		for fp in _fixed_points:
 			var c: Vector2 = fp[0]
-			var min_d: float = fp[1] + Boat.BOAT_RADIUS
-			var d := b.pos2d() - c
-			var dist := d.length()
-			if dist >= min_d or dist < 0.001:
+			if b.pos2d().distance_to(c) > float(fp[1]) + Boat.BOAT_RADIUS + 1.0:
 				continue
-			var n := d / dist
-			b.position += Vector3(n.x, 0, n.y) * (min_d - dist)
+			var min_d: float = fp[1] + Boat.HULL_RADIUS
+			var n := Vector2.ZERO
+			var pen := 0.0
+			for hc in b.hull_circles():
+				var d: Vector2 = hc - c
+				var ov := min_d - d.length()
+				if ov > pen and d.length() > 0.001:
+					pen = ov
+					n = d.normalized()
+			if pen <= 0.0:
+				continue
+			b.position += Vector3(n.x, 0, n.y) * pen
 			var vn := b.vel.dot(n)
 			if vn < 0.0:
 				b.vel -= n * vn * 1.4

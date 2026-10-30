@@ -429,7 +429,9 @@ damit die Linie **nicht** mit dem Boot mitfährt.
 | `NO_GO` | 0,38 rad | Sperrzone gegen den Wind |
 | `SHEET_SPEED` | 0,7 /s | Schotgeschwindigkeit |
 | `JIB_SHARE` | 0,32 | Anteil der Fock |
-| `BOAT_RADIUS` | 3,6 m | für Kollisionen |
+| `HULL_RADIUS` | 1,7 m | Radius der drei Kollisionskreise des Rumpfes |
+| `HULL_HALF_LENGTH` | 3,0 m | Abstand der äußeren Kreismitten von der Bootsmitte |
+| `BOAT_RADIUS` | 4,7 m | größte Reichweite des Rumpfes (grobe Abstände, KI) |
 | (Kartenrand) | `SeaChart.AREA_MIN` und `AREA_SIZE` | harte Grenze der Karte (x −640…640, z −840…440), 5 m Rand |
 | `THROTTLE_MAX` | 4 | Gasstufen |
 | `ENGINE_THRUST` | 1,9 | Motorschub bei Vollgas |

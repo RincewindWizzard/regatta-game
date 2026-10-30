@@ -370,16 +370,17 @@ Name (`NAMES`) und Typ (Container, Tanker, Massengut) fest. Für jedes Schiff li
 ### Kollision und Warnung (`update_boat`)
 
 Wie alle Gefahrengebiete hat die Schifffahrt `update_boat(boat, delta)`, das `main.gd` für jedes
-Boot aufruft. Der Rumpf ist eine **Kapsel**: die Strecke Bug–Heck, aufgeblasen um `beam/2 + 1,5`.
+Boot aufruft. Der Rumpf des Schiffs ist das **Rumpfvieleck** aus `models/ship_hulls.json`
+(`hull_query`); das Boot bringt seine **drei Kollisionskreise** (`Boat.hull_circles()`) mit:
 
 ```gdscript
-var cp := Geometry2D.get_closest_point_to_segment(p, heck, bug)   # nächster Punkt der Rumpflinie
-var d := p.distance_to(cp)
-var reach := sh["radius"] + Boat.BOAT_RADIUS
-if d < reach:
-    var n := (p - cp) / d                              # Richtung vom Rumpf weg
-    b.position += Vector3(n.x, 0, n.y) * (reach - d)   # aus dem Rumpf schieben
-    b.ship_hit(n, sh["vel"])                           # zurückwerfen und bestrafen
+for hc in b.hull_circles():                            # Heck, Mitte, Bug des Segelboots
+    var q := hull_query(sh, hc)                        # Abstand zur Außenhaut und nächster Punkt
+    if q["d"] < d: d = q["d"]; cp = q["cp"]; hit_c = hc
+if d < Boat.HULL_RADIUS:
+    var n := (hit_c - cp).normalized()                 # Richtung vom Rumpf weg
+    b.position += Vector3(n.x, 0, n.y) * (Boat.HULL_RADIUS - d)   # aus dem Rumpf schieben
+    b.ship_hit(n, sh["vel"])                           # Boot scheidet aus
 ```
 
 `Boat.ship_hit` ([Das Boot](boot.md)) zieht von der Relativgeschwindigkeit den Anteil entlang der

@@ -1,6 +1,6 @@
 extends SceneTree
 ## Headless-Test der Gefahrengebiete, Kollisionsfolgen und des Wendeschubs.
-## Aufruf: godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- <mine|polizei|sirene|kollision|wende>
+## Aufruf: godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- <mine|polizei|sirene|kollision|wende|form|rammen|schiff|kvr|debug>
 
 var _main: Node
 var _t := 0.0
@@ -37,6 +37,23 @@ func _place(b: Boat, p: Vector2, heading: float, speed: float) -> void:
 	b.position = Vector3(p.x, 0, p.y)
 	b.heading = heading
 	b.vel = Vector2(sin(heading), cos(heading)) * speed
+
+
+## Zwei Boote platzieren (b2 um lat seitlich und along nach vorn versetzt, Kurs h2), eine Auflösung
+## ausführen und melden, ob eine Kollision erkannt wurde
+func _form_case(lat: float, along: float, h2: float) -> bool:
+	var b: Boat = _main.boats[0]
+	var b2: Boat = _main.boats[1]
+	_place(b, Vector2(100, 100), 0.0, 0.0)
+	_place(b2, Vector2(100 + lat, 100 - along), h2, 0.0)
+	b.vel = Vector2(0, -1.0)
+	b2.vel = Vector2(-1.5, 0.0) if lat > 0.0 and along == 0.0 else Vector2(0, 1.0) * (1.0 if absf(h2) > 1.0 else 0.0)
+	if lat > 0.0 and along != 0.0:
+		b2.vel = Vector2(-1.5, 0.0)
+	b.penalty = 0.0
+	b2.penalty = 0.0
+	_main._resolve_collisions(0.016)
+	return b.penalty > 0.0 or b2.penalty > 0.0
 
 
 func _physics_process(delta: float) -> bool:
@@ -98,6 +115,8 @@ func _physics_process(delta: float) -> bool:
 				b2.position = Vector3(0, 0, -34)
 			"wende":
 				_place(b, Vector2(0, -60), 0.0, 3.2)
+			"form":
+				pass
 		return false
 	var e := _t - _t0
 	match _scenario:
@@ -180,6 +199,19 @@ func _physics_process(delta: float) -> bool:
 				return _finish(b.hold_kind == 1 and b2.hold_kind == 1 and cases.has(1) and cases.has(2) and absf(b.hold_total - b2.hold_total) > 5.0)
 			if e > 5.0:
 				return _finish(false)
+		"form":
+			if e > 0.3:
+				var ok := true
+				# Boote parallel nebeneinander (Kurs Nord): erst unter ~3,4 m Mittenabstand Kollision
+				var side4 := _form_case(4.0, 0.0, 0.0)
+				var side3 := _form_case(3.0, 0.0, 0.0)
+				# Bug auf Bug (Kurs gegeneinander): Kollision erst bei Berührung (~9,4 m Mittenabstand)
+				var bow10 := _form_case(0.0, 10.0, PI)
+				var bow8 := _form_case(0.0, 8.0, PI)
+				# versetzt (Bug neben Heck), seitlich 4 m: keine Kollision
+				var stag := _form_case(4.0, 6.0, 0.0)
+				print("seitlich 4 m: %s, 3 m: %s | Bug auf Bug 10 m: %s, 8 m: %s | versetzt 4 m: %s" % [side4, side3, bow10, bow8, stag])
+				return _finish(not side4 and side3 and not bow10 and bow8 and not stag)
 		"wende":
 			var from: float = _main.wind.dir_at(b.pos2d())
 			var up: float = PI - from      # Kurs genau gegen den Wind

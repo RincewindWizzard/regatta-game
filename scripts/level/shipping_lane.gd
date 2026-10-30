@@ -168,19 +168,28 @@ func update_boat(b: Boat, _delta: float) -> void:
 	if b.out or b.towed:
 		return
 	var p := b.pos2d()
+	var hull := b.hull_circles()
 	for sh in ships_at(clock):
-		var q := hull_query(sh, p)
-		var d: float = q["d"]
-		if d < Boat.BOAT_RADIUS:
+		# Rumpf des Bootes (drei Kreise) gegen die Rumpfkontur des Schiffs
+		var d := INF
+		var cp := Vector2.ZERO
+		var hit_c := p
+		for hc in hull:
+			var q := hull_query(sh, hc)
+			var dd: float = q["d"]
+			if dd < d:
+				d = dd
+				cp = q["cp"]
+				hit_c = hc
+		if d < Boat.HULL_RADIUS:
 			# Zusammenstoß: aus dem Rumpf schieben, Boot scheidet aus
-			var cp: Vector2 = q["cp"]
-			var n := (p - cp).normalized() if d >= 0.0 else (cp - p).normalized()
+			var n := (hit_c - cp).normalized() if d >= 0.0 else (cp - hit_c).normalized()
 			if n.length() < 0.5:
 				n = Vector2(-sh["dir"].y, sh["dir"].x)
-			b.position += Vector3(n.x, 0, n.y) * (Boat.BOAT_RADIUS - d)
+			b.position += Vector3(n.x, 0, n.y) * (Boat.HULL_RADIUS - d)
 			b.ship_hit(n, sh["vel"])
 			continue
-		if d - Boat.BOAT_RADIUS < WARN_DIST and b.penalty <= 0.5:
+		if d - Boat.HULL_RADIUS < WARN_DIST and b.penalty <= 0.5:
 			var key := [b, sh["id"]]
 			if clock - float(_warned.get(key, -1000.0)) > WARN_PAUSE:
 				_warned[key] = clock

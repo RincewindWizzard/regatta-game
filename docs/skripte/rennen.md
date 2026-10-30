@@ -96,17 +96,22 @@ Uhr weiter, damit auch die anderen noch ins Ziel kommen können.
 
 ### Kollisionen `_resolve_collisions(delta)`
 
-**Boot ↔ Boot** (Kreise mit `BOAT_RADIUS = 3,6`):
+**Boot ↔ Boot** (Rumpfform aus drei Kreisen): Ein Boot ist etwa 9,4 m lang und 3,4 m breit, ein
+einziger Kreis wäre viel zu rund (zwei nebeneinander fahrende Boote „berührten“ sich schon bei
+7 m Abstand). Deshalb hat `Boat.hull_circles()` **drei Kreise** (Radius `HULL_RADIUS = 1,7`) mit den
+Mitten bei −3, 0 und +3 m längs des Kurses. Maßgeblich ist das Kreispaar mit der größten
+Überlappung:
 
 ```gdscript
-var d := b.pos2d() - a.pos2d()
-var dist := d.length()
-var min_d := Boat.BOAT_RADIUS * 2.0
-if dist >= min_d: continue                    # keine Überlappung
-var n := d / dist                             # Normale von a nach b
-var push := (min_d - dist) * 0.5
-a.position -= Vector3(n.x, 0, n.y) * push     # beide je zur Hälfte auseinanderschieben
-b.position += Vector3(n.x, 0, n.y) * push
+var depth := 0.0; var n := Vector2.ZERO
+for pa in a.hull_circles():
+    for pb in b.hull_circles():
+        var dv := pb - pa
+        var ov := Boat.HULL_RADIUS * 2.0 - dv.length()      # Überlappung dieses Paares
+        if ov > depth: depth = ov; n = dv.normalized()      # Normale von a nach b
+if depth <= 0.0: continue                                   # Rümpfe berühren sich nicht
+a.position -= Vector3(n.x, 0, n.y) * depth * 0.5            # beide je zur Hälfte auseinanderschieben
+b.position += Vector3(n.x, 0, n.y) * depth * 0.5
 var rel := (b.vel - a.vel).dot(n)             # Annäherungstempo (< 0 = nähern sich)
 if rel < 0.0:
     var a_in := a.vel.dot(n); var b_in := -b.vel.dot(n)     # vor dem Impuls merken
@@ -115,8 +120,12 @@ if rel < 0.0:
 a.scrape(delta); b.scrape(delta)              # Dauerkontakt bremst
 ```
 
-**Boot ↔ feste Punkte** (Tonnen, Stege, Wracks): gleiche Idee, aber nur das Boot wird
-bewegt; die Geschwindigkeit entlang der Normalen wird mit Faktor 1,4 umgekehrt (Abprallen).
+Eine Vorprüfung nach Mittenabstand (über `2 · BOAT_RADIUS`) spart die neun Kreisvergleiche. So
+kollidieren parallel fahrende Boote erst bei weniger als etwa 3,4 m Abstand und Bug auf Bug bei
+etwa 9,4 m (Test `form` in `hazard_test.gd`).
+
+**Boot ↔ feste Punkte** (Tonnen, Stege, Wracks): gleiche Idee mit den drei Bootskreisen gegen den
+Kreis des Hindernisses, aber nur das Boot wird bewegt; die Geschwindigkeit entlang der Normalen wird mit Faktor 1,4 umgekehrt (Abprallen).
 Boote mit `towed` oder `out` werden übersprungen.
 
 ### Weitere Aufgaben pro Physikschritt

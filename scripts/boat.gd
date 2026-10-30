@@ -33,7 +33,10 @@ const TACK_BOOST := 1.5       ## Zusatzbeschleunigung direkt nach einer Wende (m
 const TACK_BOOST_TIME := 2.2  ## so lange klingt der Schub aus
 const TACK_BOOST_MIN := 1.3   ## Mindestfahrt (m/s), damit die Wende Schub gibt
 const TACK_COOLDOWN := 5.0
-const BOAT_RADIUS := 3.6
+## Kollisionsform: drei Kreise entlang der Rumpfachse (etwa 9,4 m lang, 3,4 m breit)
+const HULL_RADIUS := 1.7
+const HULL_HALF_LENGTH := 3.0               ## Abstand der äußeren Kreismitten von der Bootsmitte
+const BOAT_RADIUS := HULL_HALF_LENGTH + HULL_RADIUS   ## größte Reichweite vom Mittelpunkt (grobe Abstände, KI)
 const MODEL_DIR := "res://models/"
 
 const THROTTLE_MAX := 4
@@ -185,6 +188,13 @@ func _ready() -> void:
 	_snd_engine = Sfx.make_loop_player("outboard_loop")
 	_snd_engine.pitch_scale = 0.95 + player_index * 0.06
 	add_child(_snd_engine)
+
+
+## Mittelpunkte der drei Kollisionskreise (Heck, Mitte, Bug) in Weltkoordinaten
+func hull_circles() -> Array[Vector2]:
+	var f := Vector2(sin(heading), cos(heading)) * HULL_HALF_LENGTH
+	var c := pos2d()
+	return [c - f, c, c + f]
 
 
 func pos2d() -> Vector2:
