@@ -120,6 +120,7 @@ Siehe [Klang](klang.md#tools-make-audio-py).
 | `tools/export_dehler.py` | zerlegt das Blender-Modell „Dehler 31“ in vier `.glb`: Rumpf, Großsegel mit Baum, Fock, Pinne mit Ruder. Der Drehpunkt (`ORIGIN`) ist der Root-Knochen des Rigs. |
 | `tools/build_tug.py` | baut den stilisierten Schlepper aus Primitiven und exportiert `models/tug.glb` |
 | `tools/chart_to_depth.py` | wandelt eine Seekarte (Bild) in den Seegrund eines Levels um (Land/Wasser nach Farbe, nur zu schmale Wasserwege verbreitert, Küstenabstand → Tiefe); Parameter in `tools/kiel_chart.json`, Ergebnis `levels/data/kiel_foerde_tiefe.png` |
+| `tools/make_download_page.py` | schreibt die Abschnitte „Stabil“ und „Snapshot“ der Download-Seite aus den Release-Dateien (`VERSION.txt`, `SHA256SUMS.txt`, `TAG.txt`) |
 | `tools/build_ships.py` | baut die drei Berufsschiffe (Loft-Rumpf, Aufbauten, Ladung, Schaumstreifen) und schreibt `models/ship_*.glb` sowie die Rumpfkontur `models/ship_hulls.json` |
 
 Die Skripte laufen **in Blender** (`blender --background --python tools/build_tug.py -- models/tug.glb`, `blender --background --python tools/build_ships.py -- models`). Ohne Blender-Installation geht es auch mit dem Python-Modul: `pip install bpy` und dann `python tools/build_ships.py models`.
@@ -135,22 +136,37 @@ Zwei GitHub-Actions-Workflows in `.github/workflows/` bauen und veröffentlichen
 
 | Datei | Aufgabe |
 |---|---|
-| `docs.yml` | baut die Dokumentation mit MkDocs und veröffentlicht sie auf GitHub Pages; holt dabei die Dateien des neuesten Releases nach `/downloads` |
-| `release.yml` | exportiert das Spiel für Windows, Linux und macOS, legt ein GitHub Release an und stößt `docs.yml` an |
+| `release.yml` | exportiert das Spiel für Linux, Windows und macOS, veröffentlicht Snapshot bzw. festes Release und stößt `docs.yml` an |
+| `docs.yml` | lädt neuesten Snapshot und neuestes festes Release, erzeugt die Download-Seite, baut die Doku mit MkDocs und veröffentlicht sie auf GitHub Pages |
 
-**`release.yml` im Detail.** Ausgelöst wird er von Hand (*Actions → Spiel bauen und
-veröffentlichen → Run workflow*, mit Versionsnummer wie `v1.2.0`) oder durch das Pushen eines
-Tags `v*`. Der Job `export` lädt Godot **4.7.2** und die passenden Export-Vorlagen (zusammen
-gecacht, die Version steht in `GODOT_VERSION`), importiert das Projekt, führt `level_check.gd`
-aus und exportiert mit den Presets aus `export_presets.cfg` die drei Plattformen. Daraus werden
-`Regatta-windows.zip`, `Regatta-linux.zip` und `Regatta-macos.zip`. Der Job `release` hängt sie
-an ein GitHub Release (Namen **ohne** Versionsnummer, damit der Link
-`…/releases/latest/download/Regatta-windows.zip` immer funktioniert). Der Job `docs` startet
-danach `docs.yml` auf dem Hauptzweig; so liegen die Downloads auch auf der Seite
-[Download](../spielen/download.md).
+**Automatisch bei jedem Push.** `release.yml` läuft bei **jedem Push auf `main`** und bei jedem
+Tag `v*` (außerdem von Hand über *Actions → Run workflow*). Der Job `export` lädt Godot **4.7.2** und
+die passenden Export-Vorlagen (zusammen gecacht, die Version steht in `GODOT_VERSION`), importiert das
+Projekt und führt `level_check.gd` sowie den Spieltest `hazard_test.gd -- form` aus; schlägt einer
+fehl, wird nichts veröffentlicht. Dann exportiert er mit den Presets aus `export_presets.cfg` die drei
+Plattformen und schreibt `Regatta-windows.zip`, `Regatta-linux.zip`, `Regatta-macos.zip`,
+`SHA256SUMS.txt` und `VERSION.txt` (Commit, Datum, Godot-Version, Lauf-Nummer).
+
+**Snapshot und festes Release.** Der Job `release` unterscheidet:
+
+* **Push auf `main`:** Es entsteht ein **Snapshot** (Vorabversion, Tag
+  `snapshot-<Datum>-<Commit>`). Danach löscht der Job **alle älteren Snapshots samt Tag**; es gibt immer
+  nur den neuesten. Getaggte Releases werden nie angefasst.
+* **Tag `v*`** (z. B. `git tag v1.2.0 && git push --tags`): Es entsteht ein **festes Release**
+  (keine Vorabversion), das dauerhaft bleibt.
+
+Die Dateinamen enthalten keine Versionsnummer, damit Links stabil bleiben; die Version steht im
+Release-Tag und in `VERSION.txt`.
+
+**Doku mit Downloads.** Der Job `docs` startet danach `docs.yml` auf `main`. Dieser lädt mit `gh` den
+neuesten Snapshot und das neueste feste Release nach `dl/snapshot` und `dl/stabil`, lässt
+`tools/make_download_page.py` die Abschnitte „Stabil“ und „Snapshot“ der Seite
+[Download](../spielen/download.md) schreiben (Version, Datum, Größe, Prüfsumme, Links zwischen den
+Markierungen `DOWNLOADS:START/END`), baut strikt und legt die Zip-Dateien unter `site/downloads/`
+ab. Gibt es noch kein Release, sagt die Seite das.
 
 Einmalig im Repository einzustellen: *Settings → Actions → General → Workflow permissions →
-Read and write permissions*, und *Settings → Pages → Source → GitHub Actions*.
+Read and write permissions* (Releases anlegen/löschen) und *Settings → Pages → Source → GitHub Actions*.
 
 **Export-Presets.** `export_presets.cfg` enthält drei Presets: Windows (x86_64, Programm und Daten
 in einer `.exe`), Linux (x86_64, eine Datei) und macOS (universal, nicht signiert, als Zip mit

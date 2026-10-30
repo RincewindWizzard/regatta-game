@@ -1,6 +1,7 @@
 name: Dokumentation
 
 # Baut die MkDocs-Dokumentation (Theme "readthedocs") und veröffentlicht sie auf GitHub Pages.
+# Die Seite „Download“ bekommt dabei den neuesten Snapshot und das neueste feste Release (Tag v*).
 # Einmalig nötig: im Repository unter Settings -> Pages als Quelle "GitHub Actions" wählen.
 
 on:
@@ -39,17 +40,35 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-docs.txt
       - run: pip install -r requirements-docs.txt
-      # --strict: kaputte Querverweise und fehlende Seiten lassen den Build fehlschlagen
-      - run: mkdocs build --strict
-      # Spiel-Downloads des neuesten Releases auf die Seite legen (falls es schon eines gibt)
-      - name: Downloads des neuesten Releases einbinden
+      # Spiel-Downloads: neuester Snapshot und neuestes festes Release (falls vorhanden) nach dl/
+      - name: Downloads der Releases laden
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          mkdir -p dl/snapshot dl/stabil
+          fetch() {   # $1 = Ordner, $2 = Tag-Filter (jq)
+            TAG=$(gh release list --limit 100 --json tagName,createdAt --jq "[.[] | select(.tagName | $2)] | sort_by(.createdAt) | last | .tagName // empty") || TAG=""
+            if [ -n "$TAG" ]; then
+              echo "$1: $TAG"
+              gh release download "$TAG" --dir "dl/$1" --pattern "Regatta-*.zip" --pattern "SHA256SUMS.txt" --pattern "VERSION.txt" || true
+              echo "$TAG" > "dl/$1/TAG.txt"
+            else
+              echo "$1: noch kein Release"
+            fi
+          }
+          fetch snapshot 'startswith("snapshot-")'
+          fetch stabil 'startswith("v")'
+          ls -lh dl/snapshot dl/stabil
+      - name: Download-Seite aus den Release-Daten erzeugen
+        run: python tools/make_download_page.py docs/spielen/download.md dl
+      # --strict: kaputte Querverweise und fehlende Seiten lassen den Build fehlschlagen
+      - run: mkdocs build --strict
+      - name: Binaries auf die Seite legen
+        run: |
           mkdir -p site/downloads
-          gh release download --repo "$GITHUB_REPOSITORY" --pattern "Regatta-*.zip" --dir site/downloads \
-            || echo "Noch kein Release vorhanden – es werden keine Downloads eingebunden."
-          ls -lh site/downloads
+          cp -r dl/snapshot site/downloads/snapshot
+          cp -r dl/stabil site/downloads/stabil
+          du -sh site/downloads
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

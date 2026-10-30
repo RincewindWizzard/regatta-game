@@ -31,8 +31,9 @@ anders. Und wer zu weit ins Flache gerät, sitzt fest, bis der Schlepper kommt.
 
 ## Installation
 
-**Fertige Version:** Unter [Releases](../../releases) (oder auf der Seite „Download“ der Dokumentation) die Datei für dein System laden,
-entpacken, starten. Windows warnt beim ersten Start, weil das Spiel nicht signiert ist
+**Fertige Version:** Unter [Releases](../../releases) (oder auf der Seite „Download“ der Dokumentation, dort mit
+vollständiger Installationsanleitung) die Datei für dein System laden, entpacken, starten. Jeder Push auf `main` erzeugt automatisch einen
+**Snapshot** (immer nur der neueste), Tags `v*` erzeugen feste Releases. Windows warnt beim ersten Start, weil das Spiel nicht signiert ist
 („Weitere Informationen → Trotzdem ausführen“). Auf dem Mac per Rechtsklick → Öffnen.
 
 **Aus dem Quellcode:** [Godot 4.7.2](https://godotengine.org/download) (ältere 4.x ab 4.3 laufen meist auch)
