@@ -43,6 +43,7 @@ nav:
       - Download: spielen/download.md
       - Spielanleitung: spielen/anleitung.md
       - Die Bahnen: spielen/bahnen.md
+      - Segelschule (Tutorial): spielen/segelschule.md
       - Die Karten: spielen/karten.md
       - Gefahren und Tiere: spielen/gefahren.md
       - Mehrspieler: spielen/mehrspieler.md
@@ -58,6 +59,7 @@ nav:
       - Wind und Strömung: skripte/wind.md
       - Das Boot: skripte/boot.md
       - Rennablauf: skripte/rennen.md
+      - Segelschule (Tutorial): skripte/tutorial.md
       - Eingabe: skripte/eingabe.md
       - Computergegner: skripte/ki.md
       - Kamera und Anzeige: skripte/kamera-hud.md

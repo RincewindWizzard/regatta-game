@@ -34,6 +34,7 @@ var countdown := 4.0
 var race_time := 0.0
 var go_flash := 0.0
 var winner: Boat = null
+var tutorial: Tutorial = null     # Segelschule (nur in Tutorial-Leveln)
 
 var _last_beep := 99
 var _wind_snd: AudioStreamPlayer
@@ -93,6 +94,10 @@ func _ready() -> void:
 		close_hauled = from.rotated(deg_to_rad(-45.0))
 
 	var slots := GameState.slots()
+	if level.tutorial:
+		net = ""
+		slots = [{"peer": 1, "local": 0, "name": "Skipper", "color": 0}]       # Tutorial: immer ein Spieler
+		course.disabled = true
 	for i in slots.size():
 		var slot: Dictionary = slots[i]
 		var b := Boat.new()
@@ -147,6 +152,17 @@ func _ready() -> void:
 
 	_wind_snd = Sfx.make_loop_player("wind_loop")
 	add_child(_wind_snd)
+
+	if level.tutorial:
+		# Segelschule: sofort los, keine Gegner, keine Rennwertung
+		state = "racing"
+		for b in boats:
+			b.controls_enabled = true
+		tutorial = Tutorial.new()
+		tutorial.name = "Tutorial"
+		add_child(tutorial)
+		tutorial.setup(self, level, boats[0], wind)
+		tutorial.finished.connect(func(): state = "finished")
 
 	if net != "":
 		Net.game = self

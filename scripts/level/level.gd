@@ -28,6 +28,8 @@ const PAINT_RES := 256
 const PAINT_STEP := 0.15        ## Meter pro Graustufe im Malbild
 const PREVIEW_RES := 256        ## Auflösung der Editor-Vorschau
 
+## Tutorial statt Regatta: ein Spieler, keine Gegner, kein Countdown, keine Start-/Ziellinie-Wertung
+@export var tutorial := false
 @export var level_name := "Neue Bahn"
 @export_multiline var description := ""
 

@@ -31,6 +31,7 @@ Jedes Skript des Projekts mit einem Satz zur Aufgabe und dem Kapitel, das es gen
 
 | Skript | Aufgabe | Kapitel |
 |---|---|---|
+| `scripts/tutorial.gd` | Segelschule: Aufgabenfolge und Manövererkennung (Tutorial) | [Segelschule](tutorial.md) |
 | `scripts/hud.gd` | Anzeige im Rennen (Rahmen, Windrose, Minikarte, Panels) | [Kamera und Anzeige](kamera-hud.md#hud-gd) |
 | `scripts/split_camera.gd` | Eine oder zwei Kameras, dynamischer Splitscreen | [Kamera und Anzeige](kamera-hud.md#split-camera-gd) |
 | `scripts/menu.gd` | Startmenü mit Kartenvorschau | [Menü und Lobby](menue.md#menu-gd) |

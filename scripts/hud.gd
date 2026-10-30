@@ -71,9 +71,74 @@ func _draw() -> void:
 	_draw_time(Vector2(FRAME + 10.0, FRAME + 10.0))
 	if boats.size() > local_boats.size() or boats.size() > 2 or main.net != "":
 		_draw_leaderboard(Vector2(FRAME + 10.0, FRAME + 54.0))
-	_draw_center(vs)
+	if main.tutorial != null:
+		_draw_tutorial(vs)
+	else:
+		_draw_center(vs)
 	_draw_fps(vs)
 	_draw_abort_hint(vs)
+
+
+## Segelschule: Anleitung als große Schrift mittig über dem Boot, Fortschrittsbalken, Hinweis
+func _draw_tutorial(vs: Vector2) -> void:
+	var tut: Tutorial = main.tutorial
+	var c := Vector2(vs.x * 0.5, vs.y * 0.5 - 140.0)       # die Kamera hält das Boot in der Bildmitte
+	if tut.done:
+		var d := Vector2(vs.x * 0.5, vs.y * 0.27)
+		_big("Segelschule bestanden!", d, 64, Color(0.1, 0.5, 0.2))
+		_text_centered("Zeit " + _fmt_time(tut.done_time), d + Vector2(0, 54), 30, INK, _font_b, true)
+		_text_centered("Start/Enter: noch einmal   ·   Esc oder Zurück-Taste: Menü", d + Vector2(0, 94), 22, INK, _font_b, true)
+		return
+	var task: Dictionary = tut.current()
+	var alpha := clampf(1.0 - tut.flash * 0.75, 0.25, 1.0)        # beim Aufgabenwechsel einblenden
+	var lines := _wrap(String(task["text"]), 34, vs.x * 0.6)
+	var mob := String(task["id"]) == "mob" and tut.mob_pos != Vector2.INF
+	# Höhe des Blocks: Kopfzeile, Anleitung, Balken, ggf. Personenzeile und Hinweis
+	var block := 40.0 + lines.size() * 42.0 + 34.0 + (32.0 if mob else 0.0) + (30.0 if tut.hint != "" else 0.0)
+	var y := vs.y * 0.5 - 100.0 - block                            # Block endet über dem Namensschild des Bootes
+	_text_centered("Aufgabe %d/%d  ·  %s" % [tut.index + 1, Tutorial.TASKS.size(), task["titel"]], Vector2(c.x, y + 20.0), 22, Color(INK, alpha), _font_b, true)
+	y += 56.0
+	for ln in lines:
+		_big_line(ln, Vector2(c.x, y), 34, Color(INK, alpha))
+		y += 42.0
+	# Fortschrittsbalken unter der Anleitung
+	var bw := 320.0
+	var bx := c.x - bw * 0.5
+	draw_rect(Rect2(bx, y - 8.0, bw, 10.0), Color(PAPER, 0.85))
+	draw_rect(Rect2(bx, y - 8.0, bw * clampf(tut.progress, 0.0, 1.0), 10.0), Color(0.12, 0.6, 0.3))
+	draw_rect(Rect2(bx, y - 8.0, bw, 10.0), INK, false, 1.2)
+	y += 34.0
+	if mob:
+		var side := "rechts" if tut.mob_bearing > 15.0 else ("links" if tut.mob_bearing < -15.0 else "voraus")
+		if absf(tut.mob_bearing) > 150.0:
+			side = "achteraus"
+		_text_centered("Person im Wasser: %d m, %s" % [roundi(tut.mob_dist), side], Vector2(c.x, y), 26, Color(0.8, 0.15, 0.05), _font_b, true)
+		y += 32.0
+	if tut.hint != "":
+		_text_centered(tut.hint, Vector2(c.x, y), 22, Color(0.75, 0.1, 0.1), _font_i, true)
+
+
+## Text in Zeilen umbrechen (höchstens max_w Pixel breit)
+func _wrap(s: String, size: int, max_w: float) -> PackedStringArray:
+	var out := PackedStringArray()
+	var cur := ""
+	for word in s.split(" "):
+		var test := word if cur == "" else cur + " " + word
+		if _font_b.get_string_size(test, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > max_w and cur != "":
+			out.append(cur)
+			cur = word
+		else:
+			cur = test
+	if cur != "":
+		out.append(cur)
+	return out
+
+
+func _big_line(s: String, pos: Vector2, size: int, col: Color) -> void:
+	var w := _font_b.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var p := pos - Vector2(w * 0.5, 0)
+	draw_string_outline(_font_b, p, s, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 10, Color(1, 1, 1, 0.92 * col.a))
+	draw_string(_font_b, p, s, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
 
 
 ## Controller: Hinweis zum Abbrechen (Zurück-Taste halten) mit Fortschrittsbalken
@@ -254,9 +319,12 @@ func _draw_panel(b: Boat, o: Vector2) -> void:
 	if b.kvr_time > 0.0:
 		_draw_kvr(b, o)
 	var x := o.x + 20.0
-	_text("%s  ·  Platz %d" % [b.player_name, main.rank_of(b)], Vector2(x, o.y + 26), 19, b.color.darkened(0.15), _font_b)
+	var title := b.player_name if main.tutorial != null else "%s  ·  Platz %d" % [b.player_name, main.rank_of(b)]
+	_text(title, Vector2(x, o.y + 26), 19, b.color.darkened(0.15), _font_b)
 	_text("%.1f kn" % (b.speed() * 1.944), Vector2(x, o.y + 60), 28, INK, _font_b)
-	if b.finished:
+	if main.tutorial != null:
+		pass                                   # Tutorial: kein Ziel, keine Rangliste
+	elif b.finished:
 		_text("Im Ziel  " + _fmt_time(b.finish_time), Vector2(x + 118, o.y + 58), 17, Color(0.1, 0.5, 0.2), _font_b)
 	else:
 		var dist := b.pos2d().distance_to(course.target_pos(b.next_target))

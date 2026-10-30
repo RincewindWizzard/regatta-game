@@ -31,6 +31,8 @@ Programm.
 |---|---|---|
 | `tests/level_check.gd` | Alle Bahnen: Startplätze, Linie, Marken in tiefem Wasser und im Gebiet; Tankstellen: Wurzel an Land, Liegeplatz im Wasser | `godot --headless --path . --script res://tests/level_check.gd` |
 | `tests/polar_test.gd` | **Segelphysik:** Geschwindigkeit je Kurs, Wende, Motor, Verbrauch, Anlasser | `… polar_test.gd` |
+| `tests/tutorial_test.gd` | Segelschule headless: je Aufgabe Positiv- und Negativfälle |
+| `tests/tutorial_shots.gd` | Bilder der Segelschule (Overlay, Mann über Bord, Ende) |
 | `tests/depth_png.gd` | schreibt die Tiefenkarte eines Levels als PNG (Marken gelb, Start rot, Ziel grün, Tankstellen orange): schnelle Kontrolle beim Bauen eines Levels |
 | `tests/perf_test.gd` | misst die CPU-Zeit je Bild mit vier Computerbooten (`-- res://levels/05_lotsenrinne.tscn`) |
 | `tests/hazard_test.gd` | Mine, Polizei, Sirenen, Berufsschiff (`schiff`), Kollision, Polizei rammen (`rammen`), Wendeschub, KVR, Debug | `godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- mine` |

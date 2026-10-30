@@ -13,6 +13,10 @@
 Im Menü zeigt die Karte rechts die gewählte Bahn mit Tonnen, Startlinie, Windpfeil,
 **Tankstellen** (rote Punkte mit „F“) und **Warngebieten** (magenta Kreise).
 
+!!! tip "Neu beim Segeln?"
+    Starte mit der **[Segelschule](segelschule.md)**: acht geführte Übungen (Kurse zum Wind, Kreise,
+    Achten, Aufschießer, Mann über Bord) ohne Gegner und ohne Zeitdruck.
+
 ## Steuerung
 
 | | Controller | Tastatur Spieler 1 | Tastatur Spieler 2 |

@@ -16,6 +16,7 @@ nach [Eigene Bahnen bauen](../referenz/bahnen-bauen.md).
 | 6 | Schärengarten | `06_schaerengarten.tscn` | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind, **Tankstelle auf Granholm** im Norden, **Sirenen-Insel** im Süden |
 | 7 | Flussregatta | `07_flussregatta.tscn` | Binnenrevier: den Mühlenfluss gegen den Strom hinauf in den Großen See und zurück, **Vogelschutzgebiet** mit Polizeikontrolle |
 | 8 | Kieler Förde | `08_kieler_foerde.tscn` | **Strecke von A nach B** (nach der echten Seekarte, gestaucht): Start in der Schwentinemündung, Ziel vor dem Olympiahafen Schilksee (kein Rundkurs). Am Weg: Düsternbrook, Tirpitzmole, NOK-Schleuse Holtenau, Kreuzfahrtterminal Ostseekai (nur Kulisse), **Friedrichsorter Enge** mit Leuchtturm, U-Boot-Ehrenmal und Marine-Ehrenmal Laboe; **Berufsschifffahrt** zwischen NOK und Ostsee, Marine-Sperrgebiet, zwei Tankstellen |
+| 9 | Segelschule | `09_segelschule.tscn` | **Tutorial** für einen Spieler: acht Übungen nacheinander (Kurse zum Wind, Vollkreis, Achten um zwei Tonnen, Aufschießer, Mann über Bord), konstanter Nordwind, kein Motor – siehe [Segelschule](segelschule.md) |
 
 ## Tipps pro Bahn
 

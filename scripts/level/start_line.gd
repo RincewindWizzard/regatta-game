@@ -70,6 +70,8 @@ func _label_text() -> String:
 	if finish_only:
 		return "ZIEL"
 	var lvl := get_parent() as Level
+	if lvl and lvl.tutorial:
+		return "STARTPLATZ"
 	if lvl and lvl.finish_line() != null:
 		return "START"
 	return "START / ZIEL"

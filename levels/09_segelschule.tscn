@@ -1,0 +1,50 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/level/level.gd" id="1_msrh8"]
+[ext_resource type="Script" path="res://scripts/level/start_line.gd" id="2_y4dlf"]
+[ext_resource type="Script" path="res://scripts/level/course_mark.gd" id="3_abpei"]
+[ext_resource type="Script" path="res://scripts/level/chart_rose.gd" id="4_3kv83"]
+
+[node name="Level" type="Node3D" unique_id=844255812]
+script = ExtResource("1_msrh8")
+tutorial = true
+level_name = "Segelschule"
+description = "Tutorial für einen Spieler: Kurse zum Wind, Vollkreis, Achten um zwei Tonnen, Aufschießer an der Tonne und Mann über Bord – eine Aufgabe nach der anderen, bei gleichbleibendem Nordwind und ohne Motor."
+wind_speed = 5.0
+wind_shift_deg = 0.0
+gusts = 0.0
+fuel_liters = 0.0
+area_margin = 230.0
+depth_variation = 0.0
+seabed_seed = 909
+coast_east = false
+coast_west = false
+depth_paint_png = PackedByteArray()
+
+[node name="StartZiel" type="Node3D" parent="." unique_id=1930804511]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 40)
+script = ExtResource("2_y4dlf")
+half_width = 40.0
+
+[node name="Acht_A" type="Node3D" parent="." unique_id=1059726457]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, -90)
+script = ExtResource("3_abpei")
+mark_name = "Linke Tonne"
+light = "Fl.Y.2s"
+
+[node name="Acht_B" type="Node3D" parent="." unique_id=1679078955]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, -90)
+script = ExtResource("3_abpei")
+mark_name = "Rechte Tonne"
+light = "Fl(2)Y.6s"
+
+[node name="Uebungstonne" type="Node3D" parent="." unique_id=1359699816]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 0, -30)
+script = ExtResource("3_abpei")
+mark_name = "Übungstonne"
+light = "Fl(3)Y.10s"
+
+[node name="Kompassrose" type="Node3D" parent="." unique_id=1488151579]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 0, 60)
+script = ExtResource("4_3kv83")
+radius = 30.0

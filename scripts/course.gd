@@ -10,6 +10,8 @@ const MARK_RADIUS := CourseMark.MARK_RADIUS
 
 var level: Level
 var line: StartLine
+## Tutorial: keine Rennwertung (Start, Tonnen und Ziel zählen nicht)
+var disabled := false
 var finish_line: StartLine     ## eigene Ziellinie oder die Startlinie
 ## Regattagebiet: draußen wird man zurückgedrängt
 var area := Rect2(-640, -840, 1280, 1280)
@@ -68,6 +70,8 @@ static func course_length(lvl: Level) -> float:
 
 
 func update_progress(boat: Boat, prev: Vector2, cur: Vector2) -> void:
+	if disabled:
+		return
 	if boat.finished or boat.next_target >= targets.size():
 		return
 	var idx := boat.next_target

@@ -17,6 +17,7 @@ func _initialize() -> void:
 	_save(_fluss(), "res://levels/07_flussregatta.tscn")
 	_augment("res://levels/07_flussregatta.tscn", _extras_fluss)
 	_save(_kiel(), "res://levels/08_kieler_foerde.tscn")
+	_save(_segelschule(), "res://levels/09_segelschule.tscn")
 	quit()
 
 
@@ -699,4 +700,29 @@ func _kiel() -> Level:
 	_life(l, "Tuemmler", SeaLife.Kind.TUEMMLER, _kwater(_chart(2300, 3150), 9.0), 3, 40.0)
 	_life(l, "Seehunde", SeaLife.Kind.SEEHUNDE, _kwater(_chart(2600, 3350), 5.0), 4, 15.0)
 	_rose(l, _chart(3300, 3500), 34)
+	return l
+
+
+## Segelschule (Tutorial): offenes Wasser, konstanter Nordwind ohne Böen und Dreher, kein Motor.
+## Zwei Regattatonnen (Acht_A links, Acht_B rechts) für die Acht, eine Übungstonne für den Aufschießer.
+func _segelschule() -> Level:
+	var l := _level("Segelschule",
+		"Tutorial für einen Spieler: Kurse zum Wind, Vollkreis, Achten um zwei Tonnen, Aufschießer an der Tonne und Mann über Bord – eine Aufgabe nach der anderen, bei gleichbleibendem Nordwind und ohne Motor.")
+	l.tutorial = true
+	l.wind_from_deg = 0.0
+	l.wind_speed = 5.0
+	l.wind_shift_deg = 0.0
+	l.gusts = 0.0
+	l.fuel_liters = 0.0
+	l.base_depth = 14.0
+	l.depth_variation = 0.0
+	l.seabed_seed = 909
+	l.coast_east = false
+	l.coast_west = false
+	l.area_margin = 230.0
+	_line(l, Vector2(0, 40), 0.0, 40.0)
+	_mark(l, "Acht_A", "Linke Tonne", Vector2(-35, -90), "Fl.Y.2s")
+	_mark(l, "Acht_B", "Rechte Tonne", Vector2(35, -90), "Fl(2)Y.6s")
+	_mark(l, "Uebungstonne", "Übungstonne", Vector2(150, -30), "Fl(3)Y.10s")
+	_rose(l, Vector2(-150, 60), 30)
 	return l

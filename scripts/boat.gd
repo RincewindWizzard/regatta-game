@@ -817,7 +817,7 @@ func _process(delta: float) -> void:
 	_rudder = lerpf(_rudder, clampf(-_last_turn / TURN_RATE, -1.0, 1.0) * 0.55, 1.0 - exp(-6.0 * delta))
 	if _tiller_pivot:
 		_tiller_pivot.rotation.y = _rudder
-	if course and not finished:
+	if course and not finished and not course.disabled:
 		var d := course.target_pos(next_target) - pos2d()
 		_arrow.visible = d.length() > 25.0
 		_arrow.global_rotation = Vector3(0.0, atan2(d.x, d.y), 0.0)

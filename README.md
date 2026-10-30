@@ -168,6 +168,7 @@ mit dem PC verbunden ist. Ein einzelner Joy-Con reicht: Stick lenkt, die Schulte
 | 6 | Schärengarten | bewaldete Schären, Klippen, zwei Sunde mit Strömung, böiger Wind, Tankstelle auf Granholm, Sirenen-Insel im Süden |
 | 7 | Flussregatta | Binnenrevier: den Mühlenfluss gegen den Strom hinauf in den Großen See und zurück |
 | 8 | Kieler Förde | Strecke von A nach B: von der Schwentinemündung durch die Friedrichsorter Enge (Leuchtturm, U-Boot-Ehrenmal) bis zum Olympiahafen Schilksee, mit Ostseekai, Düsternbrook, Tirpitzmole, NOK Holtenau, Marine-Ehrenmal Laboe und Berufsschifffahrt zwischen NOK und Ostsee, knackiger Westwind, Küste nach der echten Seekarte |
+| 9 | Segelschule | **Tutorial** für einen Spieler: Kurse zum Wind, Vollkreis, Achten um zwei Tonnen, Aufschießer, Mann über Bord – mit großer Anleitung über dem Boot |
 
 ---
 

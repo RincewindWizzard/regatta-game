@@ -102,6 +102,7 @@ func _read_level(path: String) -> Dictionary:
 		"gusts": lvl.gusts,
 		"shift": lvl.wind_shift_deg,
 		"length": Course.course_length(lvl),
+		"tutorial": lvl.tutorial,
 		"marks": marks,
 		"line_a": line.center2d() - line.tangent2d() * line.half_width if line else Vector2.ZERO,
 		"line_b": line.center2d() + line.tangent2d() * line.half_width if line else Vector2.ZERO,
@@ -320,6 +321,9 @@ func _update_labels() -> void:
 		return
 	var info: Dictionary = _info[_levels[_selected]]
 	var wind: float = info["wind"]
+	if info.get("tutorial", false):
+		_facts.text = "Tutorial   ·   1 Spieler   ·   Wind aus %03d°, %d kn (konstant)   ·   ohne Motor   ·   8 Aufgaben" % [roundi(info["wind_from"]), roundi(wind * 1.944)]
+		return
 	var w: Array = GameState.WIND_OPTIONS[GameState.wind_choice]
 	if w[1] > 0.0:
 		wind = w[1]

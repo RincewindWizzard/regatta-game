@@ -81,6 +81,8 @@ static func apply_net_config(cfg: Dictionary, my_id: int, mode: String) -> void:
 
 ## Startfüllung des Tanks in Litern (0 = kein Motor)
 static func start_fuel(level: Level) -> float:
+	if level.tutorial:
+		return level.fuel_liters
 	var f: float = FUEL_OPTIONS[fuel_choice][1]
 	return level.fuel_liters if f < 0.0 else f
 
@@ -116,6 +118,8 @@ static func apply_wind(level: Level, wind: WindField) -> void:
 	wind.base_speed = level.wind_speed
 	wind.shift_amplitude = deg_to_rad(level.wind_shift_deg)
 	wind.gust_strength = level.gusts
+	if level.tutorial:
+		return                          # Tutorial: Wind und Böen wie im Level, keine Menü-Überschreibung
 	var w: Array = WIND_OPTIONS[wind_choice]
 	if w[1] > 0.0:
 		wind.base_speed = w[1]
