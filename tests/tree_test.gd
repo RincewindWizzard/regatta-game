@@ -5,7 +5,8 @@ extends SceneTree
 func _initialize() -> void:
 	var lvl: Level = load("res://levels/07_flussregatta.tscn").instantiate()
 	root.add_child(lvl)
-	SeaChart.set_depth_grid(lvl.compute_depth(SeaChart.RES), SeaChart.RES)
+	lvl.apply_area()
+	SeaChart.set_depth_grid(lvl.compute_depth(SeaChart.game_res()), SeaChart.game_res())
 	var river: RiverChannel = lvl.get_node("Muehlenfluss")
 	river.prune_trees()
 	var kept := 0

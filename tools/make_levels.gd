@@ -646,6 +646,10 @@ func _kiel() -> Level:
 	l.coast_east = false
 	l.coast_west = false
 	l.depth_image = "res://levels/data/kiel_foerde_tiefe.png"
+	l.depth_image_black = -8.0          # Wert 0 = -8 m (Land), Wert 255 = +17,5 m, wie vom Skript geschrieben
+	l.depth_image_white = 17.5
+	l.depth_image_warp = 2.0            # leichte Verschiebung und Rauschen gegen Pixelmuster
+	l.depth_image_noise = 0.15
 	# Start in der Schwentinemündung (Pfeil nach Westen in die Förde), Ziel vor dem Olympiahafen Schilksee
 	var mouth := _chart(1762, 6140)
 	_line(l, mouth + Vector2(-16, 0), 90.0, 22.0)

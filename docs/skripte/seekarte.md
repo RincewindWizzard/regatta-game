@@ -10,18 +10,18 @@ Etwa 420 Zeilen. Es hat **drei Aufgaben**:
 ## Das Tiefenraster
 
 ```gdscript
-const AREA_MIN := Vector2(-640, -840)   # Ecke links oben (x, z) in Metern
-const AREA_SIZE := 1280.0               # Kantenlänge der Karte
-const RES := 448                        # Zellen pro Kante (Zelle ≈ 2,86 m)
+static var area_min := Vector2(-640, -840)   # Ecke links oben (x, z) in Metern, pro Level
+static var area_size := Vector2(1280, 1280)  # Länge × Breite der Karte, pro Level
+const RES := 448                        # Zellen je Kante der Standardkarte (Zelle ≈ 2,86 m)
 const DRAFT := 1.0      # Tiefgang: flacher = Grundberührung
 const HARD := 0.55      # flacher = festgefahren
 const LAND := -0.8      # tiefer als das = festes Land
 
-static var _depth := PackedFloat32Array()   # RES*RES Tiefen in m, Zeile = z, Spalte = x
+static var _depth := PackedFloat32Array()   # Breite*Höhe Tiefen in m, Zeile = z, Spalte = x
 static var _res := 0
 ```
 
-Alle Welten liegen innerhalb dieser einen Karte von 1,28 km Kantenlänge. Jedes Level
+Alle Welten liegen innerhalb der Karte ihres Levels (Standard 1,28 km Kantenlänge, einstellbar 300–3000 m; `grid_dims(res)` liefert das rechteckige Gitter, `game_res()` die Spielauflösung). Jedes Level
 berechnet seine Tiefen selbst (`Level.compute_depth`, siehe [Level](level.md#level-gd)) und
 übergibt sie hier:
 

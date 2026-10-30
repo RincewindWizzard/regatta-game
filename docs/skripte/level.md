@@ -48,13 +48,38 @@ erweiterbar: Ein neuer Baustein mit `update_boat` wird automatisch aufgerufen, o
 @export var seabed_seed := 4711
 @export var inland := false          # Binnenrevier: alles Land, Flüsse/Seen graben Wasser
 @export_file("*.png") var depth_image := ""   # Seegrund aus einem Bild (z. B. echte Seekarte)
+@export_group("Karte")
+@export_range(300.0, 3000.0, 10.0, "suffix:m") var map_size := Vector2(1280, 1280)   # Länge × Breite
+@export var map_origin := Vector2(-640, -840)       # Ecke links oben (x, z)
+@export_group("Tiefenbild")
+@export_range(-30.0, 10.0, 0.1, "suffix:m") var depth_image_black := -8.0   # Tiefe bei Schwarz
+@export_range(-30.0, 40.0, 0.1, "suffix:m") var depth_image_white := 17.5   # Tiefe bei Weiß
+@export var depth_image_invert := false
+@export_range(0.0, 8.0, 0.1, "suffix:m") var depth_image_warp := 2.0        # Versatz der Abtastung
+@export_range(0.0, 1.0, 0.05, "suffix:m") var depth_image_noise := 0.15     # Tiefenrauschen
+@export_group("Seegrund")
 @export var coast_east := true
 @export var coast_west := true
 @export_storage var depth_paint_png := PackedByteArray()   # gemalter Seegrund
 ```
 
-**`depth_image`** ersetzt den zufälligen Grund durch ein 8-Bit-PNG, das genau das Kartengebiet
-(1280 × 1280 m) abdeckt; ein Pixelwert `v` bedeutet die Tiefe `−8 + 0,1·v` Meter. Das Bild wird
+**`map_size`** legt Länge × Breite der Karte fest (300–3000 m, Standard 1280 × 1280 m,
+`map_origin` ist die Ecke links oben). Das Tiefenraster ist rechteckig, die Zellen bleiben
+ca. 2,9 m groß; `SeaChart.set_area` wird vor jeder Berechnung mit der Fläche des Levels gesetzt.
+
+**`depth_image`** ersetzt den zufälligen Grund durch ein PNG, das **auf die ganze Karte
+gestreckt** wird (egal wie groß das Bild ist). Die Helligkeit (Mittel aus R, G, B, 0–1) wird
+linear auf die Tiefe abgebildet: `Tiefe = black + (white − black) · Helligkeit`, mit
+`depth_image_invert` umgekehrt. Der Standard (−8 m … 17,5 m) entspricht dem alten
+Format `−8 + 0,1·v`. Grenzen: **Land** ab Tiefe < −0,8 m, **flach** unter 1 m (Tiefgang).
+
+Damit keine Pixel- oder Kachelkanten an den Tiefenlinien entstehen, wird nicht linear
+abgetastet, sondern **bikubisch** (Catmull-Rom) in Weltmetern; zusätzlich verschiebt ein
+Rauschen (`depth_image_warp`, FastNoiseLite, Seed aus `seabed_seed`) die Abtastposition und
+`depth_image_noise` addiert feines Tiefenrauschen. Beides ist deterministisch, Rauschen 0
+liefert eine glatte Karte. Der Aufbau kostet Zeit: die Standardkarte ca. 1,5 s, eine Karte von 3000 × 3000 m (1 Mio. Zellen) ca. 7 s.
+Ein 8-Bit-Bild hat nur 256 Stufen; bei sehr flachen Verläufen
+über große Karten sieht man das Rauschen dann als feines Körnchen, nicht als Treppe. Das Bild wird
 als Rohdatei gelesen (`FileAccess.get_file_as_bytes` + `Image.load_png_from_buffer`), damit es auch
 im exportierten Spiel funktioniert (der Export-Filter nimmt `levels/data/*.png` mit). Erzeugt wird
 es mit `tools/chart_to_depth.py` aus einer Seekarte (Land/Wasser nach Farbe, Abstand zur Küste →
@@ -130,7 +155,7 @@ Inseln ergeben das Flachere von beiden. Bei Flüssen ist es umgekehrt (`max`).
     damit die Küstenlinien unregelmäßig wie auf echten Karten aussehen statt rund.
 
 !!! tip "Zwei Auflösungen"
-    Im **Spiel** wird mit `SeaChart.RES` (448) gerechnet, in der **Menü-Vorschau** mit 160 und
+    Im **Spiel** wird mit `SeaChart.RES` (448 Zellen je Kante der Standardkarte; bei anderen Kartengrößen entsprechend `game_res()`) gerechnet, in der **Menü-Vorschau** mit 160 und
     im **Editor** mit 256 (`PREVIEW_RES`), damit das Verschieben flüssig bleibt.
 
 ### 4. Seegrund malen

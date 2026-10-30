@@ -16,15 +16,18 @@ func _process(_d: float) -> bool:
 	if _f < 3:
 		return false
 	SeaChart.set_depth_grid(_l.compute_depth(448), 448)
-	var amin := SeaChart.AREA_MIN
-	var img := SeaChart.make_map_image(amin, amin + Vector2.ONE * SeaChart.AREA_SIZE, 640, 640)
+	var amin := SeaChart.area_min
+	var asize := SeaChart.area_size
+	var iw := 640
+	var ih := maxi(2, roundi(640.0 * asize.y / asize.x))
+	var img := SeaChart.make_map_image(amin, amin + asize, iw, ih)
 	var dot := func(p: Vector2, c: Color, r := 3) -> void:
-		var q := (p - amin) / SeaChart.AREA_SIZE * 640.0
+		var q := (p - amin) / asize * Vector2(iw, ih)
 		for dy in range(-r, r + 1):
 			for dx in range(-r, r + 1):
 				var x := int(q.x) + dx
 				var y := int(q.y) + dy
-				if x >= 0 and y >= 0 and x < 640 and y < 640:
+				if x >= 0 and y >= 0 and x < iw and y < ih:
 					img.set_pixel(x, y, c)
 	for m in _l.marks():
 		dot.call(m.pos2d(), Color(1, 0.9, 0))

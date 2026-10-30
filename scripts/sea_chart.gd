@@ -10,9 +10,13 @@ extends Node3D
 ## Spiellogik: Wo die Karte flacher als der Tiefgang ist, läuft man auf Grund.
 ## Tonnen, Untiefen-Symbole, Inseln und Kompassrosen zeichnen ihre Nodes selbst.
 
-const AREA_MIN := Vector2(-640, -840)
-const AREA_SIZE := 1280.0
-const RES := 448
+## Kartenfläche des aktuellen Levels (Meter, Nordwestecke und Größe). Der Level setzt sie vor jeder
+## Berechnung (Level.apply_area); Standard 1280 x 1280 m wie die frühere Konstante.
+const DEFAULT_AREA_MIN := Vector2(-640, -840)
+const DEFAULT_AREA_SIZE := Vector2(1280, 1280)
+const CELL := 2.86          ## Zellgröße des Tiefengitters (m) bei Standardgröße
+static var area_min := DEFAULT_AREA_MIN
+static var area_size := DEFAULT_AREA_SIZE
 const DRAFT := 1.0      ## Tiefgang: flacher als das = Grundberührung
 const HARD := 0.55      ## flacher als das = festgefahren
 const LAND := -0.8      ## Uferlinie: darunter festes Land
@@ -21,36 +25,62 @@ const MAGENTA := Color(0.78, 0.12, 0.55)
 const INK := Color(0.08, 0.08, 0.1)
 
 static var _depth := PackedFloat32Array()
-static var _res := 0
+static var _res := 0                ## Zellen entlang der längeren Seite (wie beim Aufruf von set_depth_grid)
+static var _w := 0
+static var _h := 0
+static var _amin := DEFAULT_AREA_MIN     ## Kartenfläche zum Zeitpunkt von set_depth_grid
+static var _asize := DEFAULT_AREA_SIZE
 static var _fonts := {}
 
 var material: ShaderMaterial
 var soundings := true
 var _depth_tex: ImageTexture
+var _plane_mi: MeshInstance3D
 var _soundings_root: Node3D
 
 
 # ---------------------------------------------------------------- Tiefen (global)
 
-## Setzt das aktuelle Tiefenraster (vom Level berechnet)
+## Kartenfläche als Rechteck (Weltmeter)
+static func area_rect() -> Rect2:
+	return Rect2(area_min, area_size)
+
+
+## Gitterabmessungen (Breite, Höhe) für res Zellen entlang der längeren Kartenseite
+static func grid_dims(res: int) -> Vector2i:
+	var cell := maxf(area_size.x, area_size.y) / res
+	return Vector2i(maxi(2, roundi(area_size.x / cell)), maxi(2, roundi(area_size.y / cell)))
+
+
+## Auflösung fürs Spiel: etwa 2,86 m je Zelle, höchstens 1024 Zellen je Achse
+static func game_res() -> int:
+	return clampi(roundi(maxf(area_size.x, area_size.y) / CELL), 64, 1024)
+
+
+## Setzt das aktuelle Tiefenraster (vom Level berechnet, passend zu res und der aktuellen Kartenfläche)
 static func set_depth_grid(grid: PackedFloat32Array, res: int) -> void:
+	var d := grid_dims(res)
 	_depth = grid
 	_res = res
+	_w = d.x
+	_h = d.y
+	_amin = area_min
+	_asize = area_size
 
 
 ## Wassertiefe an einer Position (negativ = Land)
 static func depth_at(p: Vector2) -> float:
 	if _res == 0:
 		return 20.0
-	var f := (p - AREA_MIN) / AREA_SIZE * _res - Vector2(0.5, 0.5)
-	if f.x < 0.0 or f.y < 0.0 or f.x >= _res - 1 or f.y >= _res - 1:
+	var f := (p - _amin) / _asize * Vector2(_w, _h) - Vector2(0.5, 0.5)
+	if f.x < 0.0 or f.y < 0.0 or f.x >= _w - 1 or f.y >= _h - 1:
 		return 20.0
 	var i := int(f.x)
 	var j := int(f.y)
 	var fx := f.x - i
 	var fy := f.y - j
-	var a := lerpf(_depth[j * _res + i], _depth[j * _res + i + 1], fx)
-	var b := lerpf(_depth[(j + 1) * _res + i], _depth[(j + 1) * _res + i + 1], fx)
+	var a := lerpf(_depth[j * _w + i], _depth[j * _w + i + 1], fx)
+	var b := lerpf(_depth[(j + 1) * _w + i], _depth[(j + 1) * _w + i + 1], fx)
 	return lerpf(a, b, fy)
 
 
@@ -262,8 +292,12 @@ func _ready() -> void:
 func refresh() -> void:
 	if _res == 0:
 		return
-	var img := Image.create_from_data(_res, _res, false, Image.FORMAT_RF, _depth.to_byte_array())
-	if _depth_tex and _depth_tex.get_width() == _res:
+	var img := Image.create_from_data(_w, _h, false, Image.FORMAT_RF, _depth.to_byte_array())
+	material.set_shader_parameter("area_min", _amin)
+	material.set_shader_parameter("area_size", _asize)
+	if _plane_mi:
+		_plane_mi.position = Vector3(_amin.x + _asize.x * 0.5, 0.0, _amin.y + _asize.y * 0.5)
+	if _depth_tex and _depth_tex.get_width() == _w and _depth_tex.get_height() == _h:
 		_depth_tex.update(img)
 	else:
 		_depth_tex = ImageTexture.create_from_image(img)
@@ -293,14 +327,16 @@ func _build_ground() -> void:
 	shader.code = CHART_SHADER
 	material = ShaderMaterial.new()
 	material.shader = shader
-	material.set_shader_parameter("area_min", AREA_MIN)
-	material.set_shader_parameter("area_size", AREA_SIZE)
+	material.set_shader_parameter("area_min", area_min)
+	material.set_shader_parameter("area_size", area_size)
 	var plane := PlaneMesh.new()
-	plane.size = Vector2(4000, 4000)
+	plane.size = Vector2(4000, 4000) + area_size
 	var mi := MeshInstance3D.new()
 	mi.mesh = plane
+	mi.position = Vector3(area_min.x + area_size.x * 0.5, 0.0, area_min.y + area_size.y * 0.5)
 	mi.material_override = material
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_plane_mi = mi
 	add_child(mi)
 
 
@@ -312,10 +348,11 @@ func _build_soundings() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 2024
 	var spacing := 38.0
-	var x := -440.0
-	while x <= 440.0:
-		var z := -640.0
-		while z <= 240.0:
+	var inner := Rect2(_amin, _asize).grow(-200.0)        # Lotungen nicht ganz am Kartenrand
+	var x := inner.position.x
+	while x <= inner.end.x:
+		var z := inner.position.y
+		while z <= inner.end.y:
 			var p := Vector2(x, z) + Vector2(rng.randf_range(-12, 12), rng.randf_range(-12, 12))
 			z += spacing
 			var d := depth_at(p)
@@ -339,7 +376,7 @@ render_mode unshaded;
 
 uniform sampler2D depth_tex : filter_linear, repeat_disable;
 uniform vec2 area_min;
-uniform float area_size;
+uniform vec2 area_size;
 uniform sampler2D gust_tex : filter_linear, repeat_disable, hint_default_black;
 uniform vec2 gust_min;
 uniform float gust_size = 1.0;

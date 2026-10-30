@@ -28,7 +28,7 @@ Textur), `Boat` (Kartenrand) und in Tests/Werkzeugen.
    `map_origin: Vector2` (Nordwestecke, Standard (−640, −840), damit alle vorhandenen Level
    unverändert bleiben), `depth_image_black` (Standard −8,0 m), `depth_image_white` (Standard
    +17,5 m), `depth_image_invert` (aus), `depth_image_warp` (Verschiebung der Abtastung in Metern,
-   Standard 2,0), `depth_image_noise` (Tiefenrauschen in Metern, Standard 0,25). Alternative:
+   Standard 2,0), `depth_image_noise` (Tiefenrauschen in Metern, Standard 0,15). Alternative:
    `depth_image_rect`/Außentiefe – verworfen; das Bild füllt immer die ganze Karte (einfacher, passt
    zu „wird entsprechend skaliert“).
 2. **Kartenfläche pro Level statt Konstante:** `SeaChart.AREA_MIN`/`AREA_SIZE` werden zu statischen

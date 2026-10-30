@@ -36,7 +36,8 @@ den normalen Godot-Gizmos (`W`/`E`/`R`).
 | **ShoalArea „See“** | gräbt einen See ins Land (für Binnenreviere). |
 | **FuelDock** (Tankstelle) | Steg mit Zapfsäule. Wurzel an Land setzen, Pfeil (lokal −Z) zeigt ins Wasser; der Liegeplatz liegt am Stegkopf. |
 | **SeaLife** | Tümmler, Wal, Möwen, Seehunde, Wrack. `count` Tiere im Umkreis `range_m`. Wrack ist fest (`solid`). |
-| **Level.depth_image** | Seegrund aus einem 8-Bit-Bild (Wert v = Tiefe −8 + 0,1·v, deckt das ganze Kartengebiet 1280 × 1280 m ab) statt zufälligem Grund, z. B. aus einer echten Seekarte (`tools/chart_to_depth.py`). Inseln, Molen usw. kommen darüber. |
+| **Level.map_size** | Länge und Breite der Karte (300–3000 m, Standard 1280 × 1280 m). |
+| **Level.depth_image** | Seegrund aus einem PNG, das auf die ganze Karte gestreckt wird, statt zufälligem Grund. Helligkeit → Tiefe linear zwischen `depth_image_black` (Schwarz, Standard −8 m) und `depth_image_white` (Weiß, Standard 17,5 m), `depth_image_invert` kehrt um. Land: Tiefe < −0,8 m, flach: < 1 m. Weiche Übergänge durch bikubische Abtastung plus Rauschen (`depth_image_warp`, `depth_image_noise`, 0 = glatt). 8-Bit-Bilder haben nur 256 Stufen. Z. B. aus einer echten Seekarte (`tools/chart_to_depth.py`). Inseln, Molen usw. kommen darüber. |
 | **RestrictedArea** | Minenfeld (Boot explodiert, ausgeschieden) oder Polizei-Sperrgebiet (Kontrolle). Radius und Minenzahl im Inspector. |
 | **ShippingLane** | Schifffahrtsweg mit Berufsschiffen: `length`, `speed_kn`, `interval` (Abstand der Schiffe je Richtung), `phase_out`/`phase_back` (wann das erste Schiff startet), `lane_offset` (Abstand der Fahrspur von der Mittellinie), Schiffslänge und -breite. Fährt in Pfeilrichtung (lokal −Z) und zurück. |
 | **SirenIsland** | Insel, deren Gesang Boote bis `song_range` vom Ufer festhält. |

@@ -33,6 +33,7 @@ Programm.
 | `tests/polar_test.gd` | **Segelphysik:** Geschwindigkeit je Kurs, Wende, Motor, Verbrauch, Anlasser | `… polar_test.gd` |
 | `tests/tutorial_test.gd` | Segelschule headless: je Aufgabe Positiv- und Negativfälle |
 | `tests/tutorial_shots.gd` | Bilder der Segelschule (Overlay, Mann über Bord, Ende) |
+| `tests/depth_image_test.gd` | Tiefenbild: Zuordnung schwarz/weiß/invertiert, Karte 2000 × 800 m, Standardkarte unverändert, Determinismus, glatt ohne Rauschen | `godot --headless --path . --script res://tests/depth_image_test.gd` |
 | `tests/depth_png.gd` | schreibt die Tiefenkarte eines Levels als PNG (Marken gelb, Start rot, Ziel grün, Tankstellen orange): schnelle Kontrolle beim Bauen eines Levels |
 | `tests/perf_test.gd` | misst die CPU-Zeit je Bild mit vier Computerbooten (`-- res://levels/05_lotsenrinne.tscn`) |
 | `tests/hazard_test.gd` | Mine, Polizei, Sirenen, Berufsschiff (`schiff`), Kollision, Polizei rammen (`rammen`), Wendeschub, KVR, Debug | `godot --headless --fixed-fps 60 --path . --script res://tests/hazard_test.gd -- mine` |
@@ -121,7 +122,7 @@ Siehe [Klang](klang.md#tools-make-audio-py).
 |---|---|
 | `tools/export_dehler.py` | zerlegt das Blender-Modell „Dehler 31“ in vier `.glb`: Rumpf, Großsegel mit Baum, Fock, Pinne mit Ruder. Der Drehpunkt (`ORIGIN`) ist der Root-Knochen des Rigs. |
 | `tools/build_tug.py` | baut den stilisierten Schlepper aus Primitiven und exportiert `models/tug.glb` |
-| `tools/chart_to_depth.py` | wandelt eine Seekarte (Bild) in den Seegrund eines Levels um (Land/Wasser nach Farbe, nur zu schmale Wasserwege verbreitert, Küstenabstand → Tiefe); Parameter in `tools/kiel_chart.json`, Ergebnis `levels/data/kiel_foerde_tiefe.png` |
+| `tools/chart_to_depth.py` | wandelt eine Seekarte (Bild) in den Seegrund eines Levels um (Land/Wasser nach Farbe, nur zu schmale Wasserwege verbreitert, Küstenabstand → Tiefe; `black`/`white` legen die Graustufen-Zuordnung fest und müssen zu `depth_image_black/white` des Levels passen); Parameter in `tools/kiel_chart.json`, Ergebnis `levels/data/kiel_foerde_tiefe.png` |
 | `tools/make_download_page.py` | schreibt die Abschnitte „Stabil“ und „Snapshot“ der Download-Seite aus den Release-Dateien (`VERSION.txt`, `SHA256SUMS.txt`, `TAG.txt`) |
 | `tools/build_ships.py` | baut die drei Berufsschiffe (Loft-Rumpf, Aufbauten, Ladung, Schaumstreifen) und schreibt `models/ship_*.glb` sowie die Rumpfkontur `models/ship_hulls.json` |
 

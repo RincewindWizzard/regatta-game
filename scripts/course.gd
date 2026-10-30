@@ -14,7 +14,7 @@ var line: StartLine
 var disabled := false
 var finish_line: StartLine     ## eigene Ziellinie oder die Startlinie
 ## Regattagebiet: draußen wird man zurückgedrängt
-var area := Rect2(-640, -840, 1280, 1280)
+var area := Rect2(-640, -840, 1280, 1280)      # wird in setup() aus dem Level gesetzt
 ## Reihenfolge: Startlinie, Tonnen ..., Ziel
 var targets: Array[Dictionary] = []
 

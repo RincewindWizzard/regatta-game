@@ -24,6 +24,8 @@ extends Node3D
 ## Den Seegrund kann man zusätzlich mit dem Pinsel malen (Werkzeugleiste "Seegrund"
 ## oben im 3D-Editor, sobald das Level ausgewählt ist).
 
+const MAP_MIN := 300.0          ## kleinste und größte Kartenseite (m)
+const MAP_MAX := 3000.0
 const PAINT_RES := 256
 const PAINT_STEP := 0.15        ## Meter pro Graustufe im Malbild
 const PREVIEW_RES := 256        ## Auflösung der Editor-Vorschau
@@ -76,14 +78,6 @@ const PREVIEW_RES := 256        ## Auflösung der Editor-Vorschau
 		inland = v
 		_base_cache.clear()
 		queue_preview()
-## Seegrund aus einem Bild (z. B. aus einer echten Seekarte, siehe tools/chart_to_depth.py): 8-Bit-PNG,
-## das genau das Kartengebiet (1280 x 1280 m) abdeckt, Wert v = Tiefe -8 + 0,1 * v. Ersetzt den
-## zufälligen Grund; Untiefen, Inseln, Molen und gemalter Grund kommen darüber.
-@export_file("*.png") var depth_image := "":
-	set(v):
-		depth_image = v
-		_base_cache.clear()
-		queue_preview()
 @export var coast_east := true:
 	set(v):
 		coast_east = v
@@ -91,6 +85,59 @@ const PREVIEW_RES := 256        ## Auflösung der Editor-Vorschau
 @export var coast_west := true:
 	set(v):
 		coast_west = v
+		queue_preview()
+@export_group("Karte")
+## Größe der Karte in Metern (Breite x Länge). Das Tiefenbild wird auf diese Fläche skaliert.
+@export var map_size := Vector2(1280, 1280):
+	set(v):
+		map_size = v.clamp(Vector2(MAP_MIN, MAP_MIN), Vector2(MAP_MAX, MAP_MAX))
+		_base_cache.clear()
+		queue_preview()
+## Nordwestecke der Karte (Weltmeter); Standard wie bei allen bisherigen Leveln
+@export var map_origin := Vector2(-640, -840):
+	set(v):
+		map_origin = v
+		_base_cache.clear()
+		queue_preview()
+@export_group("Tiefenbild")
+## Seegrund aus einem PNG (z. B. aus einer echten Seekarte, siehe tools/chart_to_depth.py): beliebige
+## Auflösung, Graustufen oder Farbe (Helligkeit zählt). Wird auf die ganze Karte skaliert und glatt
+## (bikubisch, mit leichtem Rauschen) abgetastet. Ersetzt den zufälligen Grund; Untiefen, Inseln, Molen
+## und gemalter Grund kommen darüber.
+@export_file("*.png") var depth_image := "":
+	set(v):
+		depth_image = v
+		_depth_lum = PackedFloat32Array()
+		_base_cache.clear()
+		queue_preview()
+## Wassertiefe bei Schwarz (Wert 0) und bei Weiß (Wert 255); dazwischen linear. Standard: -8 m / +17,5 m
+@export_range(-50.0, 100.0, 0.1, "suffix:m") var depth_image_black := -8.0:
+	set(v):
+		depth_image_black = v
+		_base_cache.clear()
+		queue_preview()
+@export_range(-50.0, 100.0, 0.1, "suffix:m") var depth_image_white := 17.5:
+	set(v):
+		depth_image_white = v
+		_base_cache.clear()
+		queue_preview()
+## Zuordnung umkehren: hell = flach (Schwarz und Weiß tauschen ihre Tiefen)
+@export var depth_image_invert := false:
+	set(v):
+		depth_image_invert = v
+		_base_cache.clear()
+		queue_preview()
+## Verschiebung der Abtastposition durch Rauschen (Meter): bricht Pixel- und Kachelmuster auf
+@export_range(0.0, 20.0, 0.1, "suffix:m") var depth_image_warp := 2.0:
+	set(v):
+		depth_image_warp = v
+		_base_cache.clear()
+		queue_preview()
+## Tiefenrauschen (Meter), deterministisch aus seabed_seed
+@export_range(0.0, 3.0, 0.05, "suffix:m") var depth_image_noise := 0.15:
+	set(v):
+		depth_image_noise = v
+		_base_cache.clear()
 		queue_preview()
 ## Gemalter Seegrund (PNG, Graustufe 128 = unverändert). Wird vom Pinsel geschrieben.
 @export_storage var depth_paint_png := PackedByteArray():
@@ -104,7 +151,9 @@ var _stroke_start: Image
 var _delta_img: Image
 var _delta_tex: ImageTexture
 var _base_cache := {}
-var _depth_img_cache: Image
+var _depth_lum := PackedFloat32Array()   # Helligkeit des Tiefenbildes 0..1
+var _depth_iw := 0
+var _depth_ih := 0
 var _depth_img_path := ""
 var _preview: SeaChart
 var _wind_arrow: Node3D
@@ -140,6 +189,12 @@ func queue_preview() -> void:
 		_dirty_timer = 0.15
 
 
+## Setzt die Kartenfläche dieses Levels als globale Kartenfläche (SeaChart); vor jeder Berechnung nötig
+func apply_area() -> void:
+	SeaChart.area_min = map_origin
+	SeaChart.area_size = map_size.clamp(Vector2(MAP_MIN, MAP_MIN), Vector2(MAP_MAX, MAP_MAX))
+
+
 func _recompute(res: int) -> void:
 	SeaChart.set_depth_grid(compute_depth(res), res)
 	if _preview:
@@ -148,7 +203,9 @@ func _recompute(res: int) -> void:
 
 ## Für das Spiel: Tiefen in voller Auflösung berechnen und global setzen
 func prepare_for_game() -> void:
-	SeaChart.set_depth_grid(compute_depth(SeaChart.RES), SeaChart.RES)
+	apply_area()
+	var res := SeaChart.game_res()
+	SeaChart.set_depth_grid(compute_depth(res), res)
 	for c in get_children():
 		if c.has_method("prune_trees"):
 			c.prune_trees()
@@ -290,8 +347,8 @@ func collision_points() -> Array:
 ## Regattagebiet (innerhalb der Karte)
 func race_area() -> Rect2:
 	var r := course_bounds(area_margin)
-	var chart := Rect2(SeaChart.AREA_MIN + Vector2(30, 30), Vector2.ONE * (SeaChart.AREA_SIZE - 60.0))
-	return r.intersection(chart)
+	apply_area()
+	return r.intersection(SeaChart.area_rect().grow(-30.0))
 
 
 func shoals() -> Array[ShoalArea]:
@@ -326,15 +383,19 @@ func course_bounds(margin := 80.0) -> Rect2:
 # ---------------------------------------------------------------- Tiefenmodell
 
 func compute_depth(res: int) -> PackedFloat32Array:
+	apply_area()
+	var dims := SeaChart.grid_dims(res)
+	var gw := dims.x
+	var gh := dims.y
 	var grid: PackedFloat32Array = _base_grid(res).duplicate()
-	var step := SeaChart.AREA_SIZE / res
-	var amin := SeaChart.AREA_MIN
+	var step := SeaChart.area_size / Vector2(dims)          # Zellgröße (x, y)
+	var amin := SeaChart.area_min
 
 	# 1. gemalter Seegrund
 	var paint := _get_paint()
 	if paint:
 		var img: Image = paint.duplicate()
-		img.resize(res, res, Image.INTERPOLATE_BILINEAR)
+		img.resize(gw, gh, Image.INTERPOLATE_BILINEAR)
 		var bytes := img.get_data()
 		for k in bytes.size():
 			var v := bytes[k]
@@ -346,19 +407,19 @@ func compute_depth(res: int) -> PackedFloat32Array:
 		var cn := FastNoiseLite.new()
 		cn.seed = seabed_seed + 1
 		cn.frequency = 0.006
-		for j in res:
-			var z := amin.y + (j + 0.5) * step
+		for j in gh:
+			var z := amin.y + (j + 0.5) * step.y
 			var ex := 430.0 + cn.get_noise_1d(z) * 60.0
 			var wx := -440.0 - cn.get_noise_1d(z + 500.0) * 60.0
-			for i in res:
-				var x := amin.x + (i + 0.5) * step
+			for i in gw:
+				var x := amin.x + (i + 0.5) * step.x
 				var dist := INF
 				if coast_east:
 					dist = ex - x
 				if coast_west:
 					dist = minf(dist, x - wx)
 				if dist < 180.0:
-					var k := j * res + i
+					var k := j * gw + i
 					grid[k] = minf(grid[k], dist * 0.12 + SeaChart.LAND - 0.7)
 
 	# 3. Flüsse und Seen graben Wasser aus
@@ -373,74 +434,120 @@ func compute_depth(res: int) -> PackedFloat32Array:
 		var reach: float = s.reach()
 		var c: Vector2 = s.pos2d()
 		var warped := s is ShoalArea
-		var i0 := clampi(int((c.x - reach - amin.x) / step), 0, res - 1)
-		var i1 := clampi(int((c.x + reach - amin.x) / step) + 1, 0, res - 1)
-		var j0 := clampi(int((c.y - reach - amin.y) / step), 0, res - 1)
-		var j1 := clampi(int((c.y + reach - amin.y) / step) + 1, 0, res - 1)
+		var i0 := clampi(int((c.x - reach - amin.x) / step.x), 0, gw - 1)
+		var i1 := clampi(int((c.x + reach - amin.x) / step.x) + 1, 0, gw - 1)
+		var j0 := clampi(int((c.y - reach - amin.y) / step.y), 0, gh - 1)
+		var j1 := clampi(int((c.y + reach - amin.y) / step.y) + 1, 0, gh - 1)
 		for j in range(j0, j1 + 1):
 			for i in range(i0, i1 + 1):
 				var p := amin + Vector2(i + 0.5, j + 0.5) * step
 				var w := Vector2.ZERO
 				if warped:
 					w = Vector2(warp.get_noise_2d(p.x, p.y), warp.get_noise_2d(p.y + 99.0, p.x - 37.0)) * 7.0
-				var k := j * res + i
+				var k := j * gw + i
 				grid[k] = minf(grid[k], s.depth_profile(p + w))
 	return grid
 
 
-## Tiefenbild einlesen (als Rohdatei, damit es auch im exportierten Spiel funktioniert)
-func _load_depth_image() -> Image:
-	if _depth_img_cache != null and _depth_img_path == depth_image:
-		return _depth_img_cache
+## Tiefenbild einlesen (als Rohdatei, damit es auch im exportierten Spiel funktioniert) und in eine
+## Helligkeitstabelle 0..1 umrechnen (Mittel aus R, G, B; Alpha wird ignoriert)
+func _load_depth_image() -> bool:
+	if _depth_lum.size() > 0 and _depth_img_path == depth_image:
+		return true
 	var bytes := FileAccess.get_file_as_bytes(depth_image)
 	var img := Image.new()
-	if bytes.is_empty() or img.load_png_from_buffer(bytes) != OK:
+	if bytes.is_empty() or img.load_png_from_buffer(bytes) != OK or img.get_width() < 2 or img.get_height() < 2:
 		push_warning("Tiefenbild nicht lesbar: " + depth_image)
-		return null
-	_depth_img_cache = img
+		return false
+	img.convert(Image.FORMAT_RGB8)
+	var raw := img.get_data()
+	_depth_iw = img.get_width()
+	_depth_ih = img.get_height()
+	_depth_lum = PackedFloat32Array()
+	_depth_lum.resize(_depth_iw * _depth_ih)
+	for k in _depth_iw * _depth_ih:
+		_depth_lum[k] = (raw[k * 3] + raw[k * 3 + 1] + raw[k * 3 + 2]) / 765.0
 	_depth_img_path = depth_image
-	return img
+	return true
+
+
+## Helligkeit des Pixels (x, y) mit geklemmten Rändern
+func _lum(x: int, y: int) -> float:
+	return _depth_lum[clampi(y, 0, _depth_ih - 1) * _depth_iw + clampi(x, 0, _depth_iw - 1)]
+
+
+## Catmull-Rom-Gewichte für den Abstand t (0..1) zwischen zwei Stützstellen
+static func _cubic(t: float) -> Array:
+	var t2 := t * t
+	var t3 := t2 * t
+	return [-0.5 * t3 + t2 - 0.5 * t, 1.5 * t3 - 2.5 * t2 + 1.0, -1.5 * t3 + 2.0 * t2 + 0.5 * t, 0.5 * t3 - 0.5 * t2]
+
+
+## Bikubisch (4 x 4 Pixel) aus dem Tiefenbild, uv = Lage auf der Karte (0..1)
+func _sample_lum(uv: Vector2) -> float:
+	var fx := uv.x * _depth_iw - 0.5
+	var fy := uv.y * _depth_ih - 0.5
+	var x0 := int(floorf(fx))
+	var y0 := int(floorf(fy))
+	var wx := _cubic(fx - x0)
+	var wy := _cubic(fy - y0)
+	var sum := 0.0
+	for m in 4:
+		var row := 0.0
+		for n in 4:
+			row += _lum(x0 - 1 + n, y0 - 1 + m) * wx[n]
+		sum += row * wy[m]
+	return clampf(sum, 0.0, 1.0)
 
 
 func _base_grid(res: int) -> PackedFloat32Array:
 	if _base_cache.has(res):
 		return _base_cache[res]
-	if depth_image != "":
-		var img := _load_depth_image()
-		if img:
-			var ig := PackedFloat32Array()
-			ig.resize(res * res)
-			var iw := img.get_width()
-			var ih := img.get_height()
-			for j in res:
-				for i in res:
-					# bilinear aus dem Bild lesen
-					var fx := (i + 0.5) / res * iw - 0.5
-					var fy := (j + 0.5) / res * ih - 0.5
-					var x0 := clampi(int(floorf(fx)), 0, iw - 1)
-					var y0 := clampi(int(floorf(fy)), 0, ih - 1)
-					var x1 := mini(x0 + 1, iw - 1)
-					var y1 := mini(y0 + 1, ih - 1)
-					var tx := clampf(fx - x0, 0.0, 1.0)
-					var ty := clampf(fy - y0, 0.0, 1.0)
-					var top := lerpf(img.get_pixel(x0, y0).r, img.get_pixel(x1, y0).r, tx)
-					var bot := lerpf(img.get_pixel(x0, y1).r, img.get_pixel(x1, y1).r, tx)
-					ig[j * res + i] = -8.0 + lerpf(top, bot, ty) * 255.0 * 0.1
-			_base_cache[res] = ig
-			return ig
+	apply_area()
+	var dims := SeaChart.grid_dims(res)
+	var gw := dims.x
+	var gh := dims.y
+	var step := SeaChart.area_size / Vector2(dims)
+	if depth_image != "" and _load_depth_image():
+		# Abtasten in Weltmetern: Position leicht durch Rauschen verschieben (bricht Pixelkanten auf),
+		# bikubisch aus dem Bild lesen, linear in Tiefe umrechnen, kleines Tiefenrauschen addieren.
+		# Rauschen kommt aus seabed_seed und ist von Gitterauflösung und Rechner unabhängig.
+		var wn := FastNoiseLite.new()
+		wn.seed = seabed_seed + 11
+		wn.frequency = 0.02
+		var dn := FastNoiseLite.new()
+		dn.seed = seabed_seed + 12
+		dn.frequency = 0.04
+		var lo := depth_image_white if depth_image_invert else depth_image_black
+		var hi := depth_image_black if depth_image_invert else depth_image_white
+		var ig := PackedFloat32Array()
+		ig.resize(gw * gh)
+		for j in gh:
+			for i in gw:
+				var p := SeaChart.area_min + Vector2(i + 0.5, j + 0.5) * step
+				var q := p
+				if depth_image_warp > 0.0:
+					q += Vector2(wn.get_noise_2d(p.x, p.y), wn.get_noise_2d(p.y + 99.0, p.x - 37.0)) * depth_image_warp
+				var uv := (q - SeaChart.area_min) / SeaChart.area_size
+				var t := _sample_lum(uv)
+				var d := lerpf(lo, hi, t)
+				if depth_image_noise > 0.0:
+					d += dn.get_noise_2d(p.x, p.y) * depth_image_noise
+				ig[j * gw + i] = d
+		_base_cache[res] = ig
+		return ig
 	var n := FastNoiseLite.new()
 	n.seed = seabed_seed
 	n.frequency = 0.004
 	var g := PackedFloat32Array()
-	g.resize(res * res)
-	var step := SeaChart.AREA_SIZE / res
-	for j in res:
-		for i in res:
-			var p := SeaChart.AREA_MIN + Vector2(i + 0.5, j + 0.5) * step
+	g.resize(gw * gh)
+	for j in gh:
+		for i in gw:
+			var p := SeaChart.area_min + Vector2(i + 0.5, j + 0.5) * step
 			if inland:
-				g[j * res + i] = SeaChart.LAND - 2.5 - absf(n.get_noise_2dv(p)) * 2.0
+				g[j * gw + i] = SeaChart.LAND - 2.5 - absf(n.get_noise_2dv(p)) * 2.0
 			else:
-				g[j * res + i] = base_depth + n.get_noise_2dv(p) * depth_variation
+				g[j * gw + i] = base_depth + n.get_noise_2dv(p) * depth_variation
 	_base_cache[res] = g
 	return g
 
@@ -481,8 +588,9 @@ func begin_stroke() -> void:
 ## Pinselstrich an Weltposition p (x, z) mit Radius in Metern
 func paint(p: Vector2, radius: float, brush: int, strength: float) -> void:
 	var img := _ensure_paint()
-	var px := (p - SeaChart.AREA_MIN) / SeaChart.AREA_SIZE * PAINT_RES
-	var pr := radius / SeaChart.AREA_SIZE * PAINT_RES
+	apply_area()
+	var px := (p - SeaChart.area_min) / SeaChart.area_size * PAINT_RES
+	var pr := radius / maxf(SeaChart.area_size.x, SeaChart.area_size.y) * PAINT_RES
 	var x0 := clampi(int(px.x - pr) - 1, 0, PAINT_RES - 1)
 	var x1 := clampi(int(px.x + pr) + 1, 0, PAINT_RES - 1)
 	var y0 := clampi(int(px.y - pr) - 1, 0, PAINT_RES - 1)

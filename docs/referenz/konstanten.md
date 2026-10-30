@@ -46,7 +46,7 @@ Wo ändert man was, damit sich das Spiel anders anfühlt? Eine Sammlung der Wert
 | `DRAFT` | 1,0 m | Tiefgang |
 | `HARD` | 0,55 m | festgefahren |
 | `LAND` | −0,8 m | Ufergrenze |
-| `RES` | 448 | Auflösung des Tiefenrasters |
+| `RES` | 448 | Zellen je Kante des Tiefenrasters der Standardkarte (1280 m) |
 
 ## Motor (`boat.gd`)
 

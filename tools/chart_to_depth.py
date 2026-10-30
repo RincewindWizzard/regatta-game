@@ -5,7 +5,9 @@
 #   2. behält nur das zusammenhängende Wasser um einen Startpunkt (Förde ohne Seen),
 #   3. verbreitert alle Wasserwege um "erode" Meter (verkleinerte Karte sonst zu eng),
 #   4. rechnet Abstand zur Küste in Tiefe um (flach am Ufer, tiefer zur Mitte),
-#   5. schreibt ein 8-Bit-Bild, das Level.depth_image einliest: Wert v -> Tiefe = -8 + 0,1 * v.
+#   5. schreibt ein 8-Bit-Bild für Level.depth_image: Wert 0 = Tiefe "black", Wert 255 = Tiefe "white"
+#      (linear; Standard -8 m / +17,5 m wie im Level). Im Level dieselben Werte einstellen
+#      (depth_image_black / depth_image_white).
 #
 # Aufruf: python tools/chart_to_depth.py <seekarte.png> <ausgabe.png> <json-mit-Parametern>
 import json, sys
@@ -86,7 +88,10 @@ dist_water = ndi.distance_transform_edt(~w) * cell      # Abstand zum Wasser (La
 sd = np.where(w, dist_land, -dist_water)                # vorzeichenbehaftet: + Wasser, - Land
 slope = cfg.get("slope", 0.1)                           # Meter Tiefe je Meter Abstand
 depth = -0.8 + sd * slope
-depth = np.clip(depth, -8.0, cfg.get("max_depth", 14.0))
-v = np.round((depth + 8.0) / 0.1).astype(np.uint8)
+depth = np.clip(depth, cfg.get("black", -8.0), min(cfg.get("max_depth", 14.0), cfg.get("white", 17.5)))
+black = cfg.get("black", -8.0)
+white = cfg.get("white", 17.5)
+v = np.clip(np.round((depth - black) / (white - black) * 255.0), 0, 255).astype(np.uint8)
+print("Zuordnung: Wert 0 = %.1f m, Wert 255 = %.1f m" % (black, white))
 Image.fromarray(v, "L").save(out)
 print("geschrieben", out, v.shape, "Wasseranteil %.2f" % w.mean())

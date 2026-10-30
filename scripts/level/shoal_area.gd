@@ -113,15 +113,16 @@ func carves() -> bool:
 func carve_grid(grid: PackedFloat32Array, res: int) -> void:
 	var reach_m := reach()
 	var c := pos2d()
-	var step := SeaChart.AREA_SIZE / res
-	var amin := SeaChart.AREA_MIN
+	var dims := SeaChart.grid_dims(res)
+	var step := SeaChart.area_size / Vector2(dims)
+	var amin := SeaChart.area_min
 	var warp := FastNoiseLite.new()
 	warp.seed = int(radius * 7.0) + 5
 	warp.frequency = 0.02
-	var i0 := clampi(int((c.x - reach_m - amin.x) / step), 0, res - 1)
-	var i1 := clampi(int((c.x + reach_m - amin.x) / step) + 1, 0, res - 1)
-	var j0 := clampi(int((c.y - reach_m - amin.y) / step), 0, res - 1)
-	var j1 := clampi(int((c.y + reach_m - amin.y) / step) + 1, 0, res - 1)
+	var i0 := clampi(int((c.x - reach_m - amin.x) / step.x), 0, dims.x - 1)
+	var i1 := clampi(int((c.x + reach_m - amin.x) / step.x) + 1, 0, dims.x - 1)
+	var j0 := clampi(int((c.y - reach_m - amin.y) / step.y), 0, dims.y - 1)
+	var j1 := clampi(int((c.y + reach_m - amin.y) / step.y) + 1, 0, dims.y - 1)
 	for j in range(j0, j1 + 1):
 		for i in range(i0, i1 + 1):
 			var p := amin + Vector2(i + 0.5, j + 0.5) * step
@@ -130,7 +131,7 @@ func carve_grid(grid: PackedFloat32Array, res: int) -> void:
 			var k := Vector2(l.x, l.z).length() / radius
 			if k < 1.25:
 				var d := see_depth * (1.0 - k * k) + SeaChart.LAND * smoothstep(0.85, 1.25, k)
-				var idx := j * res + i
+				var idx := j * dims.x + i
 				grid[idx] = maxf(grid[idx], d)
 
 
