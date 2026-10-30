@@ -9,19 +9,22 @@ vollständige Installationsanleitung.
 
 ## What Changes
 
-- Neue, **automatische** Build-Pipeline: Bei jedem Push auf `main`, der Spielinhalt ändert (Skripte,
-  Level, Modelle, Klänge, Szenen, Projekt- und Export-Einstellungen), werden Builds für **Linux** und
-  **Windows** erzeugt, getestet (Level-Check) und veröffentlicht.
-- Veröffentlicht wird in ein fortlaufend aktualisiertes Release „Aktueller Stand“ (Vorabversion,
-  fester Tag), mit stabilen Dateinamen, Versionsangabe (Commit, Datum) und Prüfsummen.
-  Versions-Tags (`v*`) erzeugen weiterhin ein festes Release.
+- Neue, **automatische** Build-Pipeline: **Jeder Push auf `main`** erzeugt eine **Snapshot-Version**
+  mit Builds für **Linux, Windows und macOS**. Vor dem Export laufen Level-Check und ein
+  Headless-Spieltest.
+- Snapshots werden als Vorabversion veröffentlicht (Tag `snapshot-<Datum>-<Commit>`), mit stabilen
+  Dateinamen, Versionsangabe (Commit, Datum) und Prüfsummen. Es wird **immer nur der neueste
+  Snapshot** vorgehalten, ältere Snapshots werden gelöscht.
+- **Versions-Tags (`v*`) erzeugen weiterhin ein festes Release** (alle drei Plattformen); alle
+  getaggten Releases bleiben dauerhaft erhalten.
 - Die **Doku-Seite „Download“** wird bei jedem Build automatisch neu erzeugt: Sie bietet die
-  Binaries direkt zum Herunterladen an (Spiegel auf GitHub Pages und Link zum Release) und zeigt
-  Version, Build-Datum und Prüfsummen.
-- Neue **Installationsanleitung** auf der Download-Seite für Windows und Linux: Voraussetzungen
-  (Grafik/Vulkan), Entpacken, Starten, SmartScreen-Hinweis, Ausführrecht unter Linux, Controller,
-  Netzwerkspiel (Firewall/Port), Fehlerbehebung, Deinstallation, Prüfsumme prüfen.
-- macOS wird nicht mehr bei jedem Push gebaut, bleibt aber manuell wählbar (Option beim Start).
+  Binaries zum Herunterladen an (Spiegel auf GitHub Pages und Link zum Release), getrennt nach
+  **Stabil** (neuester Versions-Tag) und **Snapshot** (neuester Stand von `main`), mit Version,
+  Datum, Größe und Prüfsumme.
+- Neue **Installationsanleitung** auf der Download-Seite für Windows, Linux und macOS:
+  Voraussetzungen (Grafik/Vulkan), Entpacken, Starten, SmartScreen-Hinweis, Ausführrecht unter
+  Linux, Quarantäne und Signatur unter macOS, Controller, Netzwerkspiel (Firewall/Port),
+  Fehlerbehebung, Deinstallation, Prüfsumme prüfen.
 
 ## Capabilities
 
@@ -30,16 +33,17 @@ vollständige Installationsanleitung.
 (keine)
 
 ### Modified Capabilities
-- `build`: Builds für Linux und Windows entstehen automatisch bei Änderungen auf `main`, werden als
-  Release veröffentlicht und mit Version und Prüfsummen versehen.
-- `doku`: Die Download-Seite wird automatisch mit den aktuellen Binaries erzeugt und enthält eine
-  vollständige Installationsanleitung.
+- `build`: Jeder Push auf `main` erzeugt automatisch einen Snapshot für Linux, Windows und macOS
+  (nur der neueste bleibt erhalten); Versions-Tags erzeugen feste Releases.
+- `doku`: Die Download-Seite wird automatisch mit Stabil- und Snapshot-Binaries erzeugt und enthält
+  eine vollständige Installationsanleitung.
 
 ## Impact
 
-- `.github/workflows/release.yml` (Auslöser, Plattformen, Rolling-Release), `.github/workflows/docs.yml`
-  (Download-Seite und Dateien aus dem Release), ggf. kleines Skript zum Erzeugen der Download-Seite.
-- `docs/spielen/download.md` (Installationsanleitung, Versionsangabe), `docs/skripte/werkzeuge.md`,
+- `.github/workflows/release.yml` (Auslöser, Plattformen, Snapshot-Release mit Bereinigung),
+  `.github/workflows/docs.yml` (Download-Seite und Dateien aus den Releases), kleines Skript zum
+  Erzeugen des Versionsabschnitts.
+- `docs/spielen/download.md` (Installationsanleitung, Versionsabschnitte), `docs/skripte/werkzeuge.md`,
   `README.md`.
 - Einmalige Repository-Einstellung: Actions-Schreibrechte und Pages-Quelle „GitHub Actions“.
 - Keine Spielcode-Änderung; Build nutzt die vorhandenen `export_presets.cfg`.

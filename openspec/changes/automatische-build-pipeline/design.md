@@ -16,21 +16,21 @@ und enthält Links auf `../../downloads/Regatta-*.zip`.
 - Stabile Download-Namen, nachvollziehbare Version, Prüfsummen.
 
 **Non-Goals:**
-- Kein Code-Signing, keine Installer (MSI/Deb), keine Auto-Updates.
-- Keine macOS-Builds im Normalfall; keine Web-/Mobile-Exporte.
+- Kein Code-Signing/Notarisierung, keine Installer (MSI/Deb/DMG), keine Auto-Updates.
+- Keine Web-/Mobile-Exporte.
 
 ## Decisions
 
-1. **Auslöser:** `push` auf `main` mit `paths`-Filter (`scripts/**`, `scenes/**`, `levels/**`,
-   `models/**`, `audio/**`, `addons/**`, `project.godot`, `export_presets.cfg`, der Workflow selbst),
-   `push` von Tags `v*` und `workflow_dispatch` (Option „mit macOS“). Doku-/Teständerungen lösen
-   keinen Build aus, bauen aber die Doku weiter über `docs.yml`. Alternative: bei jedem Push bauen –
-   verworfen (unnötige Minuten und Release-Rauschen).
-2. **Rolling Release „Aktueller Stand“:** fester Tag `latest-build`, als Vorabversion markiert.
-   Bei jedem Build wird der Tag auf den Commit gesetzt und das Release mit neuen Dateien ersetzt
-   (`gh release` löschen und neu anlegen oder Dateien mit `--clobber` ersetzen). Alternative: nur
-   Workflow-Artefakte – verworfen (laufen ab, keine stabile URL).
-3. **Dateien:** `Regatta-windows.zip`, `Regatta-linux.zip` (stabile Namen), `SHA256SUMS.txt`,
+1. **Auslöser:** `push` auf `main` (jeder Push, ohne Pfadfilter), `push` von Tags `v*` und
+   `workflow_dispatch`. Alternative: Pfadfilter nur für Spieldateien – verworfen, weil jeder Push
+   einen Snapshot erzeugen soll.
+2. **Snapshot-Release:** Tag `snapshot-<Datum>-<Commit7>`, als Vorabversion markiert. Nach der
+   Veröffentlichung löscht ein Schritt alle anderen Releases, deren Tag mit `snapshot-` beginnt
+   (samt Tag). Dadurch ist immer nur der neueste Snapshot vorhanden; getaggte Releases (`v*`)
+   werden nie angefasst. Feste Releases entstehen bei `v*`-Tags (nicht als Vorabversion).
+   Alternative: ein einziges Rolling-Release mit überschriebenen Dateien – verworfen, weil
+   eindeutige Snapshot-Tags die Version nachvollziehbar machen.
+3. **Dateien:** `Regatta-windows.zip`, `Regatta-linux.zip`, `Regatta-macos.zip` (stabile Namen), `SHA256SUMS.txt`,
    `VERSION.txt` (Commit, Datum, Godot-Version, Lauf-Nr.). Die Version steht zusätzlich in der
    Release-Beschreibung.
 4. **Test vor dem Export:** Level-Check (wie heute) plus ein schneller Headless-Spieltest
@@ -42,26 +42,28 @@ und enthält Links auf `../../downloads/Regatta-*.zip`.
    „noch kein Download“. Alternative: Seite komplett generieren – verworfen, weil die Anleitung
    redaktionell gepflegt wird.
 6. **Reihenfolge:** `release.yml` baut/veröffentlicht, dann ruft der Job `docs` den Workflow
-   `docs.yml` auf `main` auf (wie bisher per `gh workflow run`); `docs.yml` holt das Release „Aktueller
-   Stand“ (sonst das neueste feste) nach `site/downloads`, erzeugt den Versionsabschnitt und baut
-   strikt. Pages-Größe: zwei Zips etwa 180 MB, unter dem Limit.
+   `docs.yml` auf `main` auf (wie bisher per `gh workflow run`); `docs.yml` holt den neuesten
+   Snapshot und das neueste feste Release nach `site/downloads/snapshot` und
+   `site/downloads/stabil`, erzeugt die Versionsabschnitte und baut strikt. Pages-Größe: drei Zips je
+   Bereich (etwa 340 MB bei beiden Bereichen) liegt unter dem Limit; sollte es eng werden, verweist
+   der stabile Bereich nur noch auf das Release.
 7. **Concurrency:** `concurrency: group: build` mit `cancel-in-progress` für Branch-Pushes, damit
    nur der neueste Stand gebaut wird.
-8. **Installationsanleitung** auf `download.md`: je Windows und Linux Schritt für Schritt,
+8. **Installationsanleitung** auf `download.md`: je Windows, Linux und macOS Schritt für Schritt,
    Voraussetzungen (Vulkan-fähige Grafik; Hinweis auf `--rendering-method gl_compatibility`),
-   SmartScreen („Weitere Informationen → Trotzdem ausführen“), `chmod +x`, Controller (Joy-Con per
+   SmartScreen („Weitere Informationen → Trotzdem ausführen“), `chmod +x`, macOS `xattr -cr` und
+   `codesign --force --deep --sign -` (ungesignierte App), Controller (Joy-Con per
    Bluetooth), Netzwerkspiel (UDP-Port aus der Spielanleitung, Firewall-Freigabe), Prüfsumme
    (`certutil`/`sha256sum`), Fehlerbehebung, Deinstallation (Ordner löschen, Einstellungsordner
    `user://` nennen).
 
-Annahme: macOS bleibt als manuelle Option erhalten (nicht entfernt), weil die Presets bereits
-funktionieren; die Download-Seite nennt dann einen zusätzlichen macOS-Link nur, wenn die Datei im
-Release liegt.
-
 ## Risks / Trade-offs
 
-- Rolling Release wird oft überschrieben → Versionsangabe und Prüfsummen auf der Seite geben
+- Snapshots werden bei jedem Push ersetzt → Versionsangabe und Prüfsummen auf der Seite geben
   Nachvollziehbarkeit; feste Releases über Tags für Stabilität.
+- Das Löschen alter Snapshots ist unwiderruflich → es betrifft nur Tags mit Präfix `snapshot-`.
+- macOS-Builds sind unsigniert (Quarantäne, Apple-Silicon verlangt lokale Signatur) → in der
+  Anleitung beschrieben; ein Push kostet drei Exporte (Cache).
 - Workflow-Berechtigungen (Schreibrechte, Pages) lassen sich nur im Repository einstellen → in der
   Doku und im Workflow-Kopf beschrieben; ohne sie schlägt der Lauf mit klarer Meldung fehl.
 - Build-Zeit (Godot- und Vorlagen-Download ~1,3 GB) → Cache wie bisher.
