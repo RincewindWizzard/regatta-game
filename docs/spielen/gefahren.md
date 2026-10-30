@@ -36,7 +36,7 @@ steht in [Gefahren, Tiere, Effekte](../skripte/gefahren.md).
 Stoßen zwei Boote zusammen (Aufprall über 1 m/s; knappes Vorbeifahren zählt nicht: Die Boote haben eine lange, schmale Rumpfform, parallel fahrende Boote kollidieren erst bei weniger als etwa 3,4 m Abstand) oder bleiben sie länger als 1,6 Sekunden
 aneinander hängen, kommt auch dann die Wasserschutzpolizei und hält **beide** an. Es kommt
 **ein einziges Polizeiboot**: Es nimmt sich den Verursacher vor, der andere Beteiligte wartet
-und gibt seine Aussage ab. Wer nach den [KVR-Regeln](kvr.md) hätte **ausweichen
+und gibt seine Aussage ab. Wer nach den [KVR-Regeln](anleitung.md#vorfahrtsregeln-kvr) hätte **ausweichen
 müssen**, ist der Verursacher und wird **20 Sekunden** kontrolliert („Sie hatten nach KVR
 Ausweichpflicht …“). Der andere Beteiligte gibt nur **7 Sekunden** seine Aussage ab. Ist die
 Lage unklar (z. B. Gegenkurs), gilt als Verursacher, wer mit mehr Fahrt aufgefahren ist.
