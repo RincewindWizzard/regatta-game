@@ -73,6 +73,24 @@ func _draw() -> void:
 		_draw_leaderboard(Vector2(FRAME + 10.0, FRAME + 54.0))
 	_draw_center(vs)
 	_draw_fps(vs)
+	_draw_abort_hint(vs)
+
+
+## Controller: Hinweis zum Abbrechen (Zurück-Taste halten) mit Fortschrittsbalken
+func _draw_abort_hint(vs: Vector2) -> void:
+	if Input.get_connected_joypads().is_empty():
+		return
+	var p: float = main.abort_progress
+	var txt := "Zurück-Taste halten: Rennen abbrechen"
+	var w := _font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+	var x := (vs.x - w) * 0.5
+	var y := vs.y - FRAME - 24.0
+	if p > 0.02:
+		draw_rect(Rect2(x - 8.0, y, w + 16.0, 20.0), Color(PAPER, 0.92))
+		draw_rect(Rect2(x - 8.0, y + 16.0, (w + 16.0) * p, 4.0), Color(0.8, 0.1, 0.1))
+		_text(txt, Vector2(x, y + 14.0), 13, Color(0.8, 0.1, 0.1), _font_b)
+	else:
+		_text(txt, Vector2(x, y + 14.0), 13, Color(INK, 0.45), _font, true)
 
 
 ## Kleine Bildraten-Anzeige unten rechts

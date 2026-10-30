@@ -224,6 +224,25 @@ func _call_tugs() -> void:
 			b.show_message("Schlepper ist unterwegs", 3.0)
 
 
+## Rennen mit dem Controller abbrechen: Zurück-Taste (Select/Minus) gedrückt halten
+const ABORT_HOLD := 1.0
+var abort_progress := 0.0              ## 0..1, die HUD zeigt den Fortschritt
+
+
+func _process(delta: float) -> void:
+	var held := false
+	for id in Input.get_connected_joypads():
+		if Input.is_joy_button_pressed(id, JOY_BUTTON_BACK):
+			held = true
+	if held:
+		abort_progress = minf(1.0, abort_progress + delta / ABORT_HOLD)
+		if abort_progress >= 1.0:
+			abort_progress = 0.0
+			_leave()
+	else:
+		abort_progress = maxf(0.0, abort_progress - delta * 3.0)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:

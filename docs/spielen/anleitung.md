@@ -22,6 +22,8 @@ Im Menü zeigt die Karte rechts die gewählte Bahn mit Tonnen, Startlinie, Windp
 | Gas hoch (Motor springt an) | A / Steuerkreuz ↑ | E | O |
 | Gas runter (auf 0 = Motor aus) | B / Steuerkreuz ↓ | Q | U |
 | Nächstes Rennen (nach dem Ziel) | Start | Leertaste | Enter |
+| Rennen abbrechen (zurück ins Menü) | **Zurück/Select/Minus 1 s halten** | `Esc` | `Esc` |
+| Rennen aus dem Menü starten | Start (oder A auf „Rennen starten“) | `Enter` | |
 
 Weitere Tasten:
 

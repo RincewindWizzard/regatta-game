@@ -59,6 +59,8 @@ installieren, Godot starten → *Importieren* → `project.godot` wählen → **
 | Gas hoch (Motor springt an) | A / Steuerkreuz ↑ | E | O |
 | Gas runter (auf 0 = Motor aus) | B / Steuerkreuz ↓ | Q | U |
 | Nächstes Rennen (nach dem Ziel) | Start | Leertaste | Enter |
+| Rennen abbrechen (zurück ins Menü) | Zurück/Select/Minus 1 s halten | Esc | Esc |
+| Rennen im Menü starten | Start (oder A) | Enter | |
 
 `F5` startet das Rennen neu, `Esc` führt zurück ins Menü, `M` schaltet die Musik an und aus,
 `T` blendet das Segel-Overlay ein und aus, `F11` (oder `Alt+Enter`) schaltet Vollbild um.
